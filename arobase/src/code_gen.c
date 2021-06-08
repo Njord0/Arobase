@@ -349,6 +349,11 @@ void emit_if_else(Statement_t *statement)
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
 
+    else if (expr->type.t == _CHAR)
+        emit("cmp %s, %s\n",
+            reg_name_l(expr->left->reg),
+            reg_name_l(expr->right->reg));
+
 
     reg_free(expr->left);
     reg_free(expr->right);
@@ -414,6 +419,11 @@ void emit_while(Statement_t *statement)
     
 
     else if (expr->left->type.t == _BYTE)
+        emit("cmp %s, %s\n",
+            reg_name_l(expr->left->reg),
+            reg_name_l(expr->right->reg));
+
+    else if (expr->type.t == _CHAR)
         emit("cmp %s, %s\n",
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
