@@ -579,6 +579,8 @@ Statement_t *stmt_create_import(Token_t **token)
     if (!token_expect(tok, EOS))
         cc_exit();
 
+    import_from(stmt->import_name);
+
     *token = tok;
     return stmt;
 }

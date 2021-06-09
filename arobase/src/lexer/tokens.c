@@ -69,7 +69,7 @@ bool token_symbol_is_reserved(const char *str)
 {
     for (int i = 0; i < KW_NO; i++)
     {
-        if (strncmp(str, Arobase_ReservedKeywords[i], strlen(Arobase_ReservedKeywords[i])) == 0)
+        if (strcmp(str, Arobase_ReservedKeywords[i]) == 0)
             return true;
     }
     return false;

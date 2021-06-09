@@ -199,6 +199,7 @@ void decl_init(Declaration_t *decl)
     decl->code = NULL;
     decl->args = NULL;
     decl->sym = NULL;
+    decl->is_imported = false;
 }
 
 
@@ -228,6 +229,9 @@ void free_declaration(Declaration_t *decl)
 
     if (decl->args != NULL)
         free_args(decl->args);
+
+    if (decl->is_imported && decl->name != NULL)
+        free(decl->name);
 
     free(decl);
 }
