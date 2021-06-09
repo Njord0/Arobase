@@ -1,6 +1,8 @@
 #ifndef _DECLARATIONS_H
 #define _DECLARATIONS_H
 
+#include <stdbool.h>
+
 #include <args.h>
 #include <tokens.h>
 #include <expressions.h>
@@ -19,6 +21,7 @@ typedef struct decl_ {
     struct statement_ *code; // for function only
     Args_t *args;            // for function only   
     struct _symbol *sym;
+    bool is_imported;
 } Declaration_t;
 
 

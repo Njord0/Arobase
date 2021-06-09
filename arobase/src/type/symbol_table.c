@@ -25,7 +25,22 @@ void symtab_free(Symtable_t *st)
         return;
 
     if (st->scope != NULL)
+    {
+
+        Symbol_t *sym = st->scope->symbol;
+        Symbol_t *next;
+        while (sym != NULL)
+        {
+            next = sym->next;
+            if (sym->decl->is_imported)
+                free_declaration(sym->decl);
+
+            sym = next;
+            
+        }
+
         scopetable_free(st->scope);
+    }
 
     free(st);
 }
@@ -206,3 +221,150 @@ bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol)
 
     return ((sym != NULL) && (sym->decl->decl_type == VARIABLE));
  }
+
+void import_from(const char *str)
+{
+
+    char *ptr = xmalloc(strlen("/usr/local/include/arobase/")+strlen(str)+1);
+
+    ptr[0] = '\x00';
+
+    strcat(ptr, "/usr/local/include/arobase/");
+    strcat(ptr, str);
+
+    Lexer_t *lexer = lexer_create(ptr);
+    if (lexer == NULL)
+    {
+        fprintf(stderr,
+            "Error while resolving import '%s'\n\tNot found\n",
+            str);
+        cc_exit();
+    }
+    free(ptr);
+
+    lexer_tokenize(lexer);
+
+    Token_t *tok = lexer->first_token;
+
+    while (1 == 1)
+    {   
+        if ((tok->type != KEYWORD) || (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FN]) != 0))
+        {
+            fprintf(stderr,
+                "Error while reading header file\n");
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+        Declaration_t *decl = xmalloc(sizeof(Declaration_t));
+        decl_init(decl);
+
+        if (!token_check(tok, SYMBOL))
+        {
+            tok = tok->next;
+            fprintf(stderr,
+                "Error while reading header file\n");
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        decl->name = xmalloc(strlen(tok->value.p)+1);
+        strcpy(decl->name, tok->value.p);
+
+        decl->decl_type = FUNCTION;
+        decl->is_imported = true;
+
+        tok = tok->next;
+
+        if (!token_check(tok, LPAR))
+        {
+            fprintf(stderr,
+                "Error while reading header file\n");
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+        tok = tok->next;
+
+        if (!token_check(tok, RPAR))
+            decl->args = get_args_decl(&tok);
+
+        if (!token_check(tok, RPAR))
+        {
+            fprintf(stderr,
+                "Error while reading header file\n");
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+        if (!token_expect(tok, COLON))
+        {
+            fprintf(stderr,
+                "Error while reading header file\n");
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+        if (!token_expect(tok, KEYWORD))
+        {
+            fprintf(stderr,
+                "Error while reading header file\n");
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
+            decl->type.t = INTEGER;
+
+        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
+            decl->type.t = _BYTE;
+
+        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
+            decl->type.t = _VOID;
+
+        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
+            decl->type.t = _CHAR;
+        
+        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
+        {
+            fprintf(stderr,
+                "Error on line : %lu\n\t Function can't return strings\n",
+                tok->lineno);
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        add_symbol(symtab_g, decl);
+
+        tok = tok->next;
+
+        if (!token_check(tok, EOS))
+        {
+            fprintf(stderr,
+                "Error while reading header file\n");
+            free_declaration(decl);
+            lexer_free(lexer);
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+        if (tok == NULL)
+            break;
+
+    }
+
+    lexer_free(lexer);
+
+}

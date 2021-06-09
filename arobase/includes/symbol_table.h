@@ -52,6 +52,9 @@ Symbol_t *symbol_resolve(Symtable_t *symtab, const char *name);
 bool is_declared_func(Symtable_t *symtab, const char *name, Symbol_t **symbol);
 bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol);
 
+void import_from(const char *str);
+
+
 extern Symtable_t *symtab_g;
 
 #endif
