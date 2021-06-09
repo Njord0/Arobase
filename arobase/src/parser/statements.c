@@ -25,6 +25,7 @@ char *Arobase_ReservedKeywords[] = {
     "char",
     "print",
     "input",
+    "import"
 };
 
 Statement_t *get_next_statement(Token_t **token)
@@ -49,8 +50,12 @@ Statement_t *get_next_statement(Token_t **token)
 
     else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_PRINT]) == 0))
         stmt = stmt_create_print(&tok);
-    else if ((tok->type == KEYWORD) && strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INPUT]) == 0)
+    
+    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INPUT]) == 0))
         stmt = stmt_create_input(&tok);
+
+    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_IMPORT]) == 0))
+        stmt = stmt_create_import(&tok);
 
     else if (tok->type == SYMBOL)
     {
@@ -511,6 +516,7 @@ Statement_t *stmt_create_input(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
+    stmt_init(stmt);
 
     tok = tok->next;
 
@@ -522,7 +528,6 @@ Statement_t *stmt_create_input(Token_t **token)
     if (!is_declared_var(symtab_g, tok->value.p, &sym))
         undeclared_variable_error(tok->value.p, tok->lineno);
 
-    stmt_init(stmt);
     stmt->stmt_type = STMT_INPUT;
     stmt->decl = sym->decl;
 
@@ -530,6 +535,49 @@ Statement_t *stmt_create_input(Token_t **token)
 
     if (!token_expect(tok, EOS))
         cc_exit();        
+
+    *token = tok;
+    return stmt;
+}
+
+Statement_t *stmt_create_import(Token_t **token)
+{
+    Token_t *tok = *token;
+    Statement_t *stmt = xmalloc(sizeof(Statement_t));
+    stmt_init(stmt);
+
+    stmt->stmt_type = STMT_IMPORT;
+
+    tok = tok->next;
+
+    if (!token_expect(tok, SYMBOL))
+        cc_exit();
+
+    stmt->import_name = xmalloc(strlen(tok->value.p)+1);
+    strcpy(stmt->import_name, tok->value.p);
+
+    tok = tok->next;
+
+    while (token_check(tok, DOT))
+    {
+        tok = tok->next;
+        if (!token_expect(tok, SYMBOL))
+            cc_exit();
+
+        stmt->import_name = realloc(stmt->import_name, strlen(stmt->import_name)+1+strlen(tok->value.p)+1);
+
+        strcat(stmt->import_name, "/");
+        strcat(stmt->import_name, tok->value.p);
+
+        tok = tok->next;
+    }
+
+    stmt->import_name = realloc(stmt->import_name, strlen(stmt->import_name)+6);
+
+    strcat(stmt->import_name, ".aroh"); // arobase header file
+
+    if (!token_expect(tok, EOS))
+        cc_exit();
 
     *token = tok;
     return stmt;
@@ -543,6 +591,7 @@ void stmt_init(Statement_t *stmt)
     stmt->if_block = NULL;
     stmt->else_block = NULL;
     stmt->next = NULL;
+    stmt->import_name = NULL;
 }
 
 void free_statement(Statement_t *stmt)
@@ -563,8 +612,12 @@ void free_statement(Statement_t *stmt)
     if (stmt->stmt_type == STMT_WHILE)
         free_while_loop(stmt);
 
+    if (stmt->stmt_type == STMT_IMPORT)
+        free(stmt->import_name);
+
     if (stmt->args != NULL)
         free_args(stmt->args);
+
 
     free(stmt);
 }
