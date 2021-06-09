@@ -169,6 +169,9 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
     else if (c == ']')
         tok = create_token_char(RBRACKET, c);
 
+    else if (c == '.')
+        tok = create_token_char(DOT, c);
+
     else if (isalpha(c))
     {
         ungetc(c, lexer->file);

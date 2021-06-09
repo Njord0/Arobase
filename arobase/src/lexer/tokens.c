@@ -31,7 +31,8 @@ const char *tokens[30] = {
     "[",
     "]",
     "!=",
-    "'"
+    "'",
+    "."
 };
 
 Token_t *create_token_number(int64_t value)

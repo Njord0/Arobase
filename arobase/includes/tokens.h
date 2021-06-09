@@ -30,6 +30,7 @@ enum TokensTypes {
     DIFF,
     QUOTE,
     TOK_STRING,
+    DOT
 };
 
 typedef struct Token {
