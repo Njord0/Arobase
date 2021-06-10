@@ -254,7 +254,7 @@ char *lexer_get_symbolname(Lexer_t *lexer)
     
     char *ptr = xmalloc(sizeof(char) * (i+1));
 
-    while (((c = getc(lexer->file)) != EOF) && (isalnum(c)))
+    while (((c = getc(lexer->file)) != EOF) && (isalnum(c)) || c == '_')
     {
         i++;
 
