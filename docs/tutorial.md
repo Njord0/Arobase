@@ -184,3 +184,19 @@ fn fibonacci(a: integer) : integer
     return n2;
 }
 ```
+
+## Import
+
+You can use the `import` keyword to import a module. You can find module list in the documentation. Import must be done in the beginning of the program or between functions declarations but not inside function.
+Here is an example : 
+
+```c
+import core.cast;
+
+fn main() : void
+{
+    print int_to_char(100), "\n";
+}
+```
+
+Function `int_to_char` is inside `core.cast` you can use it after importing `core.cast`.
