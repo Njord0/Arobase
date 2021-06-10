@@ -233,25 +233,29 @@ void import_from(const char *str)
     strcat(ptr, str);
 
     Lexer_t *lexer = lexer_create(ptr);
-    if (lexer == NULL)
+    if (lexer == NULL) // TO-DO : if fail try to import from current folder...
     {
         fprintf(stderr,
-            "Error while resolving import '%s'\n\tNot found\n",
-            str);
+            "Error while trying to import '%s'\n\tNo file named '%s'\n",
+            str, str);
+        free(ptr);
         cc_exit();
     }
+
     free(ptr);
 
     lexer_tokenize(lexer);
 
     Token_t *tok = lexer->first_token;
 
-    while (1 == 1)
-    {   
+    while (tok != NULL)
+    { 
         if ((tok->type != KEYWORD) || (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FN]) != 0))
         {
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error on line : %lu in file '%s'\n\tInvalid function prototype in header\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             lexer_free(lexer);
             cc_exit();
         }
@@ -263,9 +267,12 @@ void import_from(const char *str)
 
         if (!token_check(tok, SYMBOL))
         {
-            tok = tok->next;
+
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error in line : %lu in file '%s'\n\tInvalid function name\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
+
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -282,7 +289,9 @@ void import_from(const char *str)
         if (!token_check(tok, LPAR))
         {
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -295,7 +304,9 @@ void import_from(const char *str)
         if (!token_check(tok, RPAR))
         {
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -306,7 +317,9 @@ void import_from(const char *str)
         if (!token_expect(tok, COLON))
         {
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -317,7 +330,9 @@ void import_from(const char *str)
         if (!token_expect(tok, KEYWORD))
         {
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -338,8 +353,9 @@ void import_from(const char *str)
         else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
         {
             fprintf(stderr,
-                "Error on line : %lu\n\t Function can't return strings\n",
-                tok->lineno);
+                "Error in line : %lu in file '%s'\n\tFunction can't return string\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -352,7 +368,9 @@ void import_from(const char *str)
         if (!token_check(tok, EOS))
         {
             fprintf(stderr,
-                "Error while reading header file\n");
+                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
+                tok->lineno ? tok != NULL : (long unsigned int)0,
+                str);
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
