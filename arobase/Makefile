@@ -9,6 +9,11 @@ SRCS_LIB := $(shell find core/ -name *.c)
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 OBJS_LIB := $(SRCS_LIB:%=$(BUILD_DIR)/%.o)
 
+HEADERS_DIR := /usr/local/include/arobase
+
+HEADERS := $(shell find core/ -name *.aroh)
+DEST_HEADERS := $(addprefix $(HEADERS_DIR)/,$(HEADERS))
+
 
 C_FLAGS := -Iincludes -O3 -Wall -g
 
@@ -44,6 +49,11 @@ $(BUILD_DIR)/core/%.c.o: core/%.c
 clean:
 	rm -r $(BUILD_DIR)
 
-install:
+$(DEST_HEADERS): $(HEADERS)
+	@for v in $(HEADERS); do \
+		install -D $$v /usr/local/include/arobase/$$v; \
+	done
+
+install: $(DEST_HEADERS)
 	cp build/libarobase.so /lib
-	cp build/arobase /usr/local/bin/arobase 
+	cp build/arobase /usr/local/bin/arobase
