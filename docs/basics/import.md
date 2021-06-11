@@ -1,7 +1,8 @@
 <div align="center">
-    <img width="140px" src="../others/logo.png"/><br/>
+    <img width="140px" src="../../others/logo.png"/><br/>
     Welcome to the documentation !
 </div>
+
 
 ### Import
 
