@@ -23,7 +23,7 @@ fn main() : void
 }
 ```
 
-But as you can see the user don't what the program is waiting for, the `print` keyword can be used for that purpose.
+But as you can see the user doesn't know what the program is waiting for, the `print` keyword can be used for that purpose.
 
 ## Print
 

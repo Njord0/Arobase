@@ -20,8 +20,7 @@ $ make install
 ```
 
 ## Example
-
-Here a sample code which print fibonacci(10) : 
+Here a sample code which prints fibonacci(10), copy/paste it to a file named `source.aro`
 ```c
 fn fibonacci(a: integer) : integer
 {
@@ -47,14 +46,14 @@ fn main() : void
 
 first step :
 ```
-arobase -s source.aro -o out.s
+$ arobase -s source.aro -o out.s
 ```
 Assembling and linking : 
 ```
-as out.s -o out.o -mnaked-reg -msyntax=intel
-ld -o out out.o -larobase 
+$ as out.s -o out.o -mnaked-reg -msyntax=intel
+$ ld -o out out.o -larobase 
 ```
 
 ## Documentation / Tutorial
 
-You can find document or tutorial [here](docs/README.md)
+You can find documentation and tutorial [here](docs/README.md)

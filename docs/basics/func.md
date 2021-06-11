@@ -17,7 +17,26 @@ fn main() : void
 Here we declare a function named main that return `void` (nothing). 
 
 Function can return : `integer`, `char`, `byte`, `void` but not `string`.
+
 Function allows calling itself (recursivity).
+
+Here is an example of function with parameters : 
+```c
+fn pow(a: integer, b: integer) : integer
+{
+
+    let i: integer = 0;
+    let ret: integer = 1;
+
+    while (i < b)
+    {
+        ret = ret*a;
+        i += 1;
+    }
+
+    return ret;
+}
+```
 
 
 ## Function call
@@ -36,7 +55,7 @@ fn main() : void
 }
 ```
 
-Function can be used in complex expression, if a function return an `integer` then you can apply all operations that an integer support.
+Function can be used in complex expression, if a function returns an `integer` then you can apply all operations that an integer support.
 
 ```c
 fn inc(a: integer) : integer

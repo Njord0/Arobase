@@ -6,6 +6,7 @@
 ## Documentation 
 
 You can find the documentation for the basics of the language [here](basics/README.md).
+
 [Here](stdlib/README.md) is the documentation for the standard library.
 
 ## Tutorial

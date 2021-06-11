@@ -8,7 +8,7 @@
 
 ## if ... else
 
-If statements can be used to execute an action if a boolean expression is true, if/else syntax is as of every c-like language :
+If statements can be used to execute an action if a boolean expression is true, if/else syntax is similar to C syntax :
 
 ```c
 fn main() : void
