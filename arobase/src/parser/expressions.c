@@ -322,7 +322,7 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
 
     else if (!token_check(next_token, RPAR))
     {
-        expr->args = get_args(&next_token);
+        expr->args = get_args(&next_token, _VOID);
 
         if (!token_expect(next_token, RPAR))
         {

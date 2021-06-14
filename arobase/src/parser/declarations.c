@@ -39,7 +39,7 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
 
         tok = tok->next;
 
-        decl->args = get_args(&tok);
+        decl->args = get_args(&tok, type.t);
 
         if (!token_expect(tok, RBRACKET))
         {

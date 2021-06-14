@@ -13,7 +13,7 @@ typedef struct args {
     struct _symbol *sym;
 } Args_t;
 
-Args_t *get_args(Token_t **token);
+Args_t *get_args(Token_t **token, enum Type t);
 Args_t *get_args_decl(Token_t **token);
 unsigned int get_args_count(Args_t *args);
 

@@ -8,14 +8,14 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
-Args_t *get_args(Token_t **token)
+Args_t *get_args(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
     Args_t *args = xmalloc(sizeof(Args_t));
 
-    args->expr = expr_create(&tok, INTEGER);
-    args->type = type_evaluate(args->expr, _VOID);
+    args->expr = expr_create(&tok, t);
+    args->type = type_evaluate(args->expr, t);
     args->sym = NULL;
     args->next = NULL;
     args->name = NULL;
@@ -23,7 +23,7 @@ Args_t *get_args(Token_t **token)
     if (tok->type == COMMA)
     {
         tok = tok->next;
-        args->next = get_args(&tok);
+        args->next = get_args(&tok, t);
 
         *token  = tok;
         return args;

@@ -900,6 +900,11 @@ void load_to_reg(Expression_t *expr)
                     reg_name(expr->reg));
                 break;
 
+            case _CHAR:
+            case _BYTE:
+                emit("mov %s, al\n",
+                reg_name_l(expr->reg));        
+
             default:
                 break;
         }

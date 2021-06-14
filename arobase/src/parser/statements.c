@@ -133,10 +133,10 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
 
     if (type.is_array)
     {
-        if (get_args_count(stmt->decl->args) != ((Array_s*)(type.ptr))->size)
+        if (get_args_count(stmt->decl->args) > ((Array_s*)(type.ptr))->size)
         {
             fprintf(stderr,
-                "Error on line : %lu\n\tArray initialization is different of declaration...\n",
+                "Error on line : %lu\n\tArray initialization is larger than declaration...\n",
                 tok->lineno);
             cc_exit();
         }
@@ -534,7 +534,7 @@ Statement_t *stmt_create_print(Token_t **token)
 
     stmt_init(stmt);
     stmt->stmt_type = STMT_PRINT;
-    stmt->args = get_args(&tok);
+    stmt->args = get_args(&tok, _VOID);
 
     if (!token_expect(tok, EOS))
     {
