@@ -37,3 +37,7 @@ Here is a list of supported operators for both type :
 
 In ***Arobase*** all functions must have a return type, if you don't wan't to return anything you can use the `void` type to tell that the function won't return anything.
 You can't declare a variable of type `void`.
+
+## Arrays
+
+Arrays are sets of variable of the same type.

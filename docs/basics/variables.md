@@ -26,3 +26,17 @@ fn main() : void
     let my_number: integer = 10000;
 }
 ```
+
+## Arrays declaration
+
+To declare an array you need to specify the type followed by `[x]` where x is the numbers of elements : 
+```c
+fn main() : void
+{
+    let a: integer[3] = [1, 2, 3];
+
+    print a[0], a[1], a[2], "\n";
+}
+```
+
+You can't declare array of strings !
