@@ -24,6 +24,8 @@ void emit_return(Statement_t *stmt);
 void emit_print(Statement_t *stmt);
 void emit_input(Statement_t *stmt);
 
+void emit_array_initialization(Args_t *args, Symbol_t *sym);
+
 
 void emit_move_args_to_stack(Args_t *args);
 

@@ -92,8 +92,16 @@ void symbol_pos()
 
     while (sym != NULL)
     {
+
         sym->pos = pos++;
+
+        if ((sym->_type.is_array) && (sym->type != ARG))
+        {
+            pos += ((Array_s*)(sym->_type.ptr))->size;
+        }
+    
         sym = sym->next;
+
     }
 
 }
@@ -147,7 +155,7 @@ void add_symbol_from_args(Symtable_t *symtab, Args_t *args)
 
     st->decl = NULL;
     st->next = NULL;
-    st->type = LOCAL;
+    st->type = ARG;
     st->name = args->name;
     st->_type = args->type;
 

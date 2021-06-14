@@ -129,10 +129,42 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 free_expression(expr);
                 cc_exit();
             }
-            expr->expr_type = EXPR_SYMBOL;
+
             expr->string_value = tok->value.p;
-            expr->sym_value = sym;
-            expr->type.t = sym->_type.t;
+
+            if (token_check(tok->next, LBRACKET))
+            {
+
+                expr->expr_type = EXPR_ARRAYA;
+                expr->type.t = sym->_type.t;
+                expr->sym_value = sym;
+
+                tok = tok->next;
+                if (!sym->_type.is_array)
+                {
+                    fprintf(stderr,
+                        "Error on line : %lu\n\tCan't index something that is not an array\n",
+                        tok->lineno);
+                }
+
+                tok = tok->next;
+
+                expr->access = expr_create(&tok, INTEGER);
+
+                if (!token_check(tok, RBRACKET))
+                {
+                    fprintf(stderr, "Error\n");
+                    cc_exit();
+                }
+
+            }
+            else
+            {
+                expr->expr_type = EXPR_SYMBOL;
+                expr->sym_value = sym;
+                expr->type.t = sym->_type.t;
+            }
+
         }
 
         else if (is_declared_func(symtab_g, tok->value.p, &sym))
@@ -467,6 +499,7 @@ void expr_init(Expression_t *expr)
     expr->left = NULL;
     expr->right = NULL;
     expr->args = NULL;
+    expr->access = NULL;
     expr->string_value = NULL;
     expr->sym_value = NULL;
     expr->sym = NULL;
@@ -481,6 +514,9 @@ void free_expression(Expression_t *expr)
 
     if (expr->left != NULL)
         free_expression(expr->left);
+
+    if (expr->access != NULL)
+        free_expression(expr->access);
 
     if (expr->args != NULL)
         free_args(expr->args);

@@ -64,9 +64,9 @@ void emit_statements(Statement_t **statement)
     Statement_t *stmt = *statement;
     while (stmt != NULL)
     {
-        if ((stmt->stmt_type == STMT_DECLARATION) && (stmt->decl != NULL) && (stmt->decl->code != NULL))        
+        if ((stmt->stmt_type == STMT_DECLARATION) && (stmt->decl != NULL) && (stmt->decl->decl_type == FUNCTION))        
             emit_function(&stmt);
-        else if ((stmt->stmt_type == STMT_DECLARATION) && (stmt->decl != NULL) && (stmt->decl->expr != NULL))
+        else if ((stmt->stmt_type == STMT_DECLARATION) && (stmt->decl != NULL) && (stmt->decl->decl_type == VARIABLE))
             emit_var_declaration(stmt);
 
         else if ((stmt->stmt_type == STMT_EXPR))
@@ -79,7 +79,9 @@ void emit_statements(Statement_t **statement)
             emit_if_else(stmt);
 
         else if (stmt->stmt_type == STMT_WHILE)
+        {
             emit_while(stmt);
+        }
 
         else if (stmt->stmt_type == STMT_RETURN)
             emit_return(stmt);
@@ -109,6 +111,7 @@ void emit_expression(Expression_t *expr, enum Type t)
         case EXPR_NUMBER:
         case EXPR_SYMBOL:
         case EXPR_STRING_LITTERAL:
+        case EXPR_ARRAYA:
             expr->reg = reg_alloc(expr->reg);
             load_to_reg(expr);
             break;
@@ -203,8 +206,20 @@ void emit_expression(Expression_t *expr, enum Type t)
 
 void emit_var_declaration(Statement_t *statement)
 {
-    if ((statement->decl->expr->left == NULL) && (statement->decl->expr->right == NULL))
+    if (statement->decl->type.is_array)
+    {
+        emit_array_initialization(statement->decl->args, statement->decl->sym);
+        return;
+    }
+
+    else if (statement->decl->expr == NULL)
+    {
+        return;
+    }
+
+    else if ((statement->decl->expr->left == NULL) && (statement->decl->expr->right == NULL))
     {   
+
         if ((statement->decl->type.t == INTEGER) && (statement->decl->expr->expr_type == EXPR_NUMBER))
             emit("movq [%s], %ld\n",
                 symbol_s(statement->decl->sym),
@@ -297,12 +312,17 @@ void emit_var_declaration(Statement_t *statement)
                 symbol_s(statement->decl->sym));
         }
 
+        else
+        {
+            emit_expression(statement->decl->expr, statement->decl->sym->_type.t);
+            store_to_stack(statement->decl->expr, statement->decl->sym); 
+        }
     }
 
     else
     {
         emit_expression(statement->decl->expr, statement->decl->sym->_type.t);
-        store_to_stack(statement->decl->expr, statement->decl->sym);
+        store_to_stack(statement->decl->expr, statement->decl->sym); 
     }
 
     reg_free(statement->decl->expr);
@@ -310,9 +330,39 @@ void emit_var_declaration(Statement_t *statement)
 
 void emit_var_assign(Statement_t *statement)
 {
-    emit_expression(statement->expr, statement->expr->sym->_type.t);
-    store_to_stack(statement->expr, statement->expr->sym);
-    reg_free(statement->expr);
+    if (statement->expr->sym->_type.is_array)
+    {
+        emit_expression(statement->expr, statement->expr->sym->_type.t);
+        emit_expression(statement->access, INTEGER);
+
+        emit("lea rdi, [%s]\n",
+            symbol_s(statement->expr->sym));
+
+        if (statement->expr->sym->type == ARG) // argument
+            emit("mov rdi, [rdi]\n");
+
+        emit("movq rsi, %s\n",
+            reg_name(statement->access->reg));
+
+        emit("movq rdx, %s\n",
+            reg_name(statement->expr->reg));
+
+        emit("push r10\npush r11\n"); // caller saved
+
+        emit("call array_set_element\n");
+
+        emit("pop r11\npop r10\n"); // restore
+
+        reg_free(statement->expr);
+        reg_free(statement->access);
+    }
+    else
+    {
+        emit_expression(statement->expr, statement->expr->sym->_type.t);
+        store_to_stack(statement->expr, statement->expr->sym);
+        reg_free(statement->expr);
+    }
+
 }
 
 void emit_function(Statement_t **statement)
@@ -462,7 +512,6 @@ void emit_while(Statement_t *statement)
         else if (expr->left->type.t == _BYTE)
             emit("jbe .LC%.5d\n", lbl_out); // unsigned
     }
-
     Statement_t *stmt = statement->if_block;
     emit_statements(&stmt);
 
@@ -524,9 +573,20 @@ void emit_func_call(Expression_t *expr)
     while (args != NULL)
     {   
         emit_expression(args->expr, args->expr->type.t);
-        emit("movq %s, %s\n",
-            args_regs[pos],
-            reg_name(args->expr->reg));
+
+        if ((args->type.is_array) && (args->expr->sym_value->type == ARG))
+        {
+            emit("movq %s, [%s]\n",
+                args_regs[pos],
+                reg_name(args->expr->reg)); 
+        }
+        else
+        {
+            emit("movq %s, %s\n",
+                args_regs[pos],
+                reg_name(args->expr->reg));
+        }
+
         reg_free(args->expr);
 
         args = args->next;
@@ -637,6 +697,38 @@ void emit_move_args_to_stack(Args_t *args)
     }
 }
 
+void emit_array_initialization(Args_t *args, Symbol_t *sym)
+{
+    unsigned int count = 0;
+
+    emit("movq [%s], %u\n",
+        symbol_s(sym),
+        ((Array_s*)(sym->_type.ptr))->size);
+
+    while (args != NULL)
+    {
+        emit_expression(args->expr, args->type.t);
+
+        if (args->type.t == INTEGER)
+            emit("movq [%s+8*%u], %s\n",
+                symbol_s(sym),
+                count+1,
+                reg_name(args->expr->reg));
+
+        if ((args->type.t == _CHAR) || (args->type.t == _BYTE))
+            emit("mov byte ptr [%s+8*%u], %s\n",
+                symbol_s(sym),
+                count+1,
+                reg_name_l(args->expr->reg));
+
+        count++;
+
+        reg_free(args->expr);
+        args = args->next;
+
+    }
+}
+
 int new_label()
 {
     static int i = 0;
@@ -673,7 +765,17 @@ unsigned int get_stack_size(Statement_t *stmt)
     while (stmt != NULL)
     {
         if (stmt->stmt_type == STMT_DECLARATION)
-            size += 8;
+        {
+            Symbol_t *sym = stmt->decl->sym;
+
+            if (sym->_type.is_array)
+            {
+                size += 8 * ((Array_s*)(sym->_type.ptr))->size + 8;
+            }
+
+            else
+                size += 8;
+        }
         stmt = stmt->next;
     }
     return size;
@@ -737,26 +839,73 @@ void load_to_reg(Expression_t *expr)
 
     else if ((expr != NULL) && (expr->expr_type == EXPR_SYMBOL))
     {
-        if (expr->sym_value->_type.t == INTEGER)
-            emit("movq %s, [%s]\n", 
-                reg_name(expr->reg), 
-                symbol_s(expr->sym_value));
 
-        else if (expr->sym_value->_type.t == _BYTE)
-            emit("mov %s, [%s]\n",
-                reg_name_l(expr->reg),
-                symbol_s(expr->sym_value));
-
-        else if (expr->sym_value->_type.t == _CHAR)
-            emit("mov %s, [%s]\n",
-                reg_name_l(expr->reg),
-                symbol_s(expr->sym_value));
-
-        else if (expr->sym_value->_type.t == STRING)
-            emit("mov %s, [%s]\n",
+        if (expr->sym_value->_type.is_array)
+        {
+            emit("lea %s, [%s]\n",
                 reg_name(expr->reg),
                 symbol_s(expr->sym_value));
+        }
+        else
+        {
+            if (expr->sym_value->_type.t == INTEGER)
+                emit("movq %s, [%s]\n", 
+                    reg_name(expr->reg), 
+                    symbol_s(expr->sym_value));
 
+            else if (expr->sym_value->_type.t == _BYTE)
+                emit("mov %s, [%s]\n",
+                    reg_name_l(expr->reg),
+                    symbol_s(expr->sym_value));
+
+            else if (expr->sym_value->_type.t == _CHAR)
+                emit("mov %s, [%s]\n",
+                    reg_name_l(expr->reg),
+                    symbol_s(expr->sym_value));
+
+            else if (expr->sym_value->_type.t == STRING)
+                emit("mov %s, [%s]\n",
+                    reg_name(expr->reg),
+                    symbol_s(expr->sym_value));
+        }
+
+        
+    }
+
+    else if ((expr != NULL) && (expr->expr_type == EXPR_ARRAYA))
+    {
+
+
+        emit_expression(expr->access, INTEGER);
+
+        emit("lea rdi, [%s]\n",
+                symbol_s(expr->sym_value));
+
+        if (expr->sym_value->decl == NULL) // Arg
+            emit("mov rdi, [rdi]\n");
+
+        emit("movq rsi, %s\n",
+            reg_name(expr->access->reg));
+
+        emit("push r10\npush r11\n"); // caller saved
+
+        emit("call array_get_element\n");
+
+        emit("pop r11\npop r10\n");
+
+        switch (expr->sym_value->_type.t)
+        {
+            case INTEGER:
+                emit("movq %s, rax\n",
+                    reg_name(expr->reg));
+                break;
+
+            default:
+                break;
+        }
+
+
+        reg_free(expr->access);
     }
 
     else if ((expr != NULL) && (expr->type.t == _CHAR))
@@ -806,7 +955,15 @@ void store_to_stack(Expression_t *expr, Symbol_t *sym)
 char *symbol_s(Symbol_t *sym)
 {
 
-    snprintf(pos, sizeof(pos), "rbp-%u", 8*(sym->pos+1));
+    if ((sym->_type.is_array) && (sym->type != ARG))
+    {
+        snprintf(pos, sizeof(pos), "rbp-%u", 8 * (sym->pos+1+((Array_s*)(sym->_type.ptr))->size));
+    }
+    else
+    {
+        snprintf(pos, sizeof(pos), "rbp-%u", 8*(sym->pos+1));
+    }
+
 
     return pos;
 }

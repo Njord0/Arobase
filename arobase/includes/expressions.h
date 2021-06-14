@@ -17,6 +17,7 @@ enum expression {
     EXPR_FUNCCALL,
     EXPR_SYMBOL, // variable
     EXPR_COND,
+    EXPR_ARRAYA, // ARRAY_ACCESS
 };
 
 enum condtype {
@@ -32,6 +33,7 @@ typedef struct Expression {
     Type_s type;
     struct Expression *left;
     struct Expression *right;
+    struct Expression *access;
 
     struct args *args;
     int64_t int_value;

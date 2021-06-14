@@ -6,6 +6,7 @@
 enum SymbolType {
     GLOBAL,
     LOCAL,
+    ARG,
 };
 
 struct _scope;

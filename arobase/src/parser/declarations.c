@@ -30,7 +30,27 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
         return decl;
     }
 
-    if (tok != NULL)
+    if (type.is_array)
+    {
+        if (!token_expect(tok, LBRACKET))
+        {
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+        decl->args = get_args(&tok);
+
+        if (!token_expect(tok, RBRACKET))
+        {
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+    }
+
+    else if (tok != NULL)
     {
 
         decl->expr = expr_create(&tok, decl->type.t);
@@ -200,6 +220,7 @@ void decl_init(Declaration_t *decl)
     decl->args = NULL;
     decl->sym = NULL;
     decl->is_imported = false;
+    decl->type.is_array = false;
 }
 
 
@@ -232,6 +253,9 @@ void free_declaration(Declaration_t *decl)
 
     if (decl->is_imported && decl->name != NULL)
         free(decl->name);
+
+    if (decl->type.is_array)
+        free(decl->type.ptr);
 
     free(decl);
 }

@@ -24,6 +24,7 @@ typedef struct statement_ {
 
     struct decl_ *decl;
     Expression_t *expr;
+    Expression_t *access;
     Args_t *args;
     struct statement_ *if_block;
     struct statement_ *else_block;
