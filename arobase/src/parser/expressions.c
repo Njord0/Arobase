@@ -95,8 +95,12 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
     if (tok->type == NUMBER)
     {
         expr->expr_type = EXPR_NUMBER;
-        expr->int_value = tok->value.i; 
+        expr->int_value = tok->value.i;
         expr->type.t = t;
+
+        if (t == _VOID)
+            expr->type.t = INTEGER;
+
         tok = tok->next;
     }
 
