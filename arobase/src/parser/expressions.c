@@ -18,7 +18,7 @@ Expression_t *expr_create(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if ((tok->type == NUMBER) || (tok->type == LPAR) || (tok->type == SYMBOL))
+    if ((tok->type == NUMBER) || (tok->type == LPAR) || (tok->type == SYMBOL) || (tok->type == MINUS))
     {
         free(expr);
         expr = expr_(&tok, t);
@@ -86,7 +86,7 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if ((tok == NULL) || ((tok->type != NUMBER) && (tok->type != LPAR) && (tok->type != SYMBOL)))
+    if ((tok == NULL) || ((tok->type != NUMBER) && (tok->type != LPAR) && (tok->type != SYMBOL) && (tok->type != MINUS)))
     {
         free_expression(expr);
         invalid_syntax_error(tok);
@@ -110,7 +110,6 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
         tok = tok->next;
         expr = expr_(&tok, t);
 
-
         if (!token_expect(tok, RPAR))
         {
             free_expression(expr);
@@ -118,6 +117,13 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
         }
 
         tok = tok->next;
+    }
+
+    else if (tok->type == MINUS)
+    {
+        expr->expr_type = EXPR_UNARY_MINUS;
+        tok  = tok->next;
+        expr->left = expr_(&tok, t);
     }
 
     else if (tok->type == SYMBOL)

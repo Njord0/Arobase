@@ -272,6 +272,10 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
             type.t = STRING;
             break;
 
+        case EXPR_UNARY_MINUS:
+            type.t = type_evaluate(expr->left, t).t;
+            break;
+
         default:
             fprintf(stderr, "Type checking error...\n");
             cc_exit();

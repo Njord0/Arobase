@@ -18,6 +18,7 @@ enum expression {
     EXPR_SYMBOL, // variable
     EXPR_COND,
     EXPR_ARRAYA, // ARRAY_ACCESS
+    EXPR_UNARY_MINUS,
 };
 
 enum condtype {

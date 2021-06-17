@@ -197,6 +197,19 @@ void emit_expression(Expression_t *expr, enum Type t)
             load_to_reg(expr);
             break;
 
+        case EXPR_UNARY_MINUS:
+            emit_expression(expr->left, t);
+
+            if (expr->left->type.t == INTEGER)
+                emit("neg %s\n",
+                    reg_name(expr->left->reg));
+            else
+                emit("neg %s\n",
+                    reg_name_l(expr->left->reg));
+
+            expr->reg = expr->left->reg;
+            break;
+
         default:
             printf("Un-handled error !!\n");
             cc_exit();
