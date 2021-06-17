@@ -431,7 +431,25 @@ void emit_if_else(Statement_t *statement)
             emit("jg .LC%.5d\n", lbl_true); // signed
 
         else if (expr->left->type.t == _BYTE)
-            emit("ja .LC%5.d\n", lbl_true); // unsigned
+            emit("ja .LC%.5d\n", lbl_true); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_LOWER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jle .LC%.5d\n", lbl_true);
+
+        else if (expr->left->type.t == _BYTE)
+            emit("jbe .LC%.5d\n", lbl_true);
+    }
+
+    else if (expr->cond_type == EXPR_GREATER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jge .LC%.5d\n", lbl_true);
+
+        else if (expr->left->type.t == _BYTE)
+            emit("jae .LC%.5d\n", lbl_true);
     }
     
     
@@ -512,6 +530,24 @@ void emit_while(Statement_t *statement)
         else if (expr->left->type.t == _BYTE)
             emit("jbe .LC%.5d\n", lbl_out); // unsigned
     }
+
+    else if (expr->cond_type == EXPR_LOWER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jg .LC%.5d\n", lbl_out); // signed
+        else if (expr->left->type.t == _BYTE)
+            emit("ja .LC%.5d\n", lbl_out); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_GREATER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jle .LC%.5d\n", lbl_out); // signed
+        else if (expr->left->type.t == _BYTE)
+            emit("jbe .LC%.5d\n", lbl_out); // unsigned
+    }
+
+
     Statement_t *stmt = statement->if_block;
     emit_statements(&stmt);
 
