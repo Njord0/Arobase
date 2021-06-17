@@ -21,10 +21,12 @@ enum expression {
 };
 
 enum condtype {
-    EXPR_CMP, // == 
-    EXPR_LOWER, // <
-    EXPR_GREATER, // >
-    EXPR_DIFF, // !=
+    EXPR_CMP,           // == 
+    EXPR_LOWER,         // <
+    EXPR_GREATER,       // >
+    EXPR_DIFF,          // !=
+    EXPR_LOWER_EQ,      // <=
+    EXPR_GREATER_EQ,    // >=
 };
 
 typedef struct Expression {

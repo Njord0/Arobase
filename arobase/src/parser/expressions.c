@@ -402,13 +402,15 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
 
     Type_s type = type_of_first_symbol(expr->left);
 
-    if ((tok != NULL) && ((tok->type == CMP) || (tok->type == OP_LOWER) || (tok->type == OP_GREATER) || (tok->type == DIFF)))
+    if ((tok != NULL) && ((tok->type == CMP) || (tok->type == OP_LOWER) || (tok->type == OP_GREATER) || (tok->type == DIFF) || (tok->type == OP_GREATER_EQ) || (tok->type == OP_LOWER_EQ)))
     {
 
         if (tok->type == CMP) expr->cond_type = EXPR_CMP;
         else if (tok->type == OP_GREATER) expr->cond_type = EXPR_GREATER;
         else if (tok->type == OP_LOWER) expr->cond_type = EXPR_LOWER;
         else if (tok->type == DIFF) expr->cond_type = EXPR_DIFF;
+        else if (tok->type == OP_GREATER_EQ) expr->cond_type = EXPR_GREATER_EQ;
+        else if (tok->type == OP_LOWER_EQ) expr->cond_type = EXPR_LOWER_EQ;
 
         tok = tok->next;
         expr->right = expr_create(&tok, type.t);
