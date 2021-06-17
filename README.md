@@ -54,6 +54,14 @@ $ as out.s -o out.o -mnaked-reg -msyntax=intel
 $ ld -o out out.o -larobase 
 ```
 
+For more details see the `--help` option: 
+```
+$ arobase --help
+Usage: ./arobase -s source_file [options]
+        options:
+        -o      Output file name, default is 'out.s'
+```
+
 ## Documentation / Tutorial
 
 You can find documentation and tutorial [here](docs/README.md)

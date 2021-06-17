@@ -13,6 +13,13 @@ Lexer_t *lexer_g = NULL;
 AST_t *ast_g = NULL;
 Symtable_t *symtab_g = NULL;
 
+void print_usage(const char *arg) 
+{
+    printf("Usage: ./%s -s source_file [options]\n", arg);
+    printf("\toptions:\n");
+    printf("\t-o\tOutput file name, default is 'out.s'\n");
+}
+
 void parse_args(int argc, char **argv, char **out, char **src)
 {
     *src = NULL;
@@ -29,6 +36,12 @@ void parse_args(int argc, char **argv, char **out, char **src)
         {
             if (i+1 < argc) 
                 *src = argv[i+1];
+        }
+
+        else if (strcmp(argv[i], "--help") == 0)
+        {
+            print_usage(argv[0]);
+            exit(1);
         }
     }
 }
