@@ -122,10 +122,32 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
     }
 
     else if (c == '<')
-        tok = create_token_char(OP_LOWER, c);
+    {
+        c = (char)getc(lexer->file);
+        if (c == '=')
+        {
+            tok = create_token_char(OP_LOWER_EQ, c);
+        }
+        else
+        {
+            tok = create_token_char(OP_LOWER, c);
+            ungetc(c, lexer->file);
+        }
+    }
 
     else if (c == '>')
-        tok = create_token_char(OP_GREATER, c);
+    {   
+        c = (char)getc(lexer->file);
+        if (c == '=')
+        {
+            tok = create_token_char(OP_GREATER_EQ, c);            
+        }
+        else
+        {
+            tok = create_token_char(OP_GREATER, c);
+            ungetc(c, lexer->file);
+        }
+    }
 
     else if (c == ';')
         tok = create_token_char(EOS, c);
