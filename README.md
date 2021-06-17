@@ -5,6 +5,11 @@
     Arobase is a simple programming language with a c-like syntax.
 </div>
 
+## About
+Arobase is a simple programming language, actual implementation is a compiler written in C
+
+The language is meant to be easy to use and easy to learn! 
+
 ## Requirements
 * gcc
 * gas (gnu as)
