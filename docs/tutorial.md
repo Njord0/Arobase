@@ -128,6 +128,8 @@ There are 4 comparison operators :
 | != | not equal to |
 | < | less than |
 | > | greater than |
+| <= | less or equal to |
+| >= | greater or equal to |
 
 # if / else
 
