@@ -29,7 +29,7 @@ fn fibonacci(a: integer) : integer
         return 0;
     }
                @ this is a comment
-    if (a < 3) @ 1 or 2
+    if (a <= 2) @ 1 or 2
     {
         return 1;
     }
