@@ -561,6 +561,15 @@ Statement_t *stmt_create_input(Token_t **token)
     if (!is_declared_var(symtab_g, tok->value.p, &sym))
         undeclared_variable_error(tok->value.p, tok->lineno);
 
+    if ((sym->_type.is_array) || (sym->_type.t == STRING))
+    {
+        fprintf(stderr,
+            "Error on line %lu : \n\tInvalid type with input statement\n",
+            tok->lineno);
+        free(stmt);
+        cc_exit();
+    }
+
     stmt->stmt_type = STMT_INPUT;
     stmt->decl = sym->decl;
 
