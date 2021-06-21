@@ -199,10 +199,7 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     }
 
     if (!token_expect(tok, RBRACE))
-    {
-        free_declaration(decl);
         cc_exit();
-    }
 
     symbol_pos();
     scope_exit();
