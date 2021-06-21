@@ -177,12 +177,31 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
 
     else if (c == '@')
     {
-        while ((c != '\n') && (c != EOF))
-            c = (char)getc(lexer->file);
+        c = getc(lexer->file);
+        char d = '\x00';
+        if (c == '@')
+        {
+            while (((c != '@') || (d != '@')) && (c != EOF))
+            {
+                c = d;
+                d = getc(lexer->file);
 
-        lexer->current_lineno += 1;
+                if (c == '\n')
+                    lexer->current_lineno += 1;
+            }
 
-        return lexer_get_next_token(lexer);
+            return lexer_get_next_token(lexer);
+
+        }
+        else
+        {
+            while ((c != '\n') && (c != EOF))
+                c = (char)getc(lexer->file);
+
+            lexer->current_lineno += 1;
+
+            return lexer_get_next_token(lexer);
+        }
     }
 
     else if (c == '[')

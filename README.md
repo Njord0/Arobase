@@ -41,8 +41,9 @@ fn fibonacci(a: integer) : integer
 
     return fibonacci(a-2) + fibonacci(a-1);
 }
-
-@ 'main' function is needed in any program.
+@@  This is a comment on multiple lines
+    'main' function is needed in any program.
+@@
 fn main() : void
 {
     print fibonacci(10);
