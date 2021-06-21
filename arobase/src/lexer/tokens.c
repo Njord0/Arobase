@@ -7,7 +7,7 @@
 #include <tokens.h>
 #include <error_handler.h>
 
-const char *tokens[28] = {
+const char *tokens[29] = {
     "number",
     "plus",
     "minus",
@@ -34,7 +34,8 @@ const char *tokens[28] = {
     "'",
     ".",
     "<=",
-    ">="
+    ">=",
+    "%%"
 };
 
 Token_t *create_token_number(int64_t value)
