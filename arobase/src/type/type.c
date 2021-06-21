@@ -223,6 +223,7 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
         case EXPR_MINUS:
         case EXPR_DIV:
         case EXPR_MUL:
+        case EXPR_MOD:
             if (expr->left != NULL)
                 left = type_evaluate(expr->left, t);
 

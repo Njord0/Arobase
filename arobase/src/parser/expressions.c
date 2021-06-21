@@ -221,7 +221,7 @@ Expression_t *expr_term(Token_t **token, enum Type t)
     Expression_t *node = expr_factor(&tok, t);
     Expression_t *tmp;
 
-    while ((tok != NULL) && ((tok->type == MUL) || (tok->type == DIV)))
+    while ((tok != NULL) && ((tok->type == MUL) || (tok->type == DIV) || (tok->type == MODULO)))
     {
         Expression_t *expr = xmalloc(sizeof(Expression_t));
 
@@ -229,8 +229,11 @@ Expression_t *expr_term(Token_t **token, enum Type t)
 
         if (tok->type == MUL)
             expr->expr_type = EXPR_MUL;
-        else
+        else if (tok->type == DIV)
             expr->expr_type = EXPR_DIV;
+        else 
+            expr->expr_type = EXPR_MOD;
+
 
         tok = tok->next;
 
@@ -483,6 +486,9 @@ Expression_t *expr_fold(Expression_t *expr)
                 break;
             case EXPR_MUL:
                 e->int_value = expr->right->int_value * expr->left->int_value;
+                break;
+            case EXPR_MOD:
+                e->int_value = expr->right->int_value % expr->left->int_value;
                 break;
             default:
                 fprintf(stderr,

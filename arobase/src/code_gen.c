@@ -191,6 +191,22 @@ void emit_expression(Expression_t *expr, enum Type t)
             reg_free(expr->left);
             break;
 
+        case EXPR_MOD:
+            emit_expression(expr->right, t);
+            emit_expression(expr->left, t);
+
+            emit("xor rdx, rdx\n");
+            emit("mov rax, %s\n",
+                reg_name(expr->right->reg));
+            emit("idiv %s\n",
+                reg_name(expr->left->reg));
+            emit("mov %s, rdx\n",
+                reg_name(expr->right->reg));
+
+            expr->reg = expr->right->reg;
+            reg_free(expr->left);
+            break;
+
         case EXPR_FUNCCALL:
             emit_func_call(expr);
             expr->reg = reg_alloc(expr->reg);
