@@ -24,6 +24,7 @@ Here is a list of supported operators for both type :
 |-       |soustraction  |
 |/       |division      |
 |*       |multiplication|
+|%       |modulo        |
 
 ## char
 

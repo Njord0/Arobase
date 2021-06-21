@@ -72,6 +72,7 @@ There are 4 differents operators :
 |  -   |soustraction|
 |  *   |multiplication|
 |  /   |division|
+|  %   |modulo|
 
 As for variable assignment, you can't add/soustract/divide/multiply two variables of differents type !
 
