@@ -293,43 +293,43 @@ void emit_var_declaration(Statement_t *statement)
         {
             if (statement->decl->sym->_type.t == INTEGER)
             {
-                statement->decl->expr->sym_value->decl->expr->reg = reg_alloc(statement->decl->expr->sym_value->decl->expr->reg);
+                statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
                 emit("movq %s, [%s]\n", 
-                    reg_name(statement->decl->expr->sym_value->decl->expr->reg),
+                    reg_name(statement->decl->expr->reg),
                     symbol_s(statement->decl->expr->sym_value));
 
                 emit("movq [%s], %s\n",
                     symbol_s(statement->decl->sym),
-                    reg_name(statement->decl->expr->sym_value->decl->expr->reg));
+                    reg_name(statement->decl->expr->reg));
 
-                reg_free(statement->decl->expr->sym_value->decl->expr);
+                reg_free(statement->decl->expr);
             }
             else if ((statement->decl->sym->_type.t == _BYTE) || (statement->decl->sym->_type.t == _CHAR))
             {
-                statement->decl->expr->sym_value->decl->expr->reg = reg_alloc(statement->decl->expr->sym_value->decl->expr->reg);
+                statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
                 emit("mov %s, [%s]\n",
-                    reg_name_l(statement->decl->expr->sym_value->decl->expr->reg),
+                    reg_name_l(statement->decl->expr->reg),
                     symbol_s(statement->decl->expr->sym_value));
 
                 emit("mov byte ptr [%s], %s\n",
                     symbol_s(statement->decl->sym),
-                    reg_name_l(statement->decl->expr->sym_value->decl->expr->reg));
+                    reg_name_l(statement->decl->expr->reg));
 
-                reg_free(statement->decl->expr->sym_value->decl->expr);
+                reg_free(statement->decl->expr);
             }
 
             else if (statement->decl->sym->_type.t == STRING)
             {
-                statement->decl->expr->sym_value->decl->expr->reg = reg_alloc(statement->decl->expr->sym_value->decl->expr->reg);
+                statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
                 emit("movq %s, [%s]\n", 
-                    reg_name(statement->decl->expr->sym_value->decl->expr->reg),
+                    reg_name(statement->decl->expr->reg),
                     symbol_s(statement->decl->expr->sym_value));
 
                 emit("movq [%s], %s\n",
                     symbol_s(statement->decl->sym),
-                    reg_name(statement->decl->expr->sym_value->decl->expr->reg));
+                    reg_name(statement->decl->expr->reg));
 
-                reg_free(statement->decl->expr->sym_value->decl->expr);
+                reg_free(statement->decl->expr);
             }
         }
 
