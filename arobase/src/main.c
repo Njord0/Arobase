@@ -13,11 +13,15 @@ Lexer_t *lexer_g = NULL;
 AST_t *ast_g = NULL;
 Symtable_t *symtab_g = NULL;
 
+bool NO_START = false;
+
 void print_usage(const char *arg) 
 {
     printf("Usage: ./%s -s source_file [options]\n", arg);
     printf("\toptions:\n");
-    printf("\t-o\tOutput file name, default is 'out.s'\n");
+    printf("\t-o\t\tOutput file name, default is 'out.s'\n");
+    printf("\t--no-start\tTell the compiler to not add a '_start' function\n");
+
 }
 
 void parse_args(int argc, char **argv, char **out, char **src)
@@ -43,6 +47,9 @@ void parse_args(int argc, char **argv, char **out, char **src)
             print_usage(argv[0]);
             exit(1);
         }
+
+        else if (strcmp(argv[i], "--no-start") == 0)
+            NO_START = true;
     }
 }
 

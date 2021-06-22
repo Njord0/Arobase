@@ -1,6 +1,8 @@
 #ifndef _CODE_GEN
 #define _CODE_GEN
 
+#include <stdbool.h>
+
 #include <ast.h>
 #include <symbol_table.h>
 #include <statements.h>
@@ -43,9 +45,9 @@ void store_to_stack(Expression_t *expr, Symbol_t *sym);
 int new_label();
 
 char* symbol_s(Symbol_t *sym);
-
-
 void _start_def();
+
+extern bool NO_START;
 
 
 #endif // _CODE_GEN

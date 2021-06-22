@@ -65,7 +65,8 @@ For more details see the `--help` option:
 $ arobase --help
 Usage: ./arobase -s source_file [options]
         options:
-        -o      Output file name, default is 'out.s'
+        -o              Output file name, default is 'out.s'
+        --no-start      Tell the compiler to not add a '_start' function
 ```
 
 ## Documentation / Tutorial

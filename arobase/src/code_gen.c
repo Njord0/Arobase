@@ -51,7 +51,8 @@ void begin_codegen(AST_t *ast, const char *out)
 {
     file = fopen(out, "w");
 
-    _start_def();
+    if (!NO_START)
+        _start_def();
 
     Statement_t *stmt = ast->first_stmt;
 
@@ -398,6 +399,8 @@ void emit_function(Statement_t **statement)
 {
     Statement_t *stmt = *statement;
 
+    emit(".globl %s\n", stmt->decl->name);
+    emit(".type %s, @function\n", stmt->decl->name);
     emit("%s:\n", stmt->decl->name);
     emit_prologue(stmt);
 
