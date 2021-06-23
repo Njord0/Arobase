@@ -527,6 +527,10 @@ void expr_init(Expression_t *expr)
 
 void free_expression(Expression_t *expr)
 {
+
+    if (expr == NULL)
+        return;
+
     if (expr->right != NULL)
         free_expression(expr->right);
 

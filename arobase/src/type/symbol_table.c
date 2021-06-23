@@ -32,9 +32,8 @@ void symtab_free(Symtable_t *st)
         while (sym != NULL)
         {
             next = sym->next;
-            if (sym->decl->is_imported)
+            if ((sym->decl != NULL) && (sym->decl->is_imported))
                 free_declaration(sym->decl);
-
             sym = next;
             
         }

@@ -51,9 +51,12 @@ void invalid_variable_name(const char *ptr)
 
 void cc_exit()
 {
+    if (current_function != NULL)
+        scope_exit();
+
+    symtab_free(symtab_g);
     free_ast(ast_g);
     lexer_free(lexer_g);
-    symtab_free(symtab_g);
 
     if (current_function != NULL)
         free_statement(current_function);
