@@ -7,3 +7,6 @@
 ## Index
 - Modules
     - [cast](cast.md)
+    - [math](math.md)
+        - [utils](math.md)
+        - [random](math.md)
