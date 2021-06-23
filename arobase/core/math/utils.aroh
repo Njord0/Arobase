@@ -1,0 +1,3 @@
+fn pow(a: integer, b: integer) : integer;
+fn abs(a: integer) : integer;
+fn factorial(a: integer) : integer;
