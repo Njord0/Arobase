@@ -177,14 +177,14 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
 
     else if (c == '@')
     {
-        c = getc(lexer->file);
+        c = (char)getc(lexer->file);
         char d = '\x00';
         if (c == '@')
         {
             while (((c != '@') || (d != '@')) && (c != EOF))
             {
                 c = d;
-                d = getc(lexer->file);
+                d = (char)getc(lexer->file);
 
                 if (c == '\n')
                     lexer->current_lineno += 1;
