@@ -240,13 +240,19 @@ void import_from(const char *str)
     strcat(ptr, str);
 
     Lexer_t *lexer = lexer_create(ptr);
-    if (lexer == NULL) // TO-DO : if fail try to import from current folder...
+    if (lexer == NULL)
     {
-        fprintf(stderr,
-            "Error while trying to import '%s'\n\tNo file named '%s'\n",
-            str, str);
-        free(ptr);
-        cc_exit();
+
+        lexer = lexer_create(str); // trying to import from current folder...
+        if (lexer == NULL)
+        {
+            fprintf(stderr,
+                "Error while trying to import '%s'\n\tNo file named '%s'\n",
+                str, str);
+            free(ptr);
+            cc_exit();
+        }
+        
     }
 
     free(ptr);

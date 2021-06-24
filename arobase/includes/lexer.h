@@ -6,7 +6,7 @@
 #include <tokens.h>
 
 typedef struct Lexer {
-    char *filename;
+    const char *filename;
     FILE *file;
     unsigned long int pos;
     unsigned long int current_lineno;
@@ -15,7 +15,7 @@ typedef struct Lexer {
 
 } Lexer_t;
 
-Lexer_t *lexer_create(char *filename);
+Lexer_t *lexer_create(const char *filename);
 
 void lexer_free(Lexer_t *lexer);
 void lexer_tokenize(Lexer_t *lexer);

@@ -6,7 +6,7 @@
 #include <statements.h>
 #include <error_handler.h>
 
-Lexer_t *lexer_create(char *filename)
+Lexer_t *lexer_create(const char *filename)
 {
     Lexer_t *lexer = xmalloc(sizeof(Lexer_t));
 
@@ -14,7 +14,10 @@ Lexer_t *lexer_create(char *filename)
     lexer->pos = 0;
     FILE *file = fopen(filename, "r");
     if (file == NULL)
+    {
+        free(lexer);
         return NULL;
+    }
 
     lexer->file = file;
     lexer->current_lineno = 1;
