@@ -72,6 +72,7 @@ Expression_t *expr_create(Token_t **token, enum Type t)
     *token = tok;
 
     expr = expr_fold(expr);
+
     type_set(expr, type_of_first_symbol(expr));
     type_check(expr);
 
@@ -194,7 +195,6 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
             tok = tok->next;
             expr = expr_create_funccall(&tok, name);
             expr->expr_type = EXPR_FUNCCALL;
-            expr->type.t = sym->_type.t;
 
             *token = tok;
             return expr;
@@ -303,15 +303,12 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
     expr->expr_type = EXPR_FUNCCALL;
     expr->string_value = name;
 
-
     Symbol_t *sym = NULL;
 
     if (!is_declared_func(symtab_g, name, &sym))
         undeclared_variable_error(name, tok->lineno);
 
     Args_t *args = sym->decl->args;
-
-    expr->sym_value = sym;
 
     assert (tok->type == LPAR);
 
@@ -354,44 +351,18 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
 
     Args_t *c_args = expr->args;
 
-    /* Checking if function call parameters and function decl parameters are the same */
-
-    while ((args != NULL) && (c_args != NULL))
+    sym = find_corresponding_function(name, c_args);
+    if (sym == NULL)
     {
-
-        c_args->type = type_evaluate(c_args->expr, args->type.t);
-
-        if (args->type.t != c_args->type.t)
-        {
-            fprintf(stderr, "Error on line : %lu\n\tInvalid parameter for function '%s'",
-                tok->lineno,
-                expr->string_value);
-            
-            free(expr);
-            cc_exit();
-        }
-
-        args = args->next;
-        c_args = c_args->next;
-    }
-
-    if ((args != NULL) && (c_args == NULL))
-    {
-        fprintf(stderr, "Error on line : %lu\n\tmissing parameter(s) for function '%s'\n",
-            tok->lineno, 
-            expr->string_value);
+        fprintf(stderr, 
+            "Error on line : %lu\n\tCan't find a function with matching prototype\n",
+            tok->lineno);
         free(expr);
         cc_exit();
     }
 
-    else if ((args == NULL) && (c_args != NULL))
-    {
-        fprintf(stderr, "Error on line : %lu\n\ttoo much parameter(s) for function '%s'\n",
-            tok->lineno,
-            expr->string_value);
-        free(expr);
-        cc_exit();
-    }
+    expr->sym_value = sym;
+    expr->type = sym->_type;
 
     *token = next_token;
     return expr;

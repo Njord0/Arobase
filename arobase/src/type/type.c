@@ -234,7 +234,7 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
             if (left.t != right.t)
             {
                 fprintf(stderr, 
-                    "Error can't use operators with two differents type\n");
+                    "Error:\n\t can't use operators with two differents type\n");
                 cc_exit();
             }
             type.t = left.t;
@@ -251,16 +251,21 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
 
         case EXPR_ARRAYA:
         case EXPR_SYMBOL:
-            //printf("%s\n", expr->string_value);
-            sym = symbol_resolve(symtab_g, expr->string_value);
-            if (sym == NULL)
-                undeclared_variable_error(expr->string_value, 0);
+            if (!is_declared_var(symtab_g, expr->string_value, &sym))
+            {
+                fprintf(stderr, "Error:\n\tUndeclared variable\n");
+                cc_exit();
+            }
+
             type = sym->_type;
             break;
 
         case EXPR_FUNCCALL:
             if (!is_declared_func(symtab_g, expr->string_value, &sym))
                 undeclared_variable_error(expr->string_value, 0);
+            sym = find_corresponding_function(expr->string_value, expr->args);
+            if (sym == NULL)
+                cc_exit();
 
             type = sym->_type;
             break;

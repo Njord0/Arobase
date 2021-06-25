@@ -6,6 +6,7 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
+int fcount = 0;
 
 Symtable_t *symtab_create()
 {
@@ -73,7 +74,7 @@ void scope_exit()
     {
         fprintf(stderr, 
             "Can't exit GLOBAL scope\n");
-        cc_exit();
+        return;
     }
 
 
@@ -112,6 +113,14 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
     Symbol_t *prev = NULL;
     ScopeTable_t *scope = symtab->scope;
 
+
+    if (strcmp(decl->name, "main") == 0 && (is_declared_func(symtab_g, "main", &sym)))
+    {
+        fprintf(stderr,
+            "Error\n\tFunction 'main' can't be overloaded!\n");
+        cc_exit();
+    }
+
     Symbol_t *st = xmalloc(sizeof(Symbol_t));
 
     st->decl = decl;
@@ -119,6 +128,40 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
     st->type = LOCAL ? (scope->next != NULL): GLOBAL; 
     st->name = st->decl->name;
     st->_type = decl->type;
+    st->rname = xmalloc(strlen(st->name)+1);
+
+    memset(st->rname, '\x00', strlen(st->name)+1);
+    
+    strcat(st->rname, st->name);
+
+    if ((strcmp(decl->name, "main") != 0))
+    {
+        Args_t *args = decl->args;
+        while (args != NULL)
+        {
+            switch (args->type.t)
+            {
+                case INTEGER:
+                    st->rname = realloc(st->rname, strlen(st->rname)+9);
+                    strcat(st->rname, "Zinteger");
+                    break;
+                case STRING:
+                    st->rname = realloc(st->rname, strlen(st->rname)+7);
+                    strcat(st->rname, "Zstring");
+                    break;
+                case _CHAR:
+                    st->rname = realloc(st->rname, strlen(st->rname)+6);
+                    strcat(st->rname, "Zchar");
+                    break;
+                case _BYTE:
+                    st->rname = realloc(st->rname, strlen(st->rname)+6);
+                    strcat(st->rname, "Zbyte");
+                    break;
+            }
+
+            args = args->next;
+        }
+    }
 
     decl->sym = st;
 
@@ -228,6 +271,43 @@ bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol)
 
     return ((sym != NULL) && (sym->decl->decl_type == VARIABLE));
  }
+
+Symbol_t *find_corresponding_function(const char *name, Args_t *c_args)
+{
+    ScopeTable_t *scope = symtab_g->scope;
+    Symbol_t *symbol = NULL;
+
+    Args_t *tmp;
+
+    while (scope != NULL)
+    {
+        symbol = scope->symbol;
+        while (symbol != NULL)
+        {
+            if ((strcmp(symbol->name, name) == 0) && (symbol->decl->decl_type == FUNCTION))
+            {    
+                /* Checking if function call parameters and function decl parameters are the same */
+                Args_t *args = symbol->decl->args;
+                tmp = c_args;
+                while ((args != NULL) && (tmp != NULL))
+                {
+                    if (args->type.t != tmp->type.t)
+                        break;
+                    args = args->next;
+                    tmp = tmp->next;
+                }
+
+                if ((args == NULL) && (tmp == NULL))
+                    return symbol; // symbol matching the prototype...
+
+            }
+            symbol = symbol->next;
+        }
+        scope = scope->next;
+    }
+    return NULL;
+
+}
 
 void import_from(const char *str)
 {

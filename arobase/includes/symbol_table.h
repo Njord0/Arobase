@@ -17,6 +17,7 @@ typedef struct _symbol {
     struct decl_ *decl;
     struct _symbol *next;
     const char *name;
+    char *rname;
     Type_s _type;
     unsigned int pos;
 } Symbol_t;
@@ -53,9 +54,12 @@ Symbol_t *symbol_resolve(Symtable_t *symtab, const char *name);
 bool is_declared_func(Symtable_t *symtab, const char *name, Symbol_t **symbol);
 bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol);
 
+Symbol_t *find_corresponding_function(const char *name, Args_t *c_args);
+
 void import_from(const char *str);
 
 
 extern Symtable_t *symtab_g;
+extern int fcount;
 
 #endif

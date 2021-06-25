@@ -90,8 +90,7 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     decl->decl_type = FUNCTION;
     decl->name = name;
 
-    add_symbol(symtab_g, decl);
-    scope_enter();
+    
 
     tok = tok->next;
     if (!token_expect(tok, LPAR))
@@ -100,8 +99,6 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     tok = tok->next;
     if (!token_check(tok, RPAR))
         decl->args = get_args_decl(&tok);
-
-    add_symbol_from_args(symtab_g, decl->args);
 
     if (!token_expect(tok, RPAR))
         cc_exit();
@@ -135,12 +132,13 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
         cc_exit();
     }
 
+    add_symbol(symtab_g, decl);
+    scope_enter();
+    add_symbol_from_args(symtab_g, decl->args);
 
-    Symbol_t *sym = symbol_resolve(symtab_g, name);
-    assert (sym != NULL);
+    Symbol_t *sym = find_corresponding_function(decl->name, decl->args);
 
     sym->_type = decl->type;
-
 
     tok = tok->next;
 
@@ -227,7 +225,10 @@ void free_declaration(Declaration_t *decl)
         free_expression(decl->expr);
 
     if (decl->sym != NULL)
+    {
+        free(decl->sym->rname);
         free(decl->sym);
+    }
 
     if (decl->code != NULL)
     {

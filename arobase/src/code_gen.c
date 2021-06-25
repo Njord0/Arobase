@@ -399,9 +399,9 @@ void emit_function(Statement_t **statement)
 {
     Statement_t *stmt = *statement;
 
-    emit(".globl %s\n", stmt->decl->name);
-    emit(".type %s, @function\n", stmt->decl->name);
-    emit("%s:\n", stmt->decl->name);
+    emit(".globl %s\n", stmt->decl->sym->rname);
+    emit(".type %s, @function\n", stmt->decl->sym->rname);
+    emit("%s:\n", stmt->decl->sym->rname);
     emit_prologue(stmt);
 
     emit_move_args_to_stack(stmt->decl->args);
@@ -661,7 +661,7 @@ void emit_func_call(Expression_t *expr)
         pos += 1;
     }
 
-    emit("call %s\n", expr->string_value);
+    emit("call %s\n", expr->sym_value->rname);
 
     for (int i = 6; i >= 0; i--)
     {

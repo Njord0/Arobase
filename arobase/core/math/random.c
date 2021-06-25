@@ -3,7 +3,7 @@
 
 #include "random.h"
 
-int64_t random_int(int64_t min, int64_t max)
+int64_t random_intZintegerZinteger(int64_t min, int64_t max)
 {
     int64_t val;
     if (_internal_get_random(&val) == -1)
