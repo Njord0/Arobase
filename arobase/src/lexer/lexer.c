@@ -219,7 +219,7 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
     else if (c == '%')
         tok = create_token_char(MODULO, c);
 
-    else if (isalpha(c))
+    else if (isalpha(c) || c == '_')
     {
         ungetc(c, lexer->file);
         char *ptr = lexer_get_symbolname(lexer); // check if is reserved keyword
