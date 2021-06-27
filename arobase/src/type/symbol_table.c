@@ -35,6 +35,7 @@ void symtab_free(Symtable_t *st)
             next = sym->next;
             if ((sym->decl != NULL) && (sym->decl->is_imported))
                 free_declaration(sym->decl);
+
             sym = next;
             
         }
@@ -157,6 +158,12 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
                     st->rname = realloc(st->rname, strlen(st->rname)+6);
                     strcat(st->rname, "Zbyte");
                     break;
+            }
+
+            if (args->type.is_array)
+            {
+                st->rname = realloc(st->rname, strlen(st->rname)+4);
+                strcat(st->rname, "Arr");
             }
 
             args = args->next;
@@ -291,7 +298,7 @@ Symbol_t *find_corresponding_function(const char *name, Args_t *c_args)
                 tmp = c_args;
                 while ((args != NULL) && (tmp != NULL))
                 {
-                    if (args->type.t != tmp->type.t)
+                    if ((args->type.t != tmp->type.t) || (args->type.is_array != tmp->type.is_array))
                         break;
                     args = args->next;
                     tmp = tmp->next;

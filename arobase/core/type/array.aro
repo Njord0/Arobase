@@ -1,0 +1,16 @@
+import core.type.array; @_internal_get_size
+
+fn size(a: integer[]) : integer
+{
+    return _internal_get_size(a);
+}
+
+fn size(a: byte[]) : integer
+{
+    return _internal_get_size(a);
+}
+
+fn size(a: char[]) : integer
+{
+    return _internal_get_size(a);
+}

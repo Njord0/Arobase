@@ -1,0 +1,7 @@
+fn size(a: integer[]) : integer;
+fn size(a: char[]) : integer;
+fn size(a: byte[]) : integer;
+
+fn _internal_get_size(a: integer[]) : integer;
+fn _internal_get_size(a: byte[]) : integer;
+fn _internal_get_size(a: char[]) : integer;
