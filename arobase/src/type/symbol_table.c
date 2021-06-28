@@ -401,6 +401,10 @@ void import_from(const char *str)
         if (!token_check(tok, RPAR))
             decl->args = get_args_decl(&tok);
 
+        scope_enter();
+        add_symbol_from_args(symtab_g, decl->args);
+        scope_exit();
+
         if (!token_check(tok, RPAR))
         {
             fprintf(stderr,
