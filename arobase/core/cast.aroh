@@ -1,3 +1,5 @@
+fn byte_to_int(c: byte) : integer;
+fn int_to_byte(i: integer) : byte;
 fn char_to_int(c: char) : integer;
 fn int_to_char(i: integer) : char;
 fn byte_to_char(b: byte) : char;

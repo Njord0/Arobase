@@ -1,4 +1,5 @@
 import core.type.array; @_internal_get_size
+import core.cast;
 
 fn size(a: integer[]) : integer
 {
@@ -13,4 +14,86 @@ fn size(a: byte[]) : integer
 fn size(a: char[]) : integer
 {
     return _internal_get_size(a);
+}
+
+fn sort(a: integer[]) : void
+{
+    let i: integer = 0;
+    let j: integer = size(a);
+    let tmp: integer;
+
+    while (j > 0)
+    {
+        i = 0;
+        while (i < j-1)
+        {
+            if (a[i] > a[i+1])
+            {
+                tmp = a[i+1];
+                a[i+1] = a[i];
+                a[i] = tmp;
+            }
+
+            i = i+1;
+        }
+        j = j-1;
+
+    }
+
+}
+
+fn sort(a: byte[]) : void
+{
+    let i: integer = 0;
+    let j: integer = size(a);
+    let tmp: byte;
+
+    while (j > 0)
+    {
+        i = 0;
+        while (i < j-1)
+        {
+            if (a[i] > a[i+1])
+            {
+                tmp = a[i+1];
+                a[i+1] = a[i];
+                a[i] = tmp;
+            }
+
+            i = i+1;
+        }
+        j = j-1;
+
+    }
+
+}
+
+fn sort(a: char[]) : void
+{
+    let i: integer = 0;
+    let j: integer = size(a);
+    let tmp: char;
+
+    let c: char;
+    let d: char;
+
+    while (j > 0)
+    {
+        i = 0;
+        while (i < j-1)
+        {
+            c = a[i];
+            d = a[i+1];
+            if (char_to_byte(c) > char_to_byte(d))
+            {
+                tmp = a[i+1];
+                a[i+1] = a[i];
+                a[i] = tmp;
+            }
+
+            i = i+1;
+        }
+        j = j-1;
+
+    }
 }

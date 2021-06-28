@@ -3,6 +3,16 @@
 
 #include "cast.h"
 
+char int_to_byteZinteger(int64_t i)
+{
+    return (char)i;
+}
+
+int64_t byte_to_intZbyte(char c)
+{
+    return (int64_t)c;
+}
+
 int64_t char_to_intZchar(char c)
 {
     return (int64_t)c;
