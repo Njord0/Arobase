@@ -122,6 +122,15 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
         cc_exit();
     }
 
+    if (find_corresponding_function(decl->name, decl->args) != NULL)
+    {
+        fprintf(stderr,
+            "Error\n\tMultiple declaration of same function with same paremeters\n");
+        cc_exit();
+    }
+
+
+
     Symbol_t *st = xmalloc(sizeof(Symbol_t));
 
     st->decl = decl;
