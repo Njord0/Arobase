@@ -10,3 +10,4 @@
     - [math](math.md)
         - [utils](math.md)
         - [random](math.md)
+    - [array](array.md)

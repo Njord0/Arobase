@@ -10,8 +10,10 @@
 
 If you want to convert a `char` to a `byte` you have to use `char_to_byte` function which is located in `core.cast` module (see [here](../basics/module.md) for modules explanations).
 
-`cast` offers 4 functions:
+`cast` offers 6 functions:
 
+* `int_to_byte`
+* `byte_to_int`
 * `char_to_int`
 * `int_to_char`
 * `char_to_byte`
@@ -19,6 +21,14 @@ If you want to convert a `char` to a `byte` you have to use `char_to_byte` funct
 
 <br/>
 
+---
+> fn int_to_byte(i: integer) : byte
+
+    This function takes an integer and return a byte.
+---
+> fn byte_to_int(c: byte) : integer
+
+    This function takes a byte and return an integer.
 ---
 > char_to_int(c: char) : integer
 
