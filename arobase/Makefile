@@ -17,7 +17,7 @@ HEADERS_DIR := /usr/local/include/arobase
 HEADERS := $(shell find core/ -name *.aroh)
 DEST_HEADERS := $(addprefix $(HEADERS_DIR)/,$(HEADERS))
 
-C_FLAGS := -Iincludes -O3 -Wall -g
+C_FLAGS := -Iincludes -O3 -Wall
 
 LD_FLAGS := -lm # math.h
 
@@ -43,7 +43,7 @@ $(BUILD_DIR)/core/%.c.o: core/%.c
 $(BUILD_DIR)/core/%.aro.o: core/%.aro
 	@mkdir -p $(dir $@)
 	build/arobase -s $< -o $@.s --no-start
-	as $@.s -o $@ -msyntax=intel -mnaked-reg -Z
+	as $@.s -o $@ -msyntax=intel -mnaked-reg
 
 .PHONY: clean install uninstall
 clean:
@@ -61,10 +61,14 @@ install: $(DEST_HEADERS)
 	@if test -f /lib/ld-linux-x86-64.so.2; then \
 		ln -sf /lib/ld-linux-x86-64.so.2 /lib/ld64.so.1; \
 	else \
-		if test -f /lib/ld-linux.so.2; then \
-			ln -sf /lib/ld-linux.so.2 /lib/ld64.so.1; \
+		if test -f /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2; then \
+			ln -sf /lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 /lib/ld64.so.1; \
 		else \
-			error Did not find any matching loader...; \
+			if test -f /lib64/ld-linux-x86-64.so.2; then \
+				ln -sf /lib64/ld-linux-x86-64.so.2 /lib/ld64.so.1; \
+			else \
+				error Did not find any matching loader...; \
+			fi; \
 		fi; \
 	fi; \
 
