@@ -398,7 +398,18 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
 
         type_set(expr, type);
 
-        if ((type_evaluate(expr->left, type.t).t != type_evaluate(expr->right, type.t).t) || type_evaluate(expr->left, type.t).is_array)
+        if ((type_evaluate(expr->left, type.t).t != type_evaluate(expr->right, type.t).t))
+        {
+            fprintf(stderr, 
+                "Error on line : %lu\n\tInvalid comparison between '%s' and '%s'\n",
+                tok->lineno,
+                type_name(type_evaluate(expr->left, type.t).t),
+                type_name(type_evaluate(expr->right, type.t).t));
+            free_expression(expr);
+            cc_exit();
+        }
+
+        if (type_evaluate(expr->left, type.t).is_array && ((expr->left->expr_type != EXPR_ARRAYA) || (expr->left->expr_type != EXPR_ARRAYA)))
         {
             fprintf(stderr, 
                 "Error on line : %lu\n\tInvalid comparison between '%s' and '%s'\n",
