@@ -121,7 +121,7 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
 
     Type_s type = get_type(&next_token);
 
-    if ((next_token == NULL) || ((next_token->type != ASSIGN) && (next_token->type != EOS)))
+    if (!token_checks(next_token, 2, ASSIGN, EOS))
     {
         free(stmt);
         invalid_syntax_error(next_token);
@@ -469,7 +469,7 @@ Statement_t *stmt_create_while_loop(Token_t **token)
 
     tok = tok->next;
 
-    while ((tok != NULL) && (tok->type != RBRACE))
+    while (!token_check(tok, RBRACE))
     {
         stmtt = get_next_statement(&tok);
 

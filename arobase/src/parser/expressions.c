@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <args.h>
 #include <expressions.h>
@@ -18,7 +19,7 @@ Expression_t *expr_create(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if ((tok->type == NUMBER) || (tok->type == LPAR) || (tok->type == SYMBOL) || (tok->type == MINUS))
+    if (token_checks(tok, 4, NUMBER, LPAR, SYMBOL, MINUS))
     {
         free(expr);
         expr = expr_(&tok, t);
@@ -87,7 +88,7 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if ((tok == NULL) || ((tok->type != NUMBER) && (tok->type != LPAR) && (tok->type != SYMBOL) && (tok->type != MINUS)))
+    if (!token_checks(tok, 4, NUMBER, LPAR, SYMBOL, MINUS))
     {
         free_expression(expr);
         invalid_syntax_error(tok);
@@ -221,7 +222,7 @@ Expression_t *expr_term(Token_t **token, enum Type t)
     Expression_t *node = expr_factor(&tok, t);
     Expression_t *tmp;
 
-    while ((tok != NULL) && ((tok->type == MUL) || (tok->type == DIV) || (tok->type == MODULO)))
+    while (token_checks(tok, 3, MUL, DIV, MODULO))
     {
         Expression_t *expr = xmalloc(sizeof(Expression_t));
 
@@ -262,7 +263,7 @@ Expression_t *expr_(Token_t **token, enum Type t)
     Expression_t *node = expr_term(&tok, t);
     Expression_t *tmp;
 
-    while ((tok != NULL) && ((tok->type == PLUS) || (tok->type == MINUS)))
+    while (token_checks(tok, 2, PLUS, MINUS))
     {
         Expression_t *expr = xmalloc(sizeof(Expression_t));
 
@@ -312,7 +313,7 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
 
     assert (tok->type == LPAR);
 
-    if ((next_token != NULL) && (next_token->type == RPAR))
+    if (token_check(next_token, RPAR))
     {
 
         if (args != NULL)
@@ -382,7 +383,7 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
 
     Type_s type = type_of_first_symbol(expr->left);
 
-    if ((tok != NULL) && ((tok->type == CMP) || (tok->type == OP_LOWER) || (tok->type == OP_GREATER) || (tok->type == DIFF) || (tok->type == OP_GREATER_EQ) || (tok->type == OP_LOWER_EQ)))
+    if (token_checks(tok, 6, CMP, OP_LOWER, OP_GREATER, DIFF, OP_GREATER_EQ, OP_LOWER_EQ))
     {
 
         if (tok->type == CMP) expr->cond_type = EXPR_CMP;

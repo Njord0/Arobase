@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdarg.h>
 
 #include <statements.h>
 #include <tokens.h>
@@ -113,6 +114,27 @@ bool token_check(Token_t *tok, enum TokensTypes t)
         return false;
 
     return true;
+}
+
+bool token_checks(Token_t *tok, unsigned int count, ...)
+{
+    if (tok == NULL)
+        return false;
+
+    va_list params;
+    va_start(params, count);
+
+    unsigned int i = 0;
+
+    while (i < count)
+    {
+        unsigned int var = (unsigned int)va_arg(params, unsigned int);
+        if (tok->type == var)
+            return true;
+        i++;
+    }
+    va_end(params);
+    return false;
 }
 
 void free_token(Token_t *token)
