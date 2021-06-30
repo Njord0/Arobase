@@ -234,7 +234,9 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
             if (left.t != right.t)
             {
                 fprintf(stderr, 
-                    "Error:\n\t can't use operators with two differents type\n");
+                    "Error:\n\t can't use operator '?' between '%s' and '%s'\n",
+                    type_name(left.t),
+                    type_name(right.t));
                 cc_exit();
             }
             type.t = left.t;
@@ -376,4 +378,23 @@ Array_s *type_create_array(enum Type t, unsigned int size)
     array->size = size;
 
     return array;
+}
+
+char *type_name(enum Type t)
+{
+    switch (t)
+    {
+        case INTEGER:
+            return "integer";
+        case _BYTE:
+            return "byte";
+        case _VOID:
+            return "void";
+        case _BOOL:
+            return "bool";
+        case _CHAR:
+            return "char";
+        case STRING:
+            return "string";
+    }
 }

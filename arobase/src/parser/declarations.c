@@ -69,9 +69,10 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
 
         if (decl->type.t != type_evaluate(decl->expr, decl->type.t).t)
         {
-            fprintf(stderr, "Error on line : %lu\n\t Can't assign value to variable '%s', wrong type\n",
+            fprintf(stderr, "Error on line : %lu\n\t Can't assign value of type '%s' to variable of type '%s' \n",
                 tok->lineno,
-                decl->name);
+                type_name(type_evaluate(decl->expr, decl->type.t).t),
+                type_name(decl->type.t));
             cc_exit();
         }
 

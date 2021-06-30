@@ -38,4 +38,6 @@ void type_set(Expression_t *expr, Type_s type);
 
 Array_s *type_create_array(enum Type t, unsigned int size);
 
+char *type_name(enum Type t);
+
 #endif
