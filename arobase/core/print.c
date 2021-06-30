@@ -70,3 +70,14 @@ void _internal_print(const char *ptr)
         : "c"(ptr), "r"((unsigned int)len):);
 
 }
+
+void _internal_assert(const char *ptr)
+{
+    _internal_print("Assertion failed : \n\t");
+    if (ptr != NULL)
+        _internal_print(ptr);
+    asm("movq $60, %%rax\n\t"
+        "movq $1, %%rdi\n\t"
+        "syscall\n\t"
+        :::);
+}

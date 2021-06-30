@@ -16,7 +16,8 @@ enum statement {
     STMT_RETURN,
     STMT_PRINT,
     STMT_INPUT,
-    STMT_IMPORT
+    STMT_IMPORT,
+    STMT_ASSERT
 };
 
 typedef struct statement_ {
@@ -50,6 +51,8 @@ Statement_t *stmt_create_input(Token_t **token);
 
 Statement_t *stmt_create_import(Token_t **token);
 
+Statement_t *stmt_create_assert(Token_t **token);
+
 void stmt_init(Statement_t *stmt);
 
 void free_statement(Statement_t *stmt);
@@ -72,10 +75,11 @@ void free_if_else_statement(Statement_t *stmt);
 #define KW_PRINT    12
 #define KW_INPUT    13
 #define KW_IMPORT   14
+#define KW_ASSERT   15
 
-#define KW_NO       15
+#define KW_NO       16
 
-extern char *Arobase_ReservedKeywords[15];
+extern char *Arobase_ReservedKeywords[16];
 
 unsigned int find_keyword(const char *ptr);
 bool is_reserved(const char *str);

@@ -93,6 +93,9 @@ void emit_statements(Statement_t **statement)
         else if (stmt->stmt_type == STMT_INPUT)
             emit_input(stmt);
 
+        else if (stmt->stmt_type == STMT_ASSERT)
+            emit_assert(stmt);
+
 
         if (stmt != NULL)
             stmt = stmt->next;
@@ -574,9 +577,9 @@ void emit_while(Statement_t *statement)
     else if (expr->cond_type == EXPR_GREATER_EQ)
     {
         if (expr->left->type.t == INTEGER)
-            emit("jle .LC%.5d\n", lbl_out); // signed
+            emit("jl .LC%.5d\n", lbl_out); // signed
         else if (expr->left->type.t == _BYTE)
-            emit("jbe .LC%.5d\n", lbl_out); // unsigned
+            emit("jb .LC%.5d\n", lbl_out); // unsigned
     }
 
 
@@ -754,6 +757,99 @@ void emit_input(Statement_t *stmt)
         emit("mov byte ptr [%s], al\n",
             symbol_s(stmt->decl->sym));
     }
+}
+
+void emit_assert(Statement_t *stmt)
+{
+    Expression_t *expr = stmt->expr;
+
+    emit_expression(expr->left, expr->type.t);
+
+    if (expr->right != NULL)
+        emit_expression(expr->right, expr->right->type.t);
+
+    if (expr->type.t == INTEGER)
+        emit("cmp %s, %s\n",
+            reg_name(expr->left->reg),
+            reg_name(expr->right->reg));
+    
+    else if (expr->type.t == _BYTE)
+        emit("cmp %s, %s\n",
+            reg_name_l(expr->left->reg),
+            reg_name_l(expr->right->reg));
+
+    else if (expr->type.t == _CHAR)
+        emit("cmp %s, %s\n",
+            reg_name_l(expr->left->reg),
+            reg_name_l(expr->right->reg));
+
+
+    reg_free(expr->left);
+    reg_free(expr->right);
+
+    int lbl_false = new_label();
+    int lbl_done = new_label();
+
+    if (expr->cond_type == EXPR_CMP)
+        emit("jne .LC%.5d\n", lbl_false);
+
+    else if (expr->cond_type == EXPR_DIFF)
+        emit("je .LC%.5d\n", lbl_false);
+
+    else if (expr->cond_type == EXPR_LOWER)
+    {
+        if (expr->left->type.t == INTEGER) // signed
+            emit("jge .LC%.5d\n", lbl_false);
+        else if (expr->left->type.t == _BYTE)
+            emit("jae .LC%.5d\n", lbl_false); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_GREATER)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jle .LC%.5d\n", lbl_false); // signed
+
+        else if (expr->left->type.t == _BYTE)
+            emit("jbe .LC%.5d\n", lbl_false); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_LOWER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jg .LC%.5d\n", lbl_false);
+
+        else if (expr->left->type.t == _BYTE)
+            emit("ja .LC%.5d\n", lbl_false);
+    }
+
+    else if (expr->cond_type == EXPR_GREATER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jl .LC%.5d\n", lbl_false);
+
+        else if (expr->left->type.t == _BYTE)
+            emit("jb .LC%.5d\n", lbl_false);
+    }
+    
+    emit("jmp .LC%.5d\n", lbl_done);
+
+    emit(".LC%.5d:\n", lbl_false);
+    // if assert failed
+    emit("mov rdi, 0\n");
+    if (stmt->import_name != NULL)
+    {
+        int lbl = new_label();
+        emit(".data\ns%d: .asciz \"%s\"\n",
+            lbl, 
+            stmt->import_name);
+
+        emit(".text\n");
+        emit("lea rdi, [rip+s%d]\n",
+            lbl);   
+    }
+ 
+    emit("call _internal_assert\n");
+    emit(".LC%.5d:\n", lbl_done);
 }
 
 void emit_move_args_to_stack(Args_t *args)

@@ -25,7 +25,8 @@ char *Arobase_ReservedKeywords[] = {
     "char",
     "print",
     "input",
-    "import"
+    "import",
+    "assert"
 };
 
 Statement_t *get_next_statement(Token_t **token)
@@ -56,6 +57,9 @@ Statement_t *get_next_statement(Token_t **token)
 
     else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_IMPORT]) == 0))
         stmt = stmt_create_import(&tok);
+
+    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_ASSERT]) == 0))
+        stmt = stmt_create_assert(&tok);
 
     else if (tok->type == SYMBOL)
     {
@@ -447,7 +451,7 @@ Statement_t *stmt_create_while_loop(Token_t **token)
     tok = tok->next;
 
     stmt->stmt_type = STMT_WHILE;
-    stmt->expr = expr_create_cond(&tok, _BYTE);
+    stmt->expr = expr_create_cond(&tok, _VOID);
 
 
     if (!token_expect(tok, RPAR))
@@ -627,6 +631,41 @@ Statement_t *stmt_create_import(Token_t **token)
     return stmt;
 }
 
+Statement_t *stmt_create_assert(Token_t **token)
+{
+    Token_t *tok = *token;
+    Statement_t *stmt = xmalloc(sizeof(Statement_t));
+    stmt_init(stmt);
+
+    stmt->stmt_type = STMT_ASSERT;
+
+    tok = tok->next;
+
+    stmt->expr = expr_create_cond(&tok, _VOID);
+
+    if (token_check(tok, COMMA))
+    {
+        tok = tok->next;
+        if (!token_check(tok, TOK_STRING))
+        {
+            fprintf(stderr,
+                "Error on line : %lu\n\tA string was expected here\n",
+                tok->lineno);
+            free(stmt);
+            cc_exit();
+        }
+
+        stmt->import_name = tok->value.p;
+        tok = tok->next;
+    }
+
+    if (!token_expect(tok, EOS))
+        cc_exit();    
+
+    *token = tok;
+    return stmt;
+}
+
 void stmt_init(Statement_t *stmt)
 {
     stmt->decl = NULL;
@@ -655,10 +694,10 @@ void free_statement(Statement_t *stmt)
     if (stmt->stmt_type == STMT_IF_ELSE)
         free_if_else_statement(stmt);
 
-    if (stmt->stmt_type == STMT_WHILE)
+    else if (stmt->stmt_type == STMT_WHILE)
         free_while_loop(stmt);
 
-    if (stmt->stmt_type == STMT_IMPORT)
+    else if (stmt->stmt_type == STMT_IMPORT)
         free(stmt->import_name);
 
     if (stmt->args != NULL)
@@ -666,6 +705,9 @@ void free_statement(Statement_t *stmt)
 
     if (stmt->access != NULL)
         free_expression(stmt->access);
+
+    if (stmt->stmt_type ==STMT_ASSERT)
+        free(stmt->import_name);
 
 
     free(stmt);
