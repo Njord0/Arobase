@@ -38,7 +38,7 @@ There are 5 differents data types :
 
 ## Variable declaration / assignment
 
-To declare a function you need to use the `let` keyword, for example :
+To declare a variable you need to use the `let` keyword, for example :
 ```c
 fn main() : void
 {
@@ -203,3 +203,16 @@ fn main() : void
 ```
 
 Function `int_to_char` is inside `core.cast` you can use it after importing `core.cast`.
+
+## Assertion
+
+You can use the 'assert' keyword to create an assertion.
+Syntax : `assert condition;` or `assert condition, "message";`
+For example :
+```c
+fn main() : void
+{
+    assert 1 == 1, "Somehting's wrong\n";
+    assert 2 != 1;
+}
+```
