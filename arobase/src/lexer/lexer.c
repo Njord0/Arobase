@@ -283,7 +283,7 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
 char lexer_skip_whitespaces(Lexer_t *lexer)
 {
     int c;
-    while (((((c = getc(lexer->file)) == ' ')) || (c == '\n')) 
+    while (((((c = getc(lexer->file)) == ' ')) || (c == '\n') || (c == '\t')) 
             && (c != EOF)) 
     {
         if (c == '\n')
