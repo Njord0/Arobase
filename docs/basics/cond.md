@@ -31,7 +31,8 @@ fn main() : void
 
 While loop can be used to repeat an action till a boolean expression is true, for example : 
 
-```fn main() : void
+```c
+fn main() : void
 {
     let i: integer = 0;
 
@@ -44,3 +45,34 @@ While loop can be used to repeat an action till a boolean expression is true, fo
 ```
 This code will print all numbers from 0 to 9, we can translate it to : 
 print `i` and increment `i` by one until `i` is strictly inferior to 10
+
+## For
+
+The syntax of a for loop is : 
+```
+for (initialization; condition; update;) {}
+```
+
+For example : 
+```c
+fn main() : void
+{
+    for (let i: integer = 0; i < 10; i = i+1;)
+    {
+        print i, "\n";
+    }
+}
+```
+
+In initialization you can declare a variable of type `integer` only.
+
+You can also initialize a variable declared previously : 
+```c
+fn main() : void
+{
+    let i: integer;
+    for (i = 0; i < 10; i = i +2;)
+    {
+        print i, "\n";
+    }
+}
