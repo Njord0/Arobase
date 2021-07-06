@@ -21,6 +21,7 @@ void emit_var_assign(Statement_t *stamement);
 void emit_prologue(Statement_t *stmt);
 void emit_if_else(Statement_t *statement);
 void emit_while(Statement_t *statement);
+void emit_for(Statement_t *statement);
 void emit_func_call(Expression_t *expr);
 void emit_return(Statement_t *stmt);
 void emit_print(Statement_t *stmt);

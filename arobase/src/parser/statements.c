@@ -26,7 +26,8 @@ char *Arobase_ReservedKeywords[] = {
     "print",
     "input",
     "import",
-    "assert"
+    "assert",
+    "for"
 };
 
 Statement_t *get_next_statement(Token_t **token)
@@ -45,6 +46,9 @@ Statement_t *get_next_statement(Token_t **token)
 
     else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_WHILE]) == 0))
         stmt = stmt_create_while_loop(&tok);
+
+    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FOR]) == 0))
+        stmt = stmt_create_for_loop(&tok);
 
     else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_RETURN]) == 0))
         stmt = stmt_create_return(&tok);
@@ -507,6 +511,126 @@ Statement_t *stmt_create_while_loop(Token_t **token)
     return stmt;
 }
 
+Statement_t *stmt_create_for_loop(Token_t **token)
+{
+    Token_t *tok = *token;
+    Statement_t *stmt = xmalloc(sizeof(Statement_t));
+    stmt_init(stmt);
+
+    tok = tok->next;
+
+    if (!token_expect(tok, LPAR))
+    {
+        free(stmt);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    stmt->stmt_type = STMT_FOR;
+
+    Statement_t *stmtt = get_next_statement(&tok);
+
+    if ((stmtt->stmt_type != STMT_DECLARATION) && (stmtt->stmt_type != STMT_ASSIGN))
+    {
+        free_statement(stmtt);
+        free(stmt);
+        fprintf(stderr, 
+            "Error on line :%lu\n\tVariable declaration or assignement was needed here\n",
+            tok->lineno);
+        cc_exit();
+    }
+
+    if ((stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->type.t != INTEGER))
+    {
+        free_statement(stmtt);
+        free(stmt);
+        fprintf(stderr,
+            "Error on line: %lu\n\tOnly integer can be declared inside for loop initialization\n",
+            tok->lineno);
+        cc_exit();
+    }
+
+    stmt->for_loop = stmtt;
+    tok = tok->next;
+    stmt->expr = expr_create_cond(&tok, _VOID);
+
+    if (!token_expect(tok, EOS))
+    {
+        free_statement(stmt);
+        cc_exit();
+    }
+
+
+    tok = tok->next;
+
+    stmt->else_block = get_next_statement(&tok);
+
+    if (stmt->else_block->stmt_type != STMT_ASSIGN)
+    {
+        free_statement(stmt);
+        fprintf(stderr,
+            "Error on line :%lu\n\tVariable assignement was needed here\n",
+            tok->lineno);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    if (!token_expect(tok, RPAR))
+    {
+        free_statement(stmt);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    if (!token_expect(tok, LBRACE))
+    {
+        free_statement(stmt);
+        cc_exit();
+    }
+
+    stmtt = NULL;
+    Statement_t *last_stmt = NULL;
+
+    tok = tok->next;
+
+    while (!token_check(tok, RBRACE))
+    {
+        stmtt = get_next_statement(&tok);
+
+        if ((stmtt != NULL) && (stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->expr == NULL))
+        {
+            free_statement(stmtt);
+            invalid_syntax_error(tok);
+        }
+
+        if (stmt->if_block == NULL)
+        {
+            stmt->if_block = stmtt;
+            last_stmt = stmtt;
+        }
+
+        else
+        {
+            last_stmt->next = stmtt;
+            last_stmt = stmtt;
+        }
+
+        tok = tok->next;
+    }
+
+    if (!token_expect(tok, RBRACE))
+    {
+        free_statement(stmt);
+        cc_exit();
+    }
+
+    *token = tok;
+    return stmt;
+}
+
 Statement_t *stmt_create_return(Token_t **token)
 {
     Token_t *tok = *token;
@@ -676,6 +800,7 @@ void stmt_init(Statement_t *stmt)
     stmt->else_block = NULL;
     stmt->next = NULL;
     stmt->import_name = NULL;
+    stmt->for_loop = NULL;
 }
 
 void free_statement(Statement_t *stmt)
@@ -706,8 +831,11 @@ void free_statement(Statement_t *stmt)
     if (stmt->access != NULL)
         free_expression(stmt->access);
 
-    if (stmt->stmt_type ==STMT_ASSERT)
+    if (stmt->stmt_type == STMT_ASSERT)
         free(stmt->import_name);
+
+    if (stmt->stmt_type == STMT_FOR)
+        free_for_loop(stmt);
 
 
     free(stmt);
@@ -717,7 +845,6 @@ void free_while_loop(Statement_t *stmt)
 {
     Statement_t *prev = stmt->if_block;
     Statement_t *last = NULL;
-//  free_expression(stmt->expr);
 
     while (prev != NULL)
     {
@@ -726,6 +853,22 @@ void free_while_loop(Statement_t *stmt)
         prev = last;
     }
 
+}
+
+void free_for_loop(Statement_t *stmt)
+{
+    Statement_t *prev = stmt->if_block;
+    Statement_t *last = NULL;
+
+    free_statement(stmt->else_block);
+    free_statement(stmt->for_loop);
+
+    while (prev != NULL)
+    {
+        last = prev->next;
+        free_statement(prev);
+        prev = last;
+    }
 }
 
 void free_if_else_statement(Statement_t *stmt)

@@ -157,6 +157,8 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                     fprintf(stderr,
                         "Error on line : %lu\n\tCan't index something that is not an array\n",
                         tok->lineno);
+                    free_expression(expr);
+                    cc_exit();
                 }
 
                 tok = tok->next;
@@ -386,12 +388,18 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
     if (token_checks(tok, 6, CMP, OP_LOWER, OP_GREATER, DIFF, OP_GREATER_EQ, OP_LOWER_EQ))
     {
 
-        if (tok->type == CMP) expr->cond_type = EXPR_CMP;
-        else if (tok->type == OP_GREATER) expr->cond_type = EXPR_GREATER;
-        else if (tok->type == OP_LOWER) expr->cond_type = EXPR_LOWER;
-        else if (tok->type == DIFF) expr->cond_type = EXPR_DIFF;
-        else if (tok->type == OP_GREATER_EQ) expr->cond_type = EXPR_GREATER_EQ;
-        else if (tok->type == OP_LOWER_EQ) expr->cond_type = EXPR_LOWER_EQ;
+        if (tok->type == CMP) 
+            expr->cond_type = EXPR_CMP;
+        else if (tok->type == OP_GREATER) 
+            expr->cond_type = EXPR_GREATER;
+        else if (tok->type == OP_LOWER) 
+            expr->cond_type = EXPR_LOWER;
+        else if (tok->type == DIFF) 
+            expr->cond_type = EXPR_DIFF;
+        else if (tok->type == OP_GREATER_EQ) 
+            expr->cond_type = EXPR_GREATER_EQ;
+        else if (tok->type == OP_LOWER_EQ)
+            expr->cond_type = EXPR_LOWER_EQ;
 
         tok = tok->next;
         expr->right = expr_create(&tok, type.t);

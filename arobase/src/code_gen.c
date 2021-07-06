@@ -80,9 +80,10 @@ void emit_statements(Statement_t **statement)
             emit_if_else(stmt);
 
         else if (stmt->stmt_type == STMT_WHILE)
-        {
             emit_while(stmt);
-        }
+        
+        else if (stmt->stmt_type == STMT_FOR)
+            emit_for(stmt);
 
         else if (stmt->stmt_type == STMT_RETURN)
             emit_return(stmt);
@@ -592,6 +593,101 @@ void emit_while(Statement_t *statement)
 
 }
 
+void emit_for(Statement_t *statement)
+{
+    int lbl_cond = new_label();
+    int lbl_out = new_label();
+
+    Statement_t *for_loop = statement->for_loop;
+    emit_statements(&for_loop);
+
+    emit(".LC%.5d:\n", lbl_cond);
+
+    Expression_t *expr = statement->expr;
+    emit_expression(expr->left, expr->left->type.t);
+
+    if (expr->right != NULL)
+        emit_expression(expr->right, expr->right->type.t);
+
+    if (expr->left->type.t == INTEGER)
+        emit("cmp %s, %s\n",
+            reg_name(expr->left->reg),
+            reg_name(expr->right->reg));
+    
+
+    else if (expr->left->type.t == _BYTE)
+        emit("cmp %s, %s\n",
+            reg_name_l(expr->left->reg),
+            reg_name_l(expr->right->reg));
+
+    else if (expr->type.t == _CHAR)
+        emit("cmp %s, %s\n",
+            reg_name_l(expr->left->reg),
+            reg_name_l(expr->right->reg));
+
+    reg_free(expr->left);
+    reg_free(expr->right);
+    /* Here we generate the reverse condition
+       because while loop layout is as:
+        expr
+        cmp
+        conditional jump
+        .LC000x: #inside loop block
+        ...
+        .LC000y: #outside loop block
+        ...
+    */
+
+    if (expr->cond_type == EXPR_CMP)
+        emit("jne .LC%.5d\n", lbl_out);
+
+    else if (expr->cond_type == EXPR_DIFF)
+        emit("je .LC%.5d\n", lbl_out);
+
+    else if (expr->cond_type == EXPR_LOWER)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jge .LC%.5d\n", lbl_out); // signed
+        else if (expr->left->type.t == _BYTE)
+            emit("jae .LC%.5d\n", lbl_out); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_GREATER)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jle .LC%.5d\n", lbl_out); // signed
+        else if (expr->left->type.t == _BYTE)
+            emit("jbe .LC%.5d\n", lbl_out); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_LOWER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jg .LC%.5d\n", lbl_out); // signed
+        else if (expr->left->type.t == _BYTE)
+            emit("ja .LC%.5d\n", lbl_out); // unsigned
+    }
+
+    else if (expr->cond_type == EXPR_GREATER_EQ)
+    {
+        if (expr->left->type.t == INTEGER)
+            emit("jl .LC%.5d\n", lbl_out); // signed
+        else if (expr->left->type.t == _BYTE)
+            emit("jb .LC%.5d\n", lbl_out); // unsigned
+    }
+
+
+    Statement_t *stmt = statement->if_block;
+    emit_statements(&stmt);
+
+    Statement_t *as = statement->else_block;
+    emit_statements(&as);
+
+    emit("jmp .LC%.5d\n", lbl_cond);
+
+    emit(".LC%.5d:\n", lbl_out);
+}
+
 void emit_return(Statement_t *stmt)
 {
     static int c = 0;
@@ -923,7 +1019,9 @@ unsigned int get_stack_size(Statement_t *stmt)
 {
     unsigned int size = 0;
 
-    Args_t *args = stmt->decl->args;
+    Args_t *args = NULL;
+    if (stmt->decl != NULL)
+        args = stmt->decl->args;
 
     while (args != NULL)
     {
@@ -931,7 +1029,8 @@ unsigned int get_stack_size(Statement_t *stmt)
         args = args->next;
     }
 
-    stmt = stmt->decl->code;
+    if (stmt->decl != NULL)
+        stmt = stmt->decl->code;
 
     while (stmt != NULL)
     {
@@ -947,6 +1046,16 @@ unsigned int get_stack_size(Statement_t *stmt)
             else
                 size += 8;
         }
+
+        else if ((stmt->stmt_type == STMT_FOR) || (stmt->stmt_type == STMT_WHILE))
+        {
+            if (stmt->if_block != NULL)
+                size += get_stack_size(stmt->if_block);
+
+            if ((stmt->for_loop != NULL) && stmt->for_loop->stmt_type == STMT_DECLARATION)
+                size += 8;
+        }
+
         stmt = stmt->next;
     }
     return size;
