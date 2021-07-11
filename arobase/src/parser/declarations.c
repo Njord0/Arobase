@@ -193,10 +193,14 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
             last_stmt = stmt;
         }
 
-        tok = tok->next;        
-
+        tok = tok->next;
     }
 
+    if (decl->type.t != _VOID && last_stmt->stmt_type != STMT_RETURN)
+        fprintf(stderr,
+            "Warnings on line : %lu\n\tLast statement of 'non-void' function should be a 'return', or return value may be unknown\n",
+            tok->lineno);
+    
     if (!token_expect(tok, RBRACE))
         cc_exit();
 
