@@ -21,7 +21,6 @@ void print_usage(const char *arg)
     printf("\toptions:\n");
     printf("\t-o\t\tOutput file name, default is 'out.s'\n");
     printf("\t--no-start\tTell the compiler to not add a '_start' function\n");
-
 }
 
 void parse_args(int argc, char **argv, char **out, char **src)
@@ -64,20 +63,25 @@ int main(int argc, char **argv)
     if (src == NULL)
     {
         fprintf(stderr,
-        "No source file!\n");
+            "Error: \n\tNo source file specified!\n");
         return 1;
     }
 
     if (out == NULL)
     {
         fprintf(stderr,
-            "No output file specified.\n");
+            "Warning: \n\tNo output file specified, default is 'out.s'.\n");
         out = "out.s";
     }
 
     lexer_g = lexer_create(src);
     if (lexer_g == NULL)
+    {
+        fprintf(stderr, 
+            "Error: \n\tNo file named '%s'\n",
+            src);
         return 1;
+    }
 
     lexer_tokenize(lexer_g);
 
