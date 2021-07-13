@@ -1249,7 +1249,6 @@ char *symbol_s(Symbol_t *sym)
         snprintf(pos, sizeof(pos), "rbp-%u", 8*(sym->pos+1));
     }
 
-
     return pos;
 }
 
