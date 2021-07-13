@@ -12,14 +12,13 @@ Lexer_t *lexer_create(const char *filename)
 
     lexer->filename = filename;
     lexer->pos = 0;
-    FILE *file = fopen(filename, "r");
-    if (file == NULL)
+    lexer->file = fopen(filename, "r");
+    if (lexer->file == NULL)
     {
         free(lexer);
         return NULL;
     }
 
-    lexer->file = file;
     lexer->current_lineno = 1;
 
     return lexer;
@@ -27,8 +26,11 @@ Lexer_t *lexer_create(const char *filename)
 
 void lexer_free(Lexer_t *lexer)
 {
-    if (lexer != NULL)
-        fclose(lexer->file);
+
+    if (lexer == NULL)
+        return;
+
+    fclose(lexer->file);
 
     Token_t *tok = lexer->first_token;
     Token_t *next;
