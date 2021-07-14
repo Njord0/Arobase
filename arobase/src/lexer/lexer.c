@@ -339,7 +339,7 @@ char *lexer_get_symbolname(Lexer_t *lexer)
     {
         i++;
 
-        ptr = realloc(ptr, sizeof(char) * (i+1));
+        ptr = xrealloc(ptr, sizeof(char) * (i+1));
         if (ptr == NULL)
             return NULL;
 
@@ -365,7 +365,7 @@ char *lexer_get_string(Lexer_t *lexer)
     {
         i++;
 
-        ptr = realloc(ptr, sizeof(char) * (i+1));
+        ptr = xrealloc(ptr, sizeof(char) * (i+1));
         if (ptr == NULL)
             return NULL;
 

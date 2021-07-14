@@ -73,10 +73,25 @@ void *xmalloc(size_t size)
     {
         fprintf(stderr,
             "ERROR: unable to allocate memory (%lu bytes) !\n",
-            size
-            );
+            size);
 
         cc_exit();
     }
     return ptr;
+}
+
+void *xrealloc(void *ptr, size_t size)
+{
+    void *new = realloc(ptr, size);
+    if (new == NULL)
+    {
+        free(ptr);
+        fprintf(stderr, 
+            "Error: unable to allocate memory (%lu bytes) ! \n",
+            size);
+
+        cc_exit();
+    }
+
+    return new;
 }

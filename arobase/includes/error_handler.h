@@ -12,6 +12,8 @@ void missing_type(long unsigned int line);
 void invalid_variable_name(const char *ptr);
 
 void *xmalloc(size_t size);
+void *xrealloc(void *ptr, size_t size);
+
 
 void cc_exit();
 

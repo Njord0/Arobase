@@ -734,7 +734,7 @@ Statement_t *stmt_create_import(Token_t **token)
         if (!token_expect(tok, SYMBOL))
             cc_exit();
 
-        stmt->import_name = realloc(stmt->import_name, strlen(stmt->import_name)+1+strlen(tok->value.p)+1);
+        stmt->import_name = xrealloc(stmt->import_name, strlen(stmt->import_name)+1+strlen(tok->value.p)+1);
 
         strcat(stmt->import_name, "/");
         strcat(stmt->import_name, tok->value.p);
@@ -742,7 +742,7 @@ Statement_t *stmt_create_import(Token_t **token)
         tok = tok->next;
     }
 
-    stmt->import_name = realloc(stmt->import_name, strlen(stmt->import_name)+6);
+    stmt->import_name = xrealloc(stmt->import_name, strlen(stmt->import_name)+6);
 
     strcat(stmt->import_name, ".aroh"); // arobase header file
 
