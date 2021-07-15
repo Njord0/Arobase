@@ -265,7 +265,7 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
         case EXPR_FUNCCALL:
             if (!is_declared_func(symtab_g, expr->string_value, &sym))
                 undeclared_variable_error(expr->string_value, 0);
-            sym = find_corresponding_function(expr->string_value, expr->args);
+            sym = find_matching_function(expr->string_value, expr->args);
             if (sym == NULL)
                 cc_exit();
 

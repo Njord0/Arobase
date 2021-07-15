@@ -354,7 +354,7 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
 
     Args_t *c_args = expr->args;
 
-    sym = find_corresponding_function(name, c_args);
+    sym = find_matching_function(name, c_args);
     if (sym == NULL)
     {
         fprintf(stderr, 

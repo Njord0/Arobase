@@ -283,7 +283,7 @@ bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol)
     return ((sym != NULL) && (sym->decl->decl_type == VARIABLE));
  }
 
-Symbol_t *find_corresponding_function(const char *name, Args_t *c_args)
+Symbol_t *find_matching_function(const char *name, Args_t *c_args)
 {
     ScopeTable_t *scope = symtab_g->scope;
     Symbol_t *symbol = NULL;
@@ -302,7 +302,8 @@ Symbol_t *find_corresponding_function(const char *name, Args_t *c_args)
                 tmp = c_args;
                 while ((args != NULL) && (tmp != NULL))
                 {
-                    if ((args->type.t != tmp->type.t) || (args->type.is_array != tmp->type.is_array))
+                    if (((args->type.is_array != tmp->type.is_array) && (tmp->expr->expr_type != EXPR_ARRAYA)) ||
+                        (args->type.t != tmp->type.t))
                         break;
                     args = args->next;
                     tmp = tmp->next;

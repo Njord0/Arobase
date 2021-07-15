@@ -137,7 +137,7 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     scope_enter();
     add_symbol_from_args(symtab_g, decl->args);
 
-    Symbol_t *sym = find_corresponding_function(decl->name, decl->args);
+    Symbol_t *sym = find_matching_function(decl->name, decl->args);
 
     sym->_type = decl->type;
 
