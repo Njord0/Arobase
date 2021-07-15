@@ -98,7 +98,11 @@ void symbol_pos()
 
         if ((sym->_type.is_array) && (sym->type != ARG))
         {
-            pos += ((Array_s*)(sym->_type.ptr))->size;
+
+            if (sym->_type.t == _CHAR || sym->_type.t == _BYTE)
+                pos += ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)) / 8 + 1;
+            else
+                pos += ((Array_s*)(sym->_type.ptr))->size;
         }
     
         sym = sym->next;

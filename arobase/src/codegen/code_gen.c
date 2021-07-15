@@ -383,7 +383,10 @@ void emit_var_assign(Statement_t *statement)
 
         emit("push r10\npush r11\n"); // caller saved
 
-        emit("call array_set_element\n");
+        if (statement->expr->sym->_type.t == _BYTE || statement->expr->sym->_type.t == _CHAR)
+            emit("call array_set_element_c\n");
+        else
+            emit("call array_set_element\n");
 
         emit("pop r11\npop r10\n"); // restore
 
@@ -982,10 +985,10 @@ void emit_array_initialization(Args_t *args, Symbol_t *sym)
                 count+1,
                 reg_name(args->expr->reg));
 
-        if ((args->type.t == _CHAR) || (args->type.t == _BYTE))
-            emit("mov byte ptr [%s+8*%u], %s\n",
+        else if (args->type.t == _CHAR || args->type.t == _BYTE)
+            emit("mov byte ptr [%s+8+%u], %s\n",
                 symbol_s(sym),
-                count+1,
+                count,
                 reg_name_l(args->expr->reg));
 
         count++;
@@ -1040,7 +1043,11 @@ unsigned int get_stack_size(Statement_t *stmt)
 
             if (sym->_type.is_array)
             {
-                size += 8 * ((Array_s*)(sym->_type.ptr))->size + 8;
+
+                if (sym->_type.t == _BYTE || sym->_type.t == _CHAR)
+                    size += 16 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8));
+                else
+                    size += 8 * ((Array_s*)(sym->_type.ptr))->size + 8;
             }
 
             else
@@ -1169,7 +1176,10 @@ void load_to_reg(Expression_t *expr)
 
         emit("push r10\npush r11\n"); // caller saved
 
-        emit("call array_get_element\n");
+        if (expr->sym_value->_type.t == _BYTE || expr->sym_value->_type.t == _CHAR)
+            emit("call array_get_element_c\n");
+        else
+            emit("call array_get_element\n");
 
         emit("pop r11\npop r10\n");
 
@@ -1242,7 +1252,11 @@ char *symbol_s(Symbol_t *sym)
 
     if ((sym->_type.is_array) && (sym->type != ARG))
     {
-        snprintf(pos, sizeof(pos), "rbp-%u", 8 * (sym->pos+1+((Array_s*)(sym->_type.ptr))->size));
+
+        if (sym->_type.t == _BYTE || sym->_type.t == _CHAR)
+            snprintf(pos, sizeof(pos), "rbp-%u", 8 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)));
+        else
+            snprintf(pos, sizeof(pos), "rbp-%u", 8 * (sym->pos+1+((Array_s*)(sym->_type.ptr))->size));
     }
     else
     {

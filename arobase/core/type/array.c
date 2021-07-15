@@ -10,12 +10,32 @@ int64_t array_get_element(int64_t arr[], int64_t ind)
     return arr[ind+1];
 }
 
+uint8_t array_get_element_c(int64_t arr[], int64_t ind)
+{
+    if (_internal_bound_check(arr, ind) == -1)
+        return -1;
+
+    uint8_t *ptr = (uint8_t*)arr+8;
+
+    return ptr[ind];
+}
+
 void array_set_element(int64_t arr[], int64_t ind, int64_t el)
 {
     if (_internal_bound_check(arr, ind) == -1)
         return;
 
     arr[ind+1] = el;
+}
+
+void array_set_element_c(int64_t arr[], int64_t ind, int64_t el)
+{
+    if (_internal_bound_check(arr, ind) == -1)
+        return;
+
+    uint8_t *ptr = (uint8_t*)arr+8;
+
+    ptr[ind] = (uint8_t)el;
 }
 
 int64_t _internal_bound_check(int64_t arr[], int64_t ind)
