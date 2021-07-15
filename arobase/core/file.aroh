@@ -1,0 +1,12 @@
+fn file_open(str: string) : integer;
+
+fn file_read(fd: integer, arr: byte[]) : integer;
+fn file_read(fd: integer, arr: char[]) : integer;
+
+fn file_write(fd: integer, arr: byte[]) : void;
+fn file_write(fd: integer, arr: char[]) : void;
+fn file_write(fd: integer, str: string) : void;
+
+fn file_setpos(fd: integer, pos: integer) : void;
+
+fn file_close(fd: integer) : void;
