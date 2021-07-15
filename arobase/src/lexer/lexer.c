@@ -20,6 +20,8 @@ Lexer_t *lexer_create(const char *filename)
     }
 
     lexer->current_lineno = 1;
+    lexer->first_token = NULL;
+    lexer->last_token = NULL;
 
     return lexer;
 }

@@ -151,7 +151,7 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
                     strcat(st->rname, "Zinteger");
                     break;
                 case STRING:
-                    st->rname = realloc(st->rname, strlen(st->rname)+7);
+                    st->rname = realloc(st->rname, strlen(st->rname)+8);
                     strcat(st->rname, "Zstring");
                     break;
                 case _CHAR:
