@@ -449,8 +449,19 @@ Expression_t *expr_fold(Expression_t *expr)
     if (expr->right != NULL)
         expr->right = expr_fold(expr->right);
 
-    if (((expr->left != NULL) && (expr->left->expr_type == EXPR_NUMBER))
-        && ((expr->right != NULL) && (expr->right->expr_type == EXPR_NUMBER)))
+    if (expr->expr_type == EXPR_UNARY_MINUS && expr->left->expr_type == EXPR_NUMBER)
+    {
+        Expression_t *e = xmalloc(sizeof(Expression_t));
+        expr_init(e);
+        e->expr_type = EXPR_NUMBER;
+        e->type = expr->left->type;
+        e->int_value = expr->left->int_value * (-1);
+        free_expression(expr->left);
+        free(expr);
+        return e;
+    }
+
+    else if ((expr->left != NULL && expr->left->expr_type == EXPR_NUMBER) && (expr->right != NULL && expr->right->expr_type == EXPR_NUMBER))
     {
         
         Expression_t *e = xmalloc(sizeof(Expression_t));
