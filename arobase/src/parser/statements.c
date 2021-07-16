@@ -10,6 +10,9 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
+#define IS_KEYWORD(x, y) \
+    x->type == KEYWORD && strcmp(x->value.p, Arobase_ReservedKeywords[y]) == 0 
+
 char *Arobase_ReservedKeywords[] = {
     "let",
     "if",
@@ -35,34 +38,34 @@ Statement_t *get_next_statement(Token_t **token)
     Token_t *tok = *token;
 
     Statement_t *stmt = NULL;
-    if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_LET]) == 0))
+    if (IS_KEYWORD(tok, KW_LET))
         stmt = stmt_create_var_declaration(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FN]) == 0))
+    else if (IS_KEYWORD(tok, KW_FN))
         stmt = stmt_create_func_declaration(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_IF]) == 0))
+    else if (IS_KEYWORD(tok, KW_IF))
         stmt = stmt_create_if_else(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_WHILE]) == 0))
+    else if (IS_KEYWORD(tok, KW_WHILE))
         stmt = stmt_create_while_loop(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FOR]) == 0))
+    else if (IS_KEYWORD(tok, KW_FOR))
         stmt = stmt_create_for_loop(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_RETURN]) == 0))
+    else if (IS_KEYWORD(tok, KW_RETURN))
         stmt = stmt_create_return(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_PRINT]) == 0))
+    else if (IS_KEYWORD(tok, KW_PRINT))
         stmt = stmt_create_print(&tok);
     
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INPUT]) == 0))
+    else if (IS_KEYWORD(tok, KW_INPUT))
         stmt = stmt_create_input(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_IMPORT]) == 0))
+    else if (IS_KEYWORD(tok, KW_IMPORT))
         stmt = stmt_create_import(&tok);
 
-    else if ((tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_ASSERT]) == 0))
+    else if (IS_KEYWORD(tok, KW_ASSERT))
         stmt = stmt_create_assert(&tok);
 
     else if (tok->type == SYMBOL)
