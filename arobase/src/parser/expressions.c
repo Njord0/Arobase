@@ -339,7 +339,8 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
 
         if (!token_expect(next_token, RPAR))
         {
-            free_args(args);
+            free_args(expr->args);
+            free(expr);
             cc_exit();
         }
     

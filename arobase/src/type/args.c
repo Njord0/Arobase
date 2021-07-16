@@ -106,12 +106,17 @@ void free_args(Args_t *args)
     {
         next = args->next;
         if (args->expr != NULL)
+        {
             free_expression(args->expr);
+            args->expr = NULL;
+        }
 
         if ((args->sym != NULL) && args->sym->_type.is_array)
             free(args->sym->_type.ptr);
 
         free(args->sym);
+
+        args->next = NULL;
         free(args);
         args = next;
     }

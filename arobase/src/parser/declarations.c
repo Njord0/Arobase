@@ -227,7 +227,10 @@ void decl_init(Declaration_t *decl)
 void free_declaration(Declaration_t *decl)
 {
     if (decl->expr != NULL)
+    {
         free_expression(decl->expr);
+        decl->expr = NULL;
+    }
 
     if (decl->sym != NULL)
     {
@@ -252,7 +255,10 @@ void free_declaration(Declaration_t *decl)
     }
 
     if (decl->args != NULL)
+    {
         free_args(decl->args);
+        decl->args = NULL;
+    }
 
     if (decl->is_imported && decl->name != NULL)
         free(decl->name);
