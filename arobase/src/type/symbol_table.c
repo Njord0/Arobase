@@ -302,8 +302,7 @@ Symbol_t *find_matching_function(const char *name, Args_t *c_args)
                 tmp = c_args;
                 while ((args != NULL) && (tmp != NULL))
                 {
-                    if (((args->type.is_array != tmp->type.is_array) && (tmp->expr->expr_type != EXPR_ARRAYA)) ||
-                        (args->type.t != tmp->type.t))
+                    if (((args->type.is_array != tmp->type.is_array) && (tmp->expr != NULL && tmp->expr->expr_type != EXPR_ARRAYA)) || (args->type.t != tmp->type.t))
                         break;
                     args = args->next;
                     tmp = tmp->next;

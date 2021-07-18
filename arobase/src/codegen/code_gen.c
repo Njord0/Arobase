@@ -97,7 +97,6 @@ void emit_statements(Statement_t **statement)
         else if (stmt->stmt_type == STMT_ASSERT)
             emit_assert(stmt);
 
-
         if (stmt != NULL)
             stmt = stmt->next;
     }
@@ -381,18 +380,15 @@ void emit_var_assign(Statement_t *statement)
         emit("movq rdx, %s\n",
             reg_name(statement->expr->reg));
 
-        emit("push r10\npush r11\n"); // caller saved
-
         if (statement->expr->sym->_type.t == _BYTE || statement->expr->sym->_type.t == _CHAR)
             emit("call array_set_element_c\n");
         else
             emit("call array_set_element\n");
 
-        emit("pop r11\npop r10\n"); // restore
-
         reg_free(statement->expr);
         reg_free(statement->access);
     }
+
     else
     {
         emit_expression(statement->expr, statement->expr->sym->_type.t);
@@ -1164,6 +1160,8 @@ void load_to_reg(Expression_t *expr)
 
 
         emit_expression(expr->access, INTEGER);
+        if (in_function_call)
+            emit("push rdi\npush rsi\npush rcx\n");
 
         emit("lea rdi, [%s]\n",
                 symbol_s(expr->sym_value));
@@ -1174,14 +1172,13 @@ void load_to_reg(Expression_t *expr)
         emit("movq rsi, %s\n",
             reg_name(expr->access->reg));
 
-        emit("push r10\npush r11\n"); // caller saved
-
         if (expr->sym_value->_type.t == _BYTE || expr->sym_value->_type.t == _CHAR)
             emit("call array_get_element_c\n");
         else
             emit("call array_get_element\n");
 
-        emit("pop r11\npop r10\n");
+        if (in_function_call)
+            emit("pop rcx\npop rsi\npop rdi\n");
 
         switch (expr->sym_value->_type.t)
         {
