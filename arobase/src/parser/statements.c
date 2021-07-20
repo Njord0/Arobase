@@ -79,11 +79,19 @@ Statement_t *get_next_statement(Token_t **token)
         else
             invalid_syntax_error(tok);
     }
+    else if (IS_KEYWORD(tok, KW_ELSE))
+    {
+        fprintf(stderr, 
+            "Error on line : %lu\n\t'else' statement without 'if' statement!\n",
+            tok->lineno);
+        cc_exit();
+    }
 
     else
     {
         fprintf(stderr,
-            "Not supported yet\n");
+            "Error on line :%lu\n\tUnknow syntax.\n",
+            tok->lineno);
         cc_exit();
     }
 
@@ -110,7 +118,7 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
     if (is_reserved(stmt_name))
     {
         fprintf(stderr, 
-            "Impossible declaration on line %lu: \n\t '%s' is a reserved keyword\n",
+            "Error on line %lu: \n\t '%s' is a reserved keyword\n",
              next_token->lineno,
              stmt_name);
         free(stmt);
@@ -234,9 +242,15 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
     type_set(stmt->expr, sym->_type);
 
-    if (sym->_type.t != type_evaluate(stmt->expr, sym->_type.t).t)
+    Type_s type = type_evaluate(stmt->expr, sym->_type.t);
+
+    if (sym->_type.t != type.t)
     {
-        fprintf(stderr, "Can't assign value to a variable of different type\n" );
+        fprintf(stderr, 
+            "Error on line : %lu\n\tCan't assign '%s' value to a '%s' variable\n",
+            tok->lineno,
+            type_name(type.t),
+            type_name(sym->_type.t));
         free_statement(stmt);
         cc_exit();
     }
