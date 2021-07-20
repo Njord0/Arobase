@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 #include <lexer.h>
 #include <statements.h>
 #include <error_handler.h>
+
+bool prev_char = false;
 
 Lexer_t *lexer_create(const char *filename)
 {
@@ -193,7 +196,21 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
     
     else if (c == '\'')
     {
-        tok = create_token_char(QUOTE, c);
+        char *ptr = xmalloc(2);
+        ptr[0] = (char)getc(lexer->file);
+        ptr[1] = '\x00';
+
+        if ((char)getc(lexer->file) != '\'')
+        {
+            fprintf(stderr, 
+                "Error on line : %lu\n\tInvalid character (or non-ascii character)\n",
+                lexer->current_lineno);
+            free(ptr);
+            cc_exit();
+        }
+
+        tok = create_token_s(ptr);
+        tok->type = TOK_CHAR;
     }
 
     else if (c == ',')
@@ -377,7 +394,7 @@ char *lexer_get_string(Lexer_t *lexer)
     if ((c == EOF) || (c == '\n'))
     {
         fprintf(stderr,
-            "Error while lexing on line: %lu\n",
+            "Error on line: %lu\n\t Invalid string end\n",
             lexer->current_lineno);
         cc_exit();
     }

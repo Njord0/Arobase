@@ -34,6 +34,7 @@ enum TokensTypes {
     OP_LOWER_EQ,
     OP_GREATER_EQ,
     MODULO,
+    TOK_CHAR,
 };
 
 typedef struct Token {

@@ -39,25 +39,11 @@ Expression_t *expr_create(Token_t **token, enum Type t)
         tok = tok->next;
     }
 
-    else if (tok->type == QUOTE)
+    else if (tok->type == TOK_CHAR)
     {
-        tok = tok->next;
-        if (!token_check(tok, SYMBOL) || (strlen(tok->value.p) != 1))
-        {
-            fprintf(stderr,
-                "Error on line : %lu\n\tExpected a character, found '%s'\n",
-                tok->lineno,
-                tok->value.p);
-            cc_exit();
-        }
-
         expr->expr_type = EXPR_CHAR;
         expr->string_value = tok->value.p;
         expr->type.t = _CHAR;
-
-        tok = tok->next;
-        if (!token_expect(tok, QUOTE))
-            cc_exit();
 
         tok = tok->next;
     }
