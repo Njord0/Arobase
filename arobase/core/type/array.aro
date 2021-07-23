@@ -84,7 +84,7 @@ fn sort(a: char[]) : void
         {
             c = a[i];
             d = a[i+1];
-            if (char_to_byte(c) > char_to_byte(d))
+            if (to_byte(c) > to_byte(d))
             {
                 tmp = a[i+1];
                 a[i+1] = a[i];

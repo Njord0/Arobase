@@ -3,32 +3,32 @@
 
 #include "cast.h"
 
-char int_to_byteZinteger(int64_t i)
+char to_byteZinteger(int64_t i)
 {
     return (char)i;
 }
 
-int64_t byte_to_intZbyte(char c)
+int64_t to_intZbyte(char c)
 {
     return (int64_t)c;
 }
 
-int64_t char_to_intZchar(char c)
+int64_t to_intZchar(char c)
 {
     return (int64_t)c;
 }
 
-char int_to_charZinteger(int64_t i)
+char to_charZinteger(int64_t i)
 {
     return (char)i;
 }
 
-char byte_to_charZbyte(char c)
+char to_charZbyte(char c)
 {
     return c;
 }
 
-char char_to_byteZchar(char c)
+char to_byteZchar(char c)
 {
     return c;
 }
