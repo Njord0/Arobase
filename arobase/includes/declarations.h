@@ -22,6 +22,7 @@ typedef struct decl_ {
     Args_t *args;            // for function only   
     struct _symbol *sym;
     bool is_imported;
+    bool is_initialised;
 } Declaration_t;
 
 

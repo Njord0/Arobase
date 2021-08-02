@@ -30,6 +30,9 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
         return decl;
     }
 
+    decl->is_initialised = true; 
+
+
     if (type.is_array)
     {
         if (!token_expect(tok, LBRACKET))
@@ -221,6 +224,7 @@ void decl_init(Declaration_t *decl)
     decl->sym = NULL;
     decl->is_imported = false;
     decl->type.is_array = false;
+    decl->is_initialised = false;
 }
 
 

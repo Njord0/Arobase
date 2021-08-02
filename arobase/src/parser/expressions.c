@@ -128,6 +128,13 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 cc_exit();
             }
 
+            if (sym->decl != NULL && !sym->decl->is_initialised)
+            {
+                fprintf(stderr,
+                    "Warning : \n\tUse of uninitialised variable '%s'\n",
+                    sym->name);
+            }
+
             expr->string_value = tok->value.p;
 
             if (token_check(tok->next, LBRACKET))
