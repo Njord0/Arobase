@@ -239,7 +239,9 @@ Statement_t *stmt_create_var_assign(Token_t **token)
     stmt->expr->sym = sym;
 
     stmt->expr->type = sym->_type;
-    sym->decl->is_initialised = true;
+
+    if (sym->decl)
+        sym->decl->is_initialised = true;
 
     type_set(stmt->expr, sym->_type);
 
