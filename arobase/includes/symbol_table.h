@@ -50,6 +50,8 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl);
 void add_symbol_from_args(Symtable_t *symtab, Args_t *args);
 
 Symbol_t *symbol_resolve(Symtable_t *symtab, const char *name);
+Symbol_t *symbol_resolve_func(Symtable_t *symtab, const char *name);
+
 
 bool is_declared_func(Symtable_t *symtab, const char *name, Symbol_t **symbol);
 bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol);

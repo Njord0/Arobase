@@ -261,10 +261,33 @@ Symbol_t *symbol_resolve(Symtable_t *symtab, const char *name)
 
 }
 
+Symbol_t *symbol_resolve_func(Symtable_t *symtab, const char *name)
+{
+
+    ScopeTable_t *scope = symtab->scope;
+    Symbol_t *symbol = NULL;
+
+    while (scope != NULL)
+    {
+        symbol = scope->symbol;
+        while (symbol != NULL)
+        {
+            if (strcmp(symbol->name, name) == 0 && symbol->decl->decl_type == FUNCTION)
+                return symbol;
+
+            symbol = symbol->next;
+        }
+        scope = scope->next;
+    }
+
+    return NULL;
+
+}
+
 bool is_declared_func(Symtable_t *symtab, const char *name, Symbol_t **symbol)
 {
 
-    Symbol_t *sym = symbol_resolve(symtab, name);
+    Symbol_t *sym = symbol_resolve_func(symtab, name);
     *symbol = sym;
 
     return ((sym != NULL) && (sym->decl->decl_type == FUNCTION));

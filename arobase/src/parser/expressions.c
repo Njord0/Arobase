@@ -117,7 +117,7 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
     else if (tok->type == SYMBOL)
     {
         Symbol_t *sym;
-        if (is_declared_var(symtab_g, tok->value.p, &sym))
+        if (is_declared_var(symtab_g, tok->value.p, &sym) && !token_check(tok->next, LPAR))
         {
             if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING))
             {
@@ -299,51 +299,38 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
     expr->expr_type = EXPR_FUNCCALL;
     expr->string_value = name;
 
-    Symbol_t *sym = NULL;
-
-    if (!is_declared_func(symtab_g, name, &sym))
-        undeclared_variable_error(name, tok->lineno);
-
-    Args_t *args = sym->decl->args;
+    Symbol_t *sym;
 
     assert (tok->type == LPAR);
 
     if (token_check(next_token, RPAR))
     {
-
-        if (args != NULL)
+        sym = find_matching_function(name, NULL);
+        if (!sym)
         {
-            fprintf(stderr, "Error on line : %lu\n\tmissing parameter(s) for function '%s'\n",
-                tok->lineno, 
-                expr->string_value);
+            fprintf(stderr, 
+                "Error on line : %lu\n\tCan't find a function with matching prototype\n",
+                tok->lineno);
             free(expr);
             cc_exit();
         }
 
         next_token = next_token->next;
-
         *token = next_token;
         return expr;
     }
-
-    else if (!token_check(next_token, RPAR))
+    
+    else
     {
         expr->args = get_args(&next_token, _VOID);
-
         if (!token_expect(next_token, RPAR))
         {
             free_args(expr->args);
             free(expr);
             cc_exit();
         }
-    
-        next_token = next_token->next;
-    }
 
-    else
-    {
-        free_expression(expr);
-        cc_exit();
+        next_token = next_token->next;
     }
 
     Args_t *c_args = expr->args;
@@ -363,7 +350,6 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
 
     *token = next_token;
     return expr;
-
 }
 
 Expression_t *expr_create_cond(Token_t **token, enum Type t)
