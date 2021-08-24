@@ -162,6 +162,10 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
                     st->rname = realloc(st->rname, strlen(st->rname)+6);
                     strcat(st->rname, "Zbyte");
                     break;
+                default:
+                    fprintf(stderr,
+                        "Error:\n\tInvalid type in function parameters\n");
+                    cc_exit();
             }
 
             if (args->type.is_array)

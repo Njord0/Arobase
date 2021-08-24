@@ -17,10 +17,11 @@ bool NO_START = false;
 
 void print_usage(const char *arg) 
 {
-    printf("Usage: ./%s -s source_file [options]\n", arg);
-    printf("\toptions:\n");
-    printf("\t-o\t\tOutput file name, default is 'out.s'\n");
-    printf("\t--no-start\tTell the compiler to not add a '_start' function\n");
+    printf("Usage: ./%s -s source_file [options]\n"
+        "\toptions:\n"
+        "\t-o\t\tOutput file name, default is 'out.s'\n"
+        "\t--no-start\tTell the compiler to not add a '_start' function\n",
+        arg);
 }
 
 void parse_args(int argc, char **argv, char **out, char **src)

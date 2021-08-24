@@ -18,11 +18,10 @@ bool in_function_call = false;
 #define emit(...) \
         fprintf(file, __VA_ARGS__)
 
-#define LOOP        \
-    struct {        \
-        void *prev; \
-        int lbl;    \
-    }               \
+typedef struct {        
+    void *prev; 
+    int lbl;    
+} LOOP;
 
 LOOP *current_loop = NULL;
 

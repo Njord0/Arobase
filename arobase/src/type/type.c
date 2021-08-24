@@ -205,8 +205,8 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
 {
     Type_s type;
     Symbol_t *sym;
-    Type_s left;
-    Type_s right;
+    Type_s left = {_VOID, false, NULL};
+    Type_s right = {_VOID, false, NULL};
 
     type.is_array = false;
     type.ptr = NULL;
@@ -396,5 +396,7 @@ char *type_name(enum Type t)
             return "char";
         case STRING:
             return "string";
+        default:
+            return "unknown";
     }
 }

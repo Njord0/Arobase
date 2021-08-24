@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include "file.h"
+#include "../type/string.h"
 
 int64_t file_openZstring(const char *name)
 {

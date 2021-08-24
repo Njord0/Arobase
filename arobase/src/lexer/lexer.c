@@ -31,7 +31,6 @@ Lexer_t *lexer_create(const char *filename)
 
 void lexer_free(Lexer_t *lexer)
 {
-
     if (lexer == NULL)
         return;
 
