@@ -18,7 +18,8 @@ enum statement {
     STMT_INPUT,
     STMT_IMPORT,
     STMT_ASSERT,
-    STMT_FOR
+    STMT_FOR,
+    STMT_BREAK
 };
 
 typedef struct statement_ {
@@ -56,6 +57,8 @@ Statement_t *stmt_create_import(Token_t **token);
 
 Statement_t *stmt_create_assert(Token_t **token);
 
+Statement_t *stmt_create_break(Token_t **token);
+
 void stmt_init(Statement_t *stmt);
 
 void free_statement(Statement_t *stmt);
@@ -82,10 +85,11 @@ void free_if_else_statement(Statement_t *stmt);
 #define KW_IMPORT   14
 #define KW_ASSERT   15
 #define KW_FOR      16
+#define KW_BREAK    17
 
-#define KW_NO       17
+#define KW_NO       18
 
-extern char *Arobase_ReservedKeywords[17];
+extern const char *Arobase_ReservedKeywords[18];
 
 unsigned int find_keyword(const char *ptr);
 bool is_reserved(const char *str);

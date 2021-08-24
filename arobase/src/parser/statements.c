@@ -13,7 +13,7 @@
 #define IS_KEYWORD(x, y) \
     x->type == KEYWORD && strcmp(x->value.p, Arobase_ReservedKeywords[y]) == 0 
 
-char *Arobase_ReservedKeywords[] = {
+const char *Arobase_ReservedKeywords[] = {
     "let",
     "if",
     "else",
@@ -30,8 +30,11 @@ char *Arobase_ReservedKeywords[] = {
     "input",
     "import",
     "assert",
-    "for"
+    "for",
+    "break"
 };
+
+unsigned int loop_count = 0;
 
 Statement_t *get_next_statement(Token_t **token)
 {
@@ -67,6 +70,9 @@ Statement_t *get_next_statement(Token_t **token)
 
     else if (IS_KEYWORD(tok, KW_ASSERT))
         stmt = stmt_create_assert(&tok);
+
+    else if (IS_KEYWORD(tok, KW_BREAK))
+        stmt = stmt_create_break(&tok);
 
     else if (tok->type == SYMBOL)
     {
@@ -497,6 +503,8 @@ Statement_t *stmt_create_while_loop(Token_t **token)
 
     tok = tok->next;
 
+    loop_count++;
+
     while (!token_check(tok, RBRACE))
     {
         stmtt = get_next_statement(&tok);
@@ -522,11 +530,14 @@ Statement_t *stmt_create_while_loop(Token_t **token)
         tok = tok->next;
     }
 
+    loop_count--;
+
     if (!token_expect(tok, RBRACE))
     {
         free_statement(stmt);
         cc_exit();
     }
+
     *token = tok;
     return stmt;
 }
@@ -616,6 +627,8 @@ Statement_t *stmt_create_for_loop(Token_t **token)
 
     tok = tok->next;
 
+    loop_count++;
+
     while (!token_check(tok, RBRACE))
     {
         stmtt = get_next_statement(&tok);
@@ -640,6 +653,8 @@ Statement_t *stmt_create_for_loop(Token_t **token)
 
         tok = tok->next;
     }
+
+    loop_count--;
 
     if (!token_expect(tok, RBRACE))
     {
@@ -805,6 +820,35 @@ Statement_t *stmt_create_assert(Token_t **token)
 
     if (!token_expect(tok, EOS))
         cc_exit();    
+
+    *token = tok;
+    return stmt;
+}
+
+Statement_t *stmt_create_break(Token_t **token)
+{
+    Token_t *tok = *token;
+    Statement_t *stmt = xmalloc(sizeof(Statement_t));
+    stmt_init(stmt);
+
+    stmt->stmt_type = STMT_BREAK;
+
+    if (loop_count == 0)
+    {
+        fprintf(stderr,
+            "Error on line : %lu\n\t'break' statement outside loop\n",
+            tok->lineno);
+        free(stmt);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    if (!token_expect(tok, EOS))
+    {
+        free(stmt);
+        cc_exit();
+    }
 
     *token = tok;
     return stmt;

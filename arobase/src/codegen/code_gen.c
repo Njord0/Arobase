@@ -18,6 +18,14 @@ bool in_function_call = false;
 #define emit(...) \
         fprintf(file, __VA_ARGS__)
 
+#define LOOP        \
+    struct {        \
+        void *prev; \
+        int lbl;    \
+    }               \
+
+LOOP *current_loop = NULL;
+
 const char *scratch_regs[] = {
     "rbx",
     "r10",
@@ -96,6 +104,9 @@ void emit_statements(Statement_t **statement)
 
         else if (stmt->stmt_type == STMT_ASSERT)
             emit_assert(stmt);
+
+        else if (stmt->stmt_type == STMT_BREAK)
+            emit_break(stmt);
 
         if (stmt != NULL)
             stmt = stmt->next;
@@ -507,6 +518,13 @@ void emit_while(Statement_t *statement)
     int lbl_cond = new_label();
     int lbl_out = new_label();
 
+    // Adding a new loop into ll
+    LOOP *prev = current_loop;
+    current_loop = xmalloc(sizeof(LOOP));
+    current_loop->prev = prev;
+    current_loop->lbl = lbl_out;
+    //
+
     emit(".LC%.5d:\n", lbl_cond);
 
     Expression_t *expr = statement->expr;
@@ -590,12 +608,25 @@ void emit_while(Statement_t *statement)
 
     emit(".LC%.5d:\n", lbl_out);
 
+
+    // Deleting last loop
+    prev = current_loop->prev;
+    free(current_loop);
+    current_loop = prev;
+
 }
 
 void emit_for(Statement_t *statement)
 {
     int lbl_cond = new_label();
     int lbl_out = new_label();
+
+    // Adding a new loop into ll
+    LOOP *prev = current_loop;
+    current_loop = xmalloc(sizeof(LOOP));
+    current_loop->prev = prev;
+    current_loop->lbl = lbl_out;
+    //
 
     Statement_t *for_loop = statement->for_loop;
     emit_statements(&for_loop);
@@ -685,6 +716,11 @@ void emit_for(Statement_t *statement)
     emit("jmp .LC%.5d\n", lbl_cond);
 
     emit(".LC%.5d:\n", lbl_out);
+
+    // Deleting last loop
+    prev = current_loop->prev;
+    free(current_loop);
+    current_loop = prev;
 }
 
 void emit_return(Statement_t *stmt)
@@ -945,6 +981,14 @@ void emit_assert(Statement_t *stmt)
  
     emit("call _internal_assert\n");
     emit(".LC%.5d:\n", lbl_done);
+}
+
+void emit_break(Statement_t *stmt)
+{
+    if (!current_loop)
+        return;
+
+    emit("jmp .LC%.5d\n", current_loop->lbl);
 }
 
 void emit_move_args_to_stack(Args_t *args)
