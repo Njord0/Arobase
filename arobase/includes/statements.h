@@ -19,7 +19,8 @@ enum statement {
     STMT_IMPORT,
     STMT_ASSERT,
     STMT_FOR,
-    STMT_BREAK
+    STMT_BREAK,
+    STMT_STRUCT
 };
 
 typedef struct statement_ {
@@ -86,10 +87,11 @@ void free_if_else_statement(Statement_t *stmt);
 #define KW_ASSERT   15
 #define KW_FOR      16
 #define KW_BREAK    17
+#define KW_STRUCT   18
 
-#define KW_NO       18
+#define KW_NO       19
 
-extern const char *Arobase_ReservedKeywords[18];
+extern const char *Arobase_ReservedKeywords[19];
 
 unsigned int find_keyword(const char *ptr);
 bool is_reserved(const char *str);

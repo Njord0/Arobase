@@ -31,7 +31,8 @@ const char *Arobase_ReservedKeywords[] = {
     "import",
     "assert",
     "for",
-    "break"
+    "break",
+    "struct"
 };
 
 unsigned int loop_count = 0;
