@@ -6,6 +6,7 @@
 #include <lexer.h>
 #include <tokens.h>
 #include <code_gen.h>
+#include <struct.h>
 #include <statements.h>
 #include <symbol_table.h>
 
@@ -108,6 +109,7 @@ int main(int argc, char **argv)
     symtab_free(symtab_g);
     free_ast(ast_g);
     lexer_free(lexer_g);
+    struct_free();
 
     return 0;
 }

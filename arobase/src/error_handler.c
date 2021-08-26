@@ -2,10 +2,10 @@
 #include <stdlib.h>
 
 #include <error_handler.h>
+#include <symbol_table.h>
+#include <struct.h>
 #include <lexer.h>
 #include <ast.h>
-
-#include <symbol_table.h>
 
 Statement_t *current_function = NULL;
 
@@ -57,6 +57,7 @@ void cc_exit()
     symtab_free(symtab_g);
     free_ast(ast_g);
     lexer_free(lexer_g);
+    struct_free();
 
     if (current_function != NULL)
         free_statement(current_function);

@@ -9,6 +9,7 @@
 #include <expressions.h>
 #include <statements.h>
 #include <code_gen.h>
+#include <struct.h>
 #include <error_handler.h>
 
 static FILE *file;
@@ -126,6 +127,7 @@ void emit_expression(Expression_t *expr, enum Type t)
         case EXPR_SYMBOL:
         case EXPR_STRING_LITTERAL:
         case EXPR_ARRAYA:
+        case EXPR_STRUCTA:
             expr->reg = reg_alloc(expr->reg);
             load_to_reg(expr);
             break;
@@ -133,7 +135,7 @@ void emit_expression(Expression_t *expr, enum Type t)
         case EXPR_PLUS:
             emit_expression(expr->right, t);
             emit_expression(expr->left, t);
-
+            
             if (t == INTEGER)
                 emit("addq %s, %s\n", 
                     reg_name(expr->right->reg),
@@ -397,6 +399,12 @@ void emit_var_assign(Statement_t *statement)
 
         reg_free(statement->expr);
         reg_free(statement->access);
+    }
+    else if (statement->expr->sym->_type.is_structure)
+    {
+        emit_expression(statement->expr, statement->expr->type.t);
+        store_to_stack(statement->expr, statement->expr->sym);
+        reg_free(statement->expr);       
     }
 
     else
@@ -1074,6 +1082,7 @@ unsigned int get_stack_size(Statement_t *stmt)
     if (stmt->decl != NULL)
         stmt = stmt->decl->code;
 
+
     while (stmt != NULL)
     {
         if (stmt->stmt_type == STMT_DECLARATION)
@@ -1088,11 +1097,22 @@ unsigned int get_stack_size(Statement_t *stmt)
                 else
                     size += 8 * ((Array_s*)(sym->_type.ptr))->size + 8;
             }
+            else if (sym->_type.is_structure)
+            {
+                Statement_t *str = get_struct_by_name(sym->_type.ptr);
+
+                Args_t *args = str->args;
+                while (args)
+                {
+                    size += 8;
+                    args = args->next;
+                }
+            }
 
             else
                 size += 8;
         }
-
+    
         else if ((stmt->stmt_type == STMT_FOR) || (stmt->stmt_type == STMT_WHILE))
         {
             if (stmt->if_block != NULL)
@@ -1163,6 +1183,36 @@ void load_to_reg(Expression_t *expr)
                 expr->int_value);            
     }
 
+    else if (expr->expr_type == EXPR_STRUCTA)
+    {
+        Statement_t *str = get_struct_by_name(expr->sym_value->_type.ptr);
+
+        unsigned int pos = struct_member_pos(str, expr->string_value);
+
+        emit("lea rcx, [%s]\n",
+            symbol_s(expr->sym_value));
+
+        if (expr->type.t == INTEGER)
+            emit("movq %s, [rcx-%d*8]\n", 
+                reg_name(expr->reg), 
+                pos);
+
+        else if (expr->type.t == _BYTE)
+            emit("mov %s, [rcx-%d*8]\n",
+                reg_name_l(expr->reg),
+                pos);
+
+        else if (expr->type.t == _CHAR)
+            emit("mov %s, [rcx-%d*8]\n",
+                reg_name_l(expr->reg),
+                pos);
+
+        else if (expr->type.t == STRING)
+            emit("mov %s, [rcx-%d*8]\n",
+                reg_name(expr->reg),
+                pos);
+    }
+
     else if ((expr != NULL) && (expr->expr_type == EXPR_SYMBOL))
     {
 
@@ -1172,6 +1222,7 @@ void load_to_reg(Expression_t *expr)
                 reg_name(expr->reg),
                 symbol_s(expr->sym_value));
         }
+
         else
         {
             if (expr->sym_value->_type.t == INTEGER)
@@ -1200,8 +1251,6 @@ void load_to_reg(Expression_t *expr)
 
     else if ((expr != NULL) && (expr->expr_type == EXPR_ARRAYA))
     {
-
-
         emit_expression(expr->access, INTEGER);
         if (in_function_call)
             emit("push rdi\npush rsi\npush rcx\n");
@@ -1285,6 +1334,35 @@ void store_to_stack(Expression_t *expr, Symbol_t *sym)
         emit("movq [%s], %s\n",
             symbol_s(sym),
             reg_name(expr->reg));
+
+    else if (sym->_type.t == STRUCTURE)
+    {
+        Statement_t *str = get_struct_by_name(sym->_type.ptr);
+        unsigned int pos = struct_member_pos(str, expr->string_value);
+
+        emit("lea rcx, [%s]\n",
+            symbol_s(sym));
+
+        if (expr->type.t == INTEGER)
+            emit("movq [rcx-%d*8], %s\n", 
+                pos,
+                reg_name(expr->reg));
+
+        else if (expr->type.t == _BYTE)
+            emit("mov [rcx-%d*8], %s\n",
+                pos,
+                reg_name_l(expr->reg));
+
+        else if (expr->type.t == _CHAR)
+            emit("mov [rcx-%d*8], %s\n",
+                pos,
+                reg_name_l(expr->reg));
+
+        else if (expr->type.t == STRING)
+            emit("mov [rcx-%d*8], %s\n",
+                pos,
+                reg_name(expr->reg));
+    }
 }
 
 char *symbol_s(Symbol_t *sym)
