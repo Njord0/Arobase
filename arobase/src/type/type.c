@@ -6,6 +6,7 @@
 #include <expressions.h>
 #include <tokens.h>
 #include <type.h>
+#include <struct.h>
 #include <statements.h>
 #include <symbol_table.h>
 
@@ -19,24 +20,23 @@ Type_s get_type(Token_t **token)
     
     tok = tok->next;
 
-    if (!token_expect(tok, KEYWORD))
+    if (!token_checks(tok, 2 , KEYWORD, SYMBOL))
         missing_type(tok->lineno);
-
+    
 
     Type_s type;
+    type.is_array = false;
+    type.is_structure = false;
+    type.ptr = NULL;
 
     if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
     {
         type.t = INTEGER;
-        type.is_array = false;
-        type.ptr = NULL;
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
     {
         type.t = _BYTE;
-        type.is_array = false;
-        type.ptr = NULL;
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
@@ -51,23 +51,29 @@ Type_s get_type(Token_t **token)
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
     {
         type.t = _CHAR;
-        type.is_array = false;
-        type.ptr = NULL;
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
     {
-        type.t = STRING,
-        type.is_array = false;
-        type.ptr = NULL;
+        type.t = STRING;
     }
     
     else
     {
-        fprintf(stderr, 
-            "Error on line : %lu\n\tUnknow type '%s'\n", 
-            tok->lineno, tok->value.p);
-        cc_exit();
+        if (is_defined_struct(tok->value.p))
+        {
+            type.t = STRUCTURE;
+            type.is_structure = true;
+            type.ptr = tok->value.p;
+        }
+
+        else
+        {
+            fprintf(stderr, 
+                "Error on line : %lu\n\tUnknow type '%s'\n", 
+                tok->lineno, tok->value.p);
+            cc_exit();
+        }
     }
 
     tok = tok->next;
@@ -282,6 +288,10 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
 
         case EXPR_UNARY_MINUS:
             type.t = type_evaluate(expr->left, t).t;
+            break;
+
+        case EXPR_STRUCTA:
+            type.t = expr->type.t;
             break;
 
         default:

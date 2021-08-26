@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include <struct.h>
 #include <error_handler.h>
 #include <symbol_table.h>
 
@@ -103,6 +104,23 @@ void symbol_pos()
                 pos += ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)) / 8 + 1;
             else
                 pos += ((Array_s*)(sym->_type.ptr))->size;
+        }
+
+        if (sym->_type.is_structure && (sym->type != ARG))
+        {
+            Statement_t *str = get_struct_by_name(sym->_type.ptr);
+            if (!str)
+                continue;
+
+            Args_t *arg = str->args;
+
+            pos -= 1;
+
+            while (arg)
+            {
+                pos += 1;
+                arg = arg->next;
+            }
         }
     
         sym = sym->next;

@@ -9,12 +9,14 @@ enum Type {
     _VOID,
     _BOOL,
     _CHAR,
-    STRING
+    STRING,
+    STRUCTURE
 };
 
 typedef struct type_s {
     enum Type t;
     bool is_array;
+    bool is_structure;
     void *ptr; // future use
 } Type_s;
 
