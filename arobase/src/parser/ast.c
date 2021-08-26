@@ -4,6 +4,7 @@
 
 #include <ast.h>
 #include <lexer.h>
+#include <struct.h>
 #include <statements.h>
 #include <error_handler.h>
 
@@ -60,6 +61,13 @@ void ast_parse(AST_t *ast, Lexer_t *lexer)
     while (tok != NULL)
     {
         stmt = get_next_statement(&tok);
+
+        if (stmt->stmt_type == STMT_STRUCT)
+        {
+            struct_add(stmt);
+            tok = tok->next;
+            continue;
+        }
 
         if (((stmt->stmt_type != STMT_DECLARATION) || (stmt->decl->decl_type != FUNCTION)) && (stmt->stmt_type != STMT_IMPORT))
         {

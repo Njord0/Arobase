@@ -42,6 +42,8 @@ Statement_t *get_next_statement(Token_t **token);
 
 Statement_t *stmt_create_var_declaration(Token_t **token);
 Statement_t *stmt_create_var_assign(Token_t **token);
+Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const char *name);
+
 
 Statement_t *stmt_create_func_declaration(Token_t **token);
 Statement_t *stmt_create_func_call(Token_t **token);
@@ -59,6 +61,7 @@ Statement_t *stmt_create_import(Token_t **token);
 Statement_t *stmt_create_assert(Token_t **token);
 
 Statement_t *stmt_create_break(Token_t **token);
+Statement_t *stmt_create_struct(Token_t **token);
 
 void stmt_init(Statement_t *stmt);
 

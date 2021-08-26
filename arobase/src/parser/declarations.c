@@ -23,7 +23,9 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
     add_symbol(symtab_g, decl);
 
     if (token_check(tok, ASSIGN))
+    {
         tok = tok->next;
+    }
     else
     {
         *token = tok;
@@ -50,7 +52,25 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
         }
 
         tok = tok->next;
+    }
 
+    else if (type.is_structure)
+    {
+        if (!token_expect(tok, LBRACE))
+        {
+            cc_exit();
+        }
+
+        tok = tok->next;
+
+        decl->args = get_args(&tok, type.t);
+
+        if (!token_expect(tok, RBRACE))
+        {
+            cc_exit();
+        }
+
+        tok = tok->next;
     }
 
     else if (tok != NULL)
@@ -93,8 +113,6 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     decl_init(decl);
     decl->decl_type = FUNCTION;
     decl->name = name;
-
-    
 
     tok = tok->next;
     if (!token_expect(tok, LPAR))

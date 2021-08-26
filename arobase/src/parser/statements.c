@@ -7,6 +7,7 @@
 #include <args.h>
 #include <tokens.h>
 #include <statements.h>
+#include <struct.h>
 #include <error_handler.h>
 #include <symbol_table.h>
 
@@ -75,9 +76,12 @@ Statement_t *get_next_statement(Token_t **token)
     else if (IS_KEYWORD(tok, KW_BREAK))
         stmt = stmt_create_break(&tok);
 
+    else if (IS_KEYWORD(tok, KW_STRUCT))
+        stmt = stmt_create_struct(&tok);
+
     else if (tok->type == SYMBOL)
     {
-        if ((tok->next != NULL) && ((tok->next->type == ASSIGN) || (tok->next->type == LBRACKET)))
+        if ((tok->next != NULL) && ((tok->next->type == ASSIGN) || (tok->next->type == LBRACKET) || (tok->next->type == DOT)))
             stmt = stmt_create_var_assign(&tok);
 
         else if ((tok->next != NULL) && (tok->next->type == LPAR))
@@ -182,6 +186,37 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
         }
     }
 
+    else if (type.is_structure && stmt->decl->is_initialised)
+    {
+        Statement_t *str = get_struct_by_name(type.ptr);
+        //if (!str)
+
+        if (get_args_count(str->args) != get_args_count(stmt->decl->args))
+        {
+            fprintf(stderr, 
+                "Error on line : %lu\n\tInvalid structure initialization\n",
+                tok->lineno);
+            cc_exit();
+        }
+
+        Args_t *args = str->args;
+        Args_t *args_decl = stmt->decl->args;
+
+        while (args)
+        {
+            if (args->type.t != args_decl->type.t)
+            {
+                fprintf(stderr,
+                    "Error on line : %lu\n\tInvalid type for structure...\n",
+                    tok->lineno);
+                cc_exit();
+            }
+            
+            args = args->next;
+            args_decl = args_decl->next;
+        }
+    }
+
     if (!token_expect(next_token, EOS))
     {
         free_statement(stmt);
@@ -203,7 +238,15 @@ Statement_t *stmt_create_var_assign(Token_t **token)
     stmt_init(stmt);
 
     char *name = tok->value.p;
-    
+
+    Symbol_t *sym = symbol_resolve(symtab_g, name);
+
+    if (sym == NULL) 
+    {
+        free_statement(stmt);
+        undeclared_variable_error(name, next_token->lineno);
+    }
+
     if (token_check(next_token, LBRACKET))
     {
         next_token = next_token->next;
@@ -219,18 +262,16 @@ Statement_t *stmt_create_var_assign(Token_t **token)
         next_token = next_token->next;
     }
 
+    if (token_check(next_token, DOT))
+    {
+        stmt = stmt_create_struct_assign(&next_token, stmt, name);
+        *token = next_token;
+        return stmt;
+    }
+
     next_token = next_token->next;
 
     stmt->stmt_type = STMT_ASSIGN;
-
-    Symbol_t *sym = NULL;
-    sym = symbol_resolve(symtab_g, name);
-
-    if (sym == NULL) 
-    {
-        free_statement(stmt);
-        undeclared_variable_error(name, next_token->lineno);
-    }
 
     stmt->expr = expr_create(&next_token, sym->_type.t);
 
@@ -273,6 +314,79 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
     *token = next_token;
 
+    return stmt;
+}
+
+Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const char *name)
+{
+    Token_t *tok = *token;
+    tok = tok->next;
+
+    Symbol_t *sym = symbol_resolve(symtab_g, name);
+
+    Statement_t *str = get_struct_by_name(sym->_type.ptr);
+
+    Args_t *member = struct_get_member(str, tok->value.p);
+
+    if (!member)
+    {
+        fprintf(stderr,
+            "Error on line : %lu\n\tStructure '%s' has no member '%s'\n",
+            tok->lineno,
+            (char*)sym->_type.ptr,
+            tok->value.p);
+    }
+
+
+    tok = tok->next;
+
+    if (!token_expect(tok, ASSIGN))
+    {
+        free(stmt);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    stmt->stmt_type = STMT_ASSIGN;
+    stmt->expr = expr_create(&tok, member->type.t); // type of member to assign the value.
+
+    if (!stmt->expr)
+    {
+        fprintf(stderr, 
+            "Error on line : %lu\n\t Invalid expression",
+            tok->lineno);
+        free_statement(stmt);
+        cc_exit();
+    }
+    stmt->expr->sym = sym;
+    stmt->expr->type = member->type;
+    stmt->expr->string_value = member->name;
+
+    type_set(stmt->expr, member->type);
+
+    Type_s type = type_evaluate(stmt->expr, sym->_type.t);
+
+    if (member->type.t != type.t)
+    {
+        fprintf(stderr, 
+            "Error on line : %lu\n\tCan't assign '%s' value to member '%s' (%s) of structure '%s'.\n",
+            tok->lineno,
+            type_name(type.t),
+            member->name,
+            type_name(member->type.t),
+            str->import_name);
+        free_statement(stmt);
+        cc_exit();
+    }
+
+    if (!token_expect(tok, EOS))
+    {
+        free_statement(stmt);
+        cc_exit();
+    }
+
+    *token = tok;
     return stmt;
 }
 
@@ -725,7 +839,7 @@ Statement_t *stmt_create_input(Token_t **token)
     if (!is_declared_var(symtab_g, tok->value.p, &sym))
         undeclared_variable_error(tok->value.p, tok->lineno);
 
-    if ((sym->_type.is_array) || (sym->_type.t == STRING))
+    if ((sym->_type.is_array) || (sym->_type.t == STRING) || sym->_type.is_structure)
     {
         fprintf(stderr,
             "Error on line %lu : \n\tInvalid type with input statement\n",
@@ -847,6 +961,65 @@ Statement_t *stmt_create_break(Token_t **token)
 
     if (!token_expect(tok, EOS))
     {
+        free(stmt);
+        cc_exit();
+    }
+
+    *token = tok;
+    return stmt;
+}
+
+Statement_t *stmt_create_struct(Token_t **token)
+{
+    Token_t *tok = *token;
+    Statement_t *stmt = xmalloc(sizeof(Statement_t));
+    stmt_init(stmt);
+    stmt->stmt_type = STMT_STRUCT;
+
+    tok = tok->next;
+
+    if (!token_check(tok, SYMBOL))
+    {
+        free(stmt);
+        fprintf(stderr,
+            "Error on line : %lu\n\tMissing structure name\n",
+            tok->lineno);
+        cc_exit();
+    }
+
+    stmt->import_name = tok->value.p;
+
+    tok = tok->next;
+
+    if (!token_expect(tok, LBRACE))
+    {
+        free(stmt);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    stmt->args = get_args_decl(&tok);
+
+    if (!stmt->args)
+    {
+        fprintf(stderr,
+            "Error on line : %lu\n\tEmpty structure\n",
+            tok->lineno);
+    }
+
+    if (!token_expect(tok, RBRACE))
+    {
+        free_args(stmt->args);
+        free(stmt);
+        cc_exit();
+    }
+
+    tok = tok->next;
+
+    if (!token_expect(tok, EOS))
+    {
+        free_args(stmt->args);
         free(stmt);
         cc_exit();
     }

@@ -9,6 +9,7 @@
 #include <args.h>
 #include <expressions.h>
 #include <error_handler.h>
+#include <struct.h>
 #include <symbol_table.h>
 
 Expression_t *expr_create(Token_t **token, enum Type t)
@@ -119,7 +120,7 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
         Symbol_t *sym;
         if (is_declared_var(symtab_g, tok->value.p, &sym) && !token_check(tok->next, LPAR))
         {
-            if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING))
+            if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING) && (sym->_type.t != STRUCTURE))
             {
                 fprintf(stderr,
                     "Error on line : %lu\n\t Invalid type in expression\n", 
@@ -134,7 +135,6 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                     "Warning : \n\tUse of uninitialised variable '%s'\n",
                     sym->name);
             }
-
             expr->string_value = tok->value.p;
 
             if (token_check(tok->next, LBRACKET))
@@ -163,6 +163,43 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                     fprintf(stderr, "Error\n");
                     cc_exit();
                 }
+
+            }
+            else if (token_check(tok->next, DOT))
+            {
+                tok  = tok->next;
+
+                if (!sym->_type.is_structure)
+                {
+                    fprintf(stderr,
+                        "Error on line : %lu\n\tCan't access member of something that is not a structure\n",
+                        tok->lineno);
+                }
+
+                tok = tok->next;
+
+                expr->expr_type = EXPR_STRUCTA;
+                if (!token_check(tok, SYMBOL))
+                {
+                    fprintf(stderr,
+                        "Error on line : %lu\n\tInvalid member for structure...\n");
+                    free_expression(expr);
+                    cc_exit();
+                }
+
+                Statement_t *str = get_struct_by_name(sym->_type.ptr);
+                Args_t *member = struct_get_member(str, tok->value.p);
+                if (!member)
+                {
+                    fprintf(stderr,
+                        "Error on line : %lu\n\tStructure '%s' has no member '%s'\n",
+                        tok->lineno,
+                        (char*)sym->_type.ptr,
+                        tok->value.p);
+                }
+                expr->string_value = member->name;
+                expr->type.t = member->type.t;
+                expr->sym_value = sym;
 
             }
             else

@@ -20,6 +20,7 @@ enum expression {
     EXPR_ARRAYA, // ARRAY_ACCESS
     EXPR_UNARY_MINUS,
     EXPR_MOD,
+    EXPR_STRUCTA, // STRUCTURE_ACCESS
 };
 
 enum condtype {
