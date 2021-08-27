@@ -72,7 +72,6 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
     Token_t *tok = *token;
 
     Expression_t *expr = xmalloc(sizeof(Expression_t));
-
     expr_init(expr);
 
     if (!token_checks(tok, 4, NUMBER, LPAR, SYMBOL, MINUS))
@@ -182,7 +181,8 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 if (!token_check(tok, SYMBOL))
                 {
                     fprintf(stderr,
-                        "Error on line : %lu\n\tInvalid member for structure...\n");
+                        "Error on line : %lu\n\tInvalid member for structure...\n",
+                        tok->lineno);
                     free_expression(expr);
                     cc_exit();
                 }
@@ -545,6 +545,8 @@ void expr_init(Expression_t *expr)
     expr->sym = NULL;
     expr->reg = UINT_MAX;
     expr->int_value = 0;
+    expr->type.is_structure = false;
+    expr->type.is_array = false;
 }
 
 void free_expression(Expression_t *expr)

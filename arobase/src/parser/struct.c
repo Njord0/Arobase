@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <error_handler.h>
 #include <statements.h>
 #include <struct.h>
 
@@ -105,4 +106,45 @@ unsigned int struct_member_pos(Statement_t *str, const char *name)
     }
 
     return 0;
+}
+
+Args_t *struct_get_args(Token_t **token)
+{
+    Token_t *tok = *token;
+
+    Args_t *args = xmalloc(sizeof(Args_t));
+    args->next = NULL;
+    args->expr = NULL;
+    args->sym = NULL;
+    
+    if (!token_expect(tok, SYMBOL))
+    {
+        free_args(args);
+        cc_exit();
+    }
+
+    args->name = tok->value.p;
+
+    tok = tok->next;
+
+    args->type = get_type_decl(&tok);
+    
+    if ((tok != NULL) && (tok->type == COMMA))
+    {
+
+        if (args->type.is_array)
+        {
+            fprintf(stderr, 
+                "Error on line : %lu\n\tArrays can't be structs members!\n",
+                tok->lineno);
+            free_args(args);
+            cc_exit();
+        }
+        tok  = tok->next;
+        args->next = get_args_decl(&tok);
+    }
+
+    *token = tok;
+
+    return args;
 }

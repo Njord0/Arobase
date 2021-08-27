@@ -129,19 +129,18 @@ Type_s get_type_decl(Token_t **token)
 
 
     Type_s type;
+    type.is_array = false;
+    type.is_structure = false;
+    type.ptr = NULL;
 
     if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
     {
         type.t = INTEGER;
-        type.is_array = false;
-        type.ptr = NULL;
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
     {
         type.t = _BYTE;
-        type.is_array = false;
-        type.ptr = NULL;
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
@@ -150,21 +149,16 @@ Type_s get_type_decl(Token_t **token)
             "Error on line : %lu\n\tCan't declare variable of type 'void'\n",
             tok->lineno);
         cc_exit();
-
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
     {
         type.t = _CHAR;
-        type.is_array = false;
-        type.ptr = NULL;
     }
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
     {
-        type.t = STRING,
-        type.is_array = false;
-        type.ptr = NULL;
+        type.t = STRING;
     }
     
     else
@@ -215,6 +209,7 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
     Type_s right = {_VOID, false, NULL};
 
     type.is_array = false;
+    type.is_structure = false;
     type.ptr = NULL;
 
     if (expr == NULL)
@@ -298,7 +293,6 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
             fprintf(stderr, "Type checking error...\n");
             cc_exit();
             break;
-
     }
 
     return type;
@@ -406,6 +400,8 @@ char *type_name(enum Type t)
             return "char";
         case STRING:
             return "string";
+        case STRUCTURE:
+            return "struct";
         default:
             return "unknown";
     }

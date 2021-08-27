@@ -819,6 +819,25 @@ Statement_t *stmt_create_print(Token_t **token)
         free_statement(stmt);
         cc_exit();
     }
+
+    // Check args type...
+    Args_t *args = stmt->args;
+    while (args)
+    {
+        if (args->type.is_array || args->type.is_structure)
+        {
+            fprintf(stderr,
+                "Error on line : %lu\n\t Can't print '%s'(%s) type\n",
+                tok->lineno,
+                type_name(args->type.t),
+                (args->type.is_array ? "array" : "structure"));
+
+            free_statement(stmt);
+            cc_exit();
+        }
+        args = args->next;
+    }
+
     *token = tok;
     return stmt;
 }
@@ -999,7 +1018,7 @@ Statement_t *stmt_create_struct(Token_t **token)
 
     tok = tok->next;
 
-    stmt->args = get_args_decl(&tok);
+    stmt->args = struct_get_args(&tok);
 
     if (!stmt->args)
     {

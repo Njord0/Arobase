@@ -828,13 +828,6 @@ void emit_print(Statement_t *stmt)
 
     while (args != NULL)
     {
-
-        if (args->expr->type.is_array)
-        {
-            fprintf(stderr, 
-                "Error\n\tCan't print array\n");
-        }
-
         emit_expression(args->expr, args->expr->type.t);
 
         if (args->expr->type.t == INTEGER)
