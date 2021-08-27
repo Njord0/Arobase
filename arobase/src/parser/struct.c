@@ -134,9 +134,9 @@ Args_t *struct_get_args(Token_t **token)
 
         if (args->type.is_array)
         {
+            show_error_source(tok);
             fprintf(stderr, 
-                "Error on line : %lu\n\tArrays can't be structs members!\n",
-                tok->lineno);
+                "Arrays can't be structs members!\n");
             free_args(args);
             cc_exit();
         }

@@ -64,10 +64,9 @@ Args_t *get_args_decl(Token_t **token)
 
         if (c == 3)
         {
-            fprintf(
-                stderr, 
-                "Error on line: %lu\n\tFunction parameters are limited to 3 !\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0);
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Function parameters are limited to 3 !\n");
             cc_exit();
         }
 

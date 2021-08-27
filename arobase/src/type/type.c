@@ -24,6 +24,7 @@ Type_s get_type(Token_t **token)
     {
         MISSING_TYPE(tok);
     }
+
     
     tok = tok->next;
 
@@ -31,6 +32,7 @@ Type_s get_type(Token_t **token)
     {
         MISSING_TYPE(tok);
     }
+    
 
     Type_s type;
     type.is_array = false;
@@ -49,9 +51,9 @@ Type_s get_type(Token_t **token)
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
     {
+        show_error_source(tok);
         fprintf(stderr, 
-            "Error on line : %lu\n\tCan't declare variable of type 'void'\n",
-            tok->lineno);
+            "Can't declare variable of type 'void'\n");
         cc_exit();
 
     }
@@ -77,9 +79,10 @@ Type_s get_type(Token_t **token)
 
         else
         {
+            show_error_source(tok);
             fprintf(stderr, 
-                "Error on line : %lu\n\tUnknow type '%s'\n", 
-                tok->lineno, tok->value.p);
+                "Unknow type '%s'\n", 
+                tok->value.p);
             cc_exit();
         }
     }
@@ -91,10 +94,9 @@ Type_s get_type(Token_t **token)
 
         if (type.t == STRING)
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error on line : %lu\n\tCan't create an array of string\n",
-                tok->lineno);
-
+                "Can't create an array of string\n");
             cc_exit();
         }
 
@@ -156,9 +158,9 @@ Type_s get_type_decl(Token_t **token)
 
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
     {
+        show_error_source(tok);
         fprintf(stderr, 
-            "Error on line : %lu\n\tCan't declare variable of type 'void'\n",
-            tok->lineno);
+            "Can't declare variable of type 'void'\n");
         cc_exit();
     }
 
@@ -174,9 +176,10 @@ Type_s get_type_decl(Token_t **token)
     
     else
     {
+        show_error_source(tok);
         fprintf(stderr, 
-            "Error on line : %lu\n\tUnknow type '%s'\n", 
-            tok->lineno, tok->value.p);
+            "Unknow type '%s'\n", 
+            tok->value.p);
         cc_exit();
     }
 
@@ -187,10 +190,9 @@ Type_s get_type_decl(Token_t **token)
 
         if (type.t == STRING)
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error on line : %lu\n\tCan't create an array of string\n",
-                tok->lineno);
-
+                "Can't create an array of string\n");
             cc_exit();
         }
 
@@ -246,7 +248,7 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
             if (left.t != right.t)
             {
                 fprintf(stderr, 
-                    "Error:\n\t can't use operator '?' between '%s' and '%s'\n",
+                    "can't use operator '?' between '%s' and '%s'\n",
                     type_name(left.t),
                     type_name(right.t));
                 cc_exit();
