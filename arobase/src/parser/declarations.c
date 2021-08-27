@@ -92,8 +92,8 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
 
         if (decl->type.t != type_evaluate(decl->expr, decl->type.t).t)
         {
-            fprintf(stderr, "Error on line : %lu\n\t Can't assign value of type '%s' to variable of type '%s' \n",
-                tok->lineno,
+            show_error_source(tok);
+            fprintf(stderr, "Can't assign value of type '%s' to variable of type '%s' \n",
                 type_name(type_evaluate(decl->expr, decl->type.t).t),
                 type_name(decl->type.t));
             cc_exit();
@@ -148,9 +148,9 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line : %lu\n\t Function can't return strings\n",
-            tok->lineno);
+            "Function can't return strings\n");
         cc_exit();
     }
 
@@ -179,9 +179,9 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
         stmt = get_next_statement(&tok);
         if ((stmt != NULL) && (stmt->decl != NULL) &&(stmt->decl->decl_type == FUNCTION))
         {
+            show_error_source(tok);
             fprintf(stderr, 
-                "Error on line : %lu\n\tNested function declaration are not allowed\n",
-                tok->lineno);
+                "Nested function declaration are not allowed\n");
             free_statement(stmt);
             free_declaration(decl);
             cc_exit();
@@ -193,9 +193,9 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
             type_check(stmt->expr);
             if (decl->type.t != type_evaluate(stmt->expr, decl->type.t).t)
             {
+                show_error_source(tok);
                 fprintf(stderr,
-                    "Error on line :%lu\n\tInvalid return value type\n",
-                    tok->lineno);
+                    "tInvalid return value type\n");
                 free_statement(stmt);
                 cc_exit();
             }

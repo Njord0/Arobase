@@ -21,34 +21,6 @@ void invalid_syntax_error(Token_t *token)
     cc_exit();
 }
 
-void undeclared_variable_error(const char *name, long unsigned int line)
-{
-    fprintf(stderr, 
-        "Error on line : %lu \n\tUndeclared symbol \"%s\"\n",
-        line,
-        name);
-
-    cc_exit();
-}
-
-void missing_type(long unsigned int line)
-{
-    fprintf(stderr, 
-        "Error on line : %lu\n\tMissing type\n",
-        line);
-
-    cc_exit();
-}
-
-void invalid_variable_name(const char *ptr)
-{
-    fprintf(stderr, 
-        "Error on line : 0\n\tCan't name variable '%s' because it's a reserved keyword\n",
-        ptr);
-
-    cc_exit();
-}
-
 void cc_exit()
 {
     if (current_function != NULL)
@@ -65,6 +37,57 @@ void cc_exit()
     exit(1);
 }
 
+void show_error_source(Token_t *token)
+{
+    char *ptr = dump_line(token);
+    if (!ptr)
+        return;
+
+    unsigned int line = token ? token->lineno : 0;
+
+    fprintf(stderr,
+        "Error : File '%s', line %d\n%s\n",
+        lexer_g->filename,
+        line,
+        ptr);
+
+    free(ptr);
+    
+}
+
+char *dump_line(Token_t *token)
+{
+    if (!token)
+        return NULL;
+
+    char c;
+    unsigned int l = 1;
+
+    fseek(lexer_g->file, 0, SEEK_SET);
+
+    while ((c=(char)getc(lexer_g->file)) && l < token->lineno)
+    {
+        if (c == '\n')
+            l++;
+    }
+
+    ungetc(c, lexer_g->file);
+    l = 1;
+    char *ptr = xmalloc(sizeof(char));
+
+    while ((c=(char)getc(lexer_g->file)) && c != '\n')
+    {
+        ptr = xrealloc(ptr, l);
+
+        ptr[l-1] = c;
+        l++;
+    }
+
+    ptr[l] = '\x00';
+
+    return ptr;
+
+}
 
 void *xmalloc(size_t size)
 {

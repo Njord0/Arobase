@@ -10,19 +10,27 @@
 #include <statements.h>
 #include <symbol_table.h>
 
+#define MISSING_TYPE(X) \
+    show_error_source(X); \
+        fprintf(stderr, \
+            "Missing type\n"); \
+        cc_exit(); \
+
 Type_s get_type(Token_t **token)
 {
     Token_t *tok = *token;
 
     if (!token_expect(tok, COLON))
-        missing_type(tok->lineno);
-
+    {
+        MISSING_TYPE(tok);
+    }
     
     tok = tok->next;
 
     if (!token_checks(tok, 2 , KEYWORD, SYMBOL))
-        missing_type(tok->lineno);
-    
+    {
+        MISSING_TYPE(tok);
+    }
 
     Type_s type;
     type.is_array = false;
@@ -119,13 +127,16 @@ Type_s get_type_decl(Token_t **token)
     Token_t *tok = *token;
 
     if (!token_expect(tok, COLON))
-        missing_type(tok->lineno);
-
+    {
+        MISSING_TYPE(tok);
+    }
     
     tok = tok->next;
 
     if (!token_expect(tok, KEYWORD))
-        missing_type(tok->lineno);
+    {
+        MISSING_TYPE(tok);
+    }
 
 
     Type_s type;
@@ -265,7 +276,8 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
 
         case EXPR_FUNCCALL:
             if (!is_declared_func(symtab_g, expr->string_value, &sym))
-                undeclared_variable_error(expr->string_value, 0);
+                cc_exit();
+            
             sym = find_matching_function(expr->string_value, expr->args);
             if (sym == NULL)
                 cc_exit();

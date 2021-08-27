@@ -7,13 +7,12 @@
 #include <ast.h>
 
 void invalid_syntax_error(Token_t *token);
-void undeclared_variable_error(const char *name, long unsigned int line);
-void missing_type(long unsigned int line);
-void invalid_variable_name(const char *ptr);
+
+void show_error_source(Token_t *token);
+char *dump_line(Token_t *token);
 
 void *xmalloc(size_t size);
 void *xrealloc(void *ptr, size_t size);
-
 
 void cc_exit();
 

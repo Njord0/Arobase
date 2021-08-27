@@ -51,9 +51,9 @@ Expression_t *expr_create(Token_t **token, enum Type t)
 
     else
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line : %lu\n\tInvalid expression\n",
-            tok->lineno);
+            "Invalid expression\n");
         cc_exit();
     }
 
@@ -76,8 +76,11 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
 
     if (!token_checks(tok, 4, NUMBER, LPAR, SYMBOL, MINUS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid syntax\n");
         free_expression(expr);
-        invalid_syntax_error(tok);
+        cc_exit();
     }
 
     if (tok->type == NUMBER)
@@ -121,9 +124,9 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
         {
             if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING) && (sym->_type.t != STRUCTURE))
             {
+                show_error_source(tok);
                 fprintf(stderr,
-                    "Error on line : %lu\n\t Invalid type in expression\n", 
-                    tok->lineno);
+                    "Invalid type in expression\n");
                 free_expression(expr);
                 cc_exit();
             }
@@ -146,9 +149,9 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 tok = tok->next;
                 if (!sym->_type.is_array)
                 {
+                    show_error_source(tok);
                     fprintf(stderr,
-                        "Error on line : %lu\n\tCan't index something that is not an array\n",
-                        tok->lineno);
+                        "Can't index something that is not an array\n");
                     free_expression(expr);
                     cc_exit();
                 }
@@ -159,6 +162,7 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
 
                 if (!token_check(tok, RBRACKET))
                 {
+                    show_error_source(tok);
                     fprintf(stderr, "Error\n");
                     cc_exit();
                 }
@@ -170,9 +174,10 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
 
                 if (!sym->_type.is_structure)
                 {
+                    show_error_source(tok);
                     fprintf(stderr,
-                        "Error on line : %lu\n\tCan't access member of something that is not a structure\n",
-                        tok->lineno);
+                        "Can't access member of something that is not a structure\n");
+                    cc_exit();
                 }
 
                 tok = tok->next;
@@ -180,9 +185,9 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 expr->expr_type = EXPR_STRUCTA;
                 if (!token_check(tok, SYMBOL))
                 {
+                    show_error_source(tok);
                     fprintf(stderr,
-                        "Error on line : %lu\n\tInvalid member for structure...\n",
-                        tok->lineno);
+                        "Invalid member for structure...\n");
                     free_expression(expr);
                     cc_exit();
                 }
@@ -191,9 +196,9 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 Args_t *member = struct_get_member(str, tok->value.p);
                 if (!member)
                 {
+                    show_error_source(tok);
                     fprintf(stderr,
-                        "Error on line : %lu\n\tStructure '%s' has no member '%s'\n",
-                        tok->lineno,
+                        "Structure '%s' has no member '%s'\n",
                         (char*)sym->_type.ptr,
                         tok->value.p);
                 }
@@ -215,9 +220,9 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
         {
             if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING))
             {
+                show_error_source(tok);
                 fprintf(stderr,
-                    "Error on line : %lu\n\t Invalid type in expression\n", 
-                    tok->lineno);
+                    "Invalid type in expression\n");
                 free_expression(expr);
                 cc_exit();
             }
@@ -235,8 +240,12 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
 
         else
         {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Undeclared variable '%s'\n",
+                tok->value.p);
             free_expression(expr);
-            undeclared_variable_error(tok->value.p, tok->lineno);
+            cc_exit();
         }
 
 
@@ -273,7 +282,12 @@ Expression_t *expr_term(Token_t **token, enum Type t)
         Expression_t *factor = expr_factor(&tok, t);
 
         if (factor == NULL)
-            invalid_syntax_error(tok);
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Invalid syntax\n");
+            cc_exit();
+        }
 
         tmp = node;
 
@@ -310,14 +324,18 @@ Expression_t *expr_(Token_t **token, enum Type t)
         Expression_t *term = expr_term(&tok, t);
     
         if (term == NULL)
-            invalid_syntax_error(tok);
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Invalid syntax error\n");
+            cc_exit();
+        }
 
         tmp = node;
         node = expr;
 
         node->left = term;
         node->right = tmp;
-
     }
 
     *token = tok;
@@ -345,9 +363,9 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
         sym = find_matching_function(name, NULL);
         if (!sym)
         {
+            show_error_source(next_token);
             fprintf(stderr, 
-                "Error on line : %lu\n\tCan't find a function with matching prototype\n",
-                tok->lineno);
+                "Can't find a function with matching prototype\n");
             free(expr);
             cc_exit();
         }
@@ -375,9 +393,9 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
     sym = find_matching_function(name, c_args);
     if (sym == NULL)
     {
+        show_error_source(next_token);
         fprintf(stderr, 
-            "Error on line : %lu\n\tCan't find a function with matching prototype\n",
-            tok->lineno);
+            "Can't find a function with matching prototype\n");
         free(expr);
         cc_exit();
     }
@@ -425,9 +443,9 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
 
         if ((type_evaluate(expr->left, type.t).t != type_evaluate(expr->right, type.t).t))
         {
+            show_error_source(tok);
             fprintf(stderr, 
-                "Error on line : %lu\n\tInvalid comparison between '%s' and '%s'\n",
-                tok->lineno,
+                "Invalid comparison between '%s' and '%s'\n",
                 type_name(type_evaluate(expr->left, type.t).t),
                 type_name(type_evaluate(expr->right, type.t).t));
             free_expression(expr);
@@ -436,9 +454,9 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
 
         if (type_evaluate(expr->left, type.t).is_array && ((expr->left->expr_type != EXPR_ARRAYA) || (expr->left->expr_type != EXPR_ARRAYA)))
         {
+            show_error_source(tok);
             fprintf(stderr, 
-                "Error on line : %lu\n\tInvalid comparison between '%s' and '%s'\n",
-                tok->lineno,
+                "Invalid comparison between '%s' and '%s'\n",
                 type_name(type_evaluate(expr->left, type.t).t),
                 type_name(type_evaluate(expr->right, type.t).t));
             free_expression(expr);

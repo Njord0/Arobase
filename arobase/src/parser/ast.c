@@ -71,9 +71,9 @@ void ast_parse(AST_t *ast, Lexer_t *lexer)
 
         if (((stmt->stmt_type != STMT_DECLARATION) || (stmt->decl->decl_type != FUNCTION)) && (stmt->stmt_type != STMT_IMPORT))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error on line: %lu\n\tCode outside function...\n",
-                tok->lineno);
+                "Code outside function...\n");
             free_statement(stmt);
             cc_exit();
         }

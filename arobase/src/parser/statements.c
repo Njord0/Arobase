@@ -92,17 +92,18 @@ Statement_t *get_next_statement(Token_t **token)
     }
     else if (IS_KEYWORD(tok, KW_ELSE))
     {
-        fprintf(stderr, 
-            "Error on line : %lu\n\t'else' statement without 'if' statement!\n",
-            tok->lineno);
+
+        show_error_source(tok);
+        fprintf(stderr,
+            "'else' statement without 'if' statement!\n");
         cc_exit();
     }
 
     else
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line :%lu\n\tUnknow syntax.\n",
-            tok->lineno);
+            "Unknown syntax.\n");
         cc_exit();
     }
 
@@ -128,10 +129,10 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
 
     if (is_reserved(stmt_name))
     {
+        show_error_source(next_token);
         fprintf(stderr, 
-            "Error on line %lu: \n\t '%s' is a reserved keyword\n",
-             next_token->lineno,
-             stmt_name);
+            "'%s' is a reserved keyword\n",
+            stmt_name);
         free(stmt);
         cc_exit();
     }
@@ -139,9 +140,9 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
     Symbol_t *sym = NULL;
     if (is_declared_var(symtab_g, stmt_name, &sym))
     {
+        show_error_source(next_token);
         fprintf(stderr, 
-            "Error on line : %lu\n\tMultiple definitions of symbol '%s'\n",
-            tok->lineno,
+            "Multiple definitions of symbol '%s'\n",
             stmt_name);
         free(stmt);
         cc_exit();
@@ -165,9 +166,9 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
     {
         if (get_args_count(stmt->decl->args) > ((Array_s*)(type.ptr))->size)
         {
+            show_error_source(next_token);
             fprintf(stderr,
-                "Error on line : %lu\n\tArray initialization is larger than declaration...\n",
-                tok->lineno);
+                "Array initialization is larger than declaration...\n");
             cc_exit();
         }
 
@@ -177,9 +178,9 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
         {
             if (args->type.t != type.t)
             {
+                show_error_source(next_token);
                 fprintf(stderr, 
-                    "Error on line : %lu\n\tInvalid type in array initialization\n",
-                    tok->lineno);
+                    "Invalid type in array initialization\n");
                 cc_exit();
             }
             args = args->next;
@@ -193,9 +194,9 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
 
         if (get_args_count(str->args) != get_args_count(stmt->decl->args))
         {
+            show_error_source(next_token);
             fprintf(stderr, 
-                "Error on line : %lu\n\tInvalid structure initialization\n",
-                tok->lineno);
+                "Invalid structure initialization\n");
             cc_exit();
         }
 
@@ -206,9 +207,12 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
         {
             if (args->type.t != args_decl->type.t)
             {
+                show_error_source(next_token);
                 fprintf(stderr,
-                    "Error on line : %lu\n\tInvalid type for structure...\n",
-                    tok->lineno);
+                    "Invalid type for member '%s', '%s' was expected not '%s'\n",
+                    args_decl->name,
+                    type_name(args_decl->type.t),
+                    type_name(args->type.t));
                 cc_exit();
             }
             
@@ -244,7 +248,11 @@ Statement_t *stmt_create_var_assign(Token_t **token)
     if (sym == NULL) 
     {
         free_statement(stmt);
-        undeclared_variable_error(name, next_token->lineno);
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Undeclared variable '%s'\n",
+            name);
+        cc_exit();
     }
 
     if (sym->decl)
@@ -256,9 +264,12 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
         stmt->access = expr_create(&next_token, INTEGER);
 
-        if (!token_expect(next_token, RBRACKET))
+        if (!token_check(next_token, RBRACKET))
         {
             free(stmt);
+            show_error_source(next_token);
+            fprintf(stderr,
+                "Invalid access to array\n");
             cc_exit();
         }
 
@@ -280,9 +291,9 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
     if (stmt->expr == NULL)
     {
+        show_error_source(next_token);
         fprintf(stderr, 
-            "Error on line : %lu\n\t Invalid expression",
-            tok->lineno);
+            "Invalid expression");
         free_statement(stmt);
         cc_exit();
     }
@@ -296,17 +307,21 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
     if (sym->_type.t != type.t)
     {
+        show_error_source(next_token);
         fprintf(stderr, 
-            "Error on line : %lu\n\tCan't assign '%s' value to a '%s' variable\n",
-            tok->lineno,
+            "Can't assign '%s' value to a '%s' variable\n",
             type_name(type.t),
             type_name(sym->_type.t));
         free_statement(stmt);
         cc_exit();
     }
 
-    if (!token_expect(next_token, EOS))
+    if (!token_check(next_token, EOS))
     {
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Invalid end of statement\n");
+
         free_statement(stmt);
         cc_exit();
     }
@@ -329,13 +344,14 @@ Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const
 
     if (!member)
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line : %lu\n\tStructure '%s' has no member '%s'\n",
-            tok->lineno,
+            "Structure '%s' has no member '%s'\n",
             (char*)sym->_type.ptr,
             tok->value.p);
+        free_statement(stmt);
+        cc_exit();
     }
-
 
     tok = tok->next;
 
@@ -352,9 +368,9 @@ Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const
 
     if (!stmt->expr)
     {
+        show_error_source(tok);
         fprintf(stderr, 
-            "Error on line : %lu\n\t Invalid expression",
-            tok->lineno);
+            "Invalid expression\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -368,9 +384,9 @@ Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const
 
     if (member->type.t != type.t)
     {
+        show_error_source(tok);
         fprintf(stderr, 
-            "Error on line : %lu\n\tCan't assign '%s' value to member '%s' (%s) of structure '%s'.\n",
-            tok->lineno,
+            "Can't assign '%s' value to member '%s' (%s) of structure '%s'.\n",
             type_name(type.t),
             member->name,
             type_name(member->type.t),
@@ -379,8 +395,11 @@ Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const
         cc_exit();
     }
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -435,8 +454,11 @@ Statement_t *stmt_create_func_call(Token_t **token)
     stmt->stmt_type = STMT_EXPR;
     stmt->expr = expr_create_funccall(&next_token, tok->value.p);
 
-    if (!token_expect(next_token, EOS))
+    if (!token_check(next_token, EOS))
     {
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -454,8 +476,11 @@ Statement_t *stmt_create_if_else(Token_t **token)
     stmt->stmt_type = STMT_IF_ELSE;
 
     tok = tok->next;
-    if (!token_expect(tok, LPAR))
+    if (!token_check(tok, LPAR))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing left parenthesis before condition\n");
         free(stmt);
         cc_exit();
     }
@@ -464,8 +489,11 @@ Statement_t *stmt_create_if_else(Token_t **token)
 
     stmt->expr = expr_create_cond(&tok, _VOID);
 
-    if (!token_expect(tok, RPAR))
+    if (!token_check(tok, RPAR))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing right parenthesis after condition\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -510,7 +538,8 @@ Statement_t *stmt_create_if_else(Token_t **token)
 
     if (tok == NULL)
     {
-        fprintf(stderr, "Error:\n\tMissing '}'\n");
+        fprintf(stderr, 
+            "Missing '}'\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -586,8 +615,11 @@ Statement_t *stmt_create_while_loop(Token_t **token)
     stmt_init(stmt);
     tok = tok->next;
 
-    if (!token_expect(tok, LPAR))
+    if (!token_check(tok, LPAR))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing left parenthesis before condition\n");
         free(stmt);
         cc_exit();
     }
@@ -598,8 +630,11 @@ Statement_t *stmt_create_while_loop(Token_t **token)
     stmt->expr = expr_create_cond(&tok, _VOID);
 
 
-    if (!token_expect(tok, RPAR))
+    if (!token_check(tok, RPAR))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing right parenthesis after condition\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -664,8 +699,12 @@ Statement_t *stmt_create_for_loop(Token_t **token)
 
     tok = tok->next;
 
-    if (!token_expect(tok, LPAR))
+    if (!token_check(tok, LPAR))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing left parenthesis before 'for' expression\n");
+
         free(stmt);
         cc_exit();
     }
@@ -680,9 +719,9 @@ Statement_t *stmt_create_for_loop(Token_t **token)
     {
         free_statement(stmtt);
         free(stmt);
+        show_error_source(tok);
         fprintf(stderr, 
-            "Error on line :%lu\n\tVariable declaration or assignement was needed here\n",
-            tok->lineno);
+            "Variable declaration or assignement was expected here\n");
         cc_exit();
     }
 
@@ -690,9 +729,9 @@ Statement_t *stmt_create_for_loop(Token_t **token)
     {
         free_statement(stmtt);
         free(stmt);
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line: %lu\n\tOnly integer can be declared inside for loop initialization\n",
-            tok->lineno);
+            "Only integer can be declared inside for loop initialization\n");
         cc_exit();
     }
 
@@ -713,17 +752,20 @@ Statement_t *stmt_create_for_loop(Token_t **token)
 
     if (stmt->else_block->stmt_type != STMT_ASSIGN)
     {
-        free_statement(stmt);
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line :%lu\n\tVariable assignement was needed here\n",
-            tok->lineno);
+            "Variable assignement was expected here\n");
+        free_statement(stmt);
         cc_exit();
     }
 
     tok = tok->next;
 
-    if (!token_expect(tok, RPAR))
+    if (!token_check(tok, RPAR))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing right parenthesis after 'for' expression\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -791,8 +833,11 @@ Statement_t *stmt_create_return(Token_t **token)
     stmt->stmt_type = STMT_RETURN;
     stmt->expr = expr_create(&tok, _VOID);
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -813,8 +858,11 @@ Statement_t *stmt_create_print(Token_t **token)
     stmt->stmt_type = STMT_PRINT;
     stmt->args = get_args(&tok, _VOID);
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -825,9 +873,9 @@ Statement_t *stmt_create_print(Token_t **token)
     {
         if (args->type.is_array || args->type.is_structure)
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error on line : %lu\n\t Can't print '%s'(%s) type\n",
-                tok->lineno,
+                "Can't print '%s'(%s) type\n",
                 type_name(args->type.t),
                 (args->type.is_array ? "array" : "structure"));
 
@@ -855,13 +903,20 @@ Statement_t *stmt_create_input(Token_t **token)
     Symbol_t *sym = NULL;
 
     if (!is_declared_var(symtab_g, tok->value.p, &sym))
-        undeclared_variable_error(tok->value.p, tok->lineno);
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Undeclared variable '%s'",
+            tok->value.p);
+        free(stmt);
+        cc_exit();
+    }
 
     if ((sym->_type.is_array) || (sym->_type.t == STRING) || sym->_type.is_structure)
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line %lu : \n\tInvalid type with input statement\n",
-            tok->lineno);
+            "Invalid type with input statement\n");
         free(stmt);
         cc_exit();
     }
@@ -943,9 +998,9 @@ Statement_t *stmt_create_assert(Token_t **token)
         tok = tok->next;
         if (!token_check(tok, TOK_STRING))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error on line : %lu\n\tA string was expected here\n",
-                tok->lineno);
+                "A string was expected here\n");
             free(stmt);
             cc_exit();
         }
@@ -954,8 +1009,14 @@ Statement_t *stmt_create_assert(Token_t **token)
         tok = tok->next;
     }
 
-    if (!token_expect(tok, EOS))
-        cc_exit();    
+    if (!token_check(tok, EOS))
+    {
+        show_error_source(tok);
+        fprintf(stderr, 
+            "Invalid end of statement\n");
+        free_statement(stmt);
+        cc_exit();
+    }
 
     *token = tok;
     return stmt;
@@ -971,17 +1032,20 @@ Statement_t *stmt_create_break(Token_t **token)
 
     if (loop_count == 0)
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line : %lu\n\t'break' statement outside loop\n",
-            tok->lineno);
+            "'break' statement outside loop\n");
         free(stmt);
         cc_exit();
     }
 
     tok = tok->next;
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free(stmt);
         cc_exit();
     }
@@ -1001,10 +1065,11 @@ Statement_t *stmt_create_struct(Token_t **token)
 
     if (!token_check(tok, SYMBOL))
     {
-        free(stmt);
+
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line : %lu\n\tMissing structure name\n",
-            tok->lineno);
+            "Missing structure name\n");
+        free(stmt);
         cc_exit();
     }
 
@@ -1024,9 +1089,11 @@ Statement_t *stmt_create_struct(Token_t **token)
 
     if (!stmt->args)
     {
+        show_error_source(tok);
         fprintf(stderr,
-            "Error on line : %lu\n\tEmpty structure\n",
-            tok->lineno);
+            "Empty structure\n");
+            free_statement(stmt);
+        cc_exit();
     }
 
     if (!token_expect(tok, RBRACE))
@@ -1038,8 +1105,11 @@ Statement_t *stmt_create_struct(Token_t **token)
 
     tok = tok->next;
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_args(stmt->args);
         free(stmt);
         cc_exit();
