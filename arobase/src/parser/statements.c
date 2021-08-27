@@ -247,6 +247,9 @@ Statement_t *stmt_create_var_assign(Token_t **token)
         undeclared_variable_error(name, next_token->lineno);
     }
 
+    if (sym->decl)
+        sym->decl->is_initialised = true;
+
     if (token_check(next_token, LBRACKET))
     {
         next_token = next_token->next;
@@ -285,11 +288,7 @@ Statement_t *stmt_create_var_assign(Token_t **token)
     }
 
     stmt->expr->sym = sym;
-
     stmt->expr->type = sym->_type;
-
-    if (sym->decl)
-        sym->decl->is_initialised = true;
 
     type_set(stmt->expr, sym->_type);
 
@@ -866,6 +865,9 @@ Statement_t *stmt_create_input(Token_t **token)
         free(stmt);
         cc_exit();
     }
+
+    if (sym->decl)
+        sym->decl->is_initialised = true;
 
     stmt->stmt_type = STMT_INPUT;
     stmt->decl = sym->decl;

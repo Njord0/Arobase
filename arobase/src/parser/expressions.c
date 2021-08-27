@@ -128,7 +128,7 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
                 cc_exit();
             }
 
-            if (sym->decl != NULL && !sym->decl->is_initialised)
+            if (sym->decl && !sym->decl->is_initialised)
             {
                 fprintf(stderr,
                     "Warning : \n\tUse of uninitialised variable '%s'\n",
