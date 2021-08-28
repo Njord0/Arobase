@@ -75,7 +75,7 @@ char *dump_line(Token_t *token)
     l = 1;
     char *ptr = xmalloc(sizeof(char));
 
-    while ((c=(char)getc(lexer_g->file)) && c != '\n')
+    while ((c=(char)getc(lexer_g->file)) && c != '\n' && c != EOF)
     {
         ptr = xrealloc(ptr, l);
 
