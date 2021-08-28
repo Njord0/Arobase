@@ -376,7 +376,8 @@ Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const
     }
     stmt->expr->sym = sym;
     stmt->expr->type = member->type;
-    stmt->expr->string_value = member->name;
+    //stmt->expr->string_value = member->name;
+    stmt->expr->args = member;
 
     type_set(stmt->expr, member->type);
 
@@ -871,7 +872,7 @@ Statement_t *stmt_create_print(Token_t **token)
     Args_t *args = stmt->args;
     while (args)
     {
-        if (args->type.is_array || args->type.is_structure)
+        if ((args->type.is_array && args->expr->expr_type != EXPR_ARRAYA) || args->type.is_structure)
         {
             show_error_source(tok);
             fprintf(stderr,

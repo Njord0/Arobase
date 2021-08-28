@@ -257,6 +257,12 @@ void emit_var_declaration(Statement_t *statement)
         return;
     }
 
+    else if (statement->decl->type.is_structure)
+    {
+        emit_structure_initialization(statement->decl->args, statement->decl->sym);
+        return;
+    }
+
     else if (statement->decl->expr == NULL)
     {
         return;
@@ -783,12 +789,13 @@ void emit_func_call(Expression_t *expr)
     {   
         emit_expression(args->expr, args->expr->type.t);
 
-        if ((args->type.is_array) && (args->expr->sym_value->type == ARG))
+        if ((args->type.is_array || args->type.is_structure) && (args->expr->sym_value->type == ARG))
         {
             emit("movq %s, [%s]\n",
                 args_regs[pos],
                 reg_name(args->expr->reg)); 
         }
+        
         else
         {
             emit("movq %s, %s\n",
@@ -1015,7 +1022,7 @@ void emit_array_initialization(Args_t *args, Symbol_t *sym)
         symbol_s(sym),
         ((Array_s*)(sym->_type.ptr))->size);
 
-    while (args != NULL)
+    while (args)
     {
         emit_expression(args->expr, args->type.t);
 
@@ -1037,6 +1044,53 @@ void emit_array_initialization(Args_t *args, Symbol_t *sym)
         args = args->next;
 
     }
+}
+
+void emit_structure_initialization(Args_t *args, Symbol_t *sym)
+{
+
+    Statement_t *str = get_struct_by_name(sym->_type.ptr);
+    if (!str)
+        return;
+
+    Args_t *args_decl = str->args;
+
+
+
+    while (args)
+    {
+        emit_expression(args->expr, args->type.t);
+        unsigned int pos = struct_member_pos(str, args_decl->name);
+
+        emit("lea rcx, [%s]\n",
+            symbol_s(sym));
+
+        if (args->expr->type.t == INTEGER)
+            emit("movq [rcx-%d*8], %s\n",
+                pos,
+                reg_name(args->expr->reg));
+
+        else if (args->expr->type.t == _BYTE)
+            emit("mov [rcx-%d*8], %s\n",
+                pos,
+                reg_name_l(args->expr->reg));
+
+        else if (args->expr->type.t == _CHAR)
+            emit("mov [rcx-%d*8], %s\n",
+                pos,
+                reg_name_l(args->expr->reg));
+
+        else if (args->expr->type.t == STRING)
+            emit("mov [rcx-%d*8], %s\n",
+            pos,
+            reg_name(args->expr->reg));
+
+        reg_free(args->expr);
+        args = args->next;
+        args_decl = args_decl->next;
+
+    }
+
 }
 
 int new_label()
@@ -1180,11 +1234,19 @@ void load_to_reg(Expression_t *expr)
     {
         Statement_t *str = get_struct_by_name(expr->sym_value->_type.ptr);
 
-        unsigned int pos = struct_member_pos(str, expr->string_value);
+        unsigned int pos;
+        if (expr->args)
+            pos = struct_member_pos(str, expr->args->name);
+        else
+            pos = struct_member_pos(str, expr->string_value);
+
 
         emit("lea rcx, [%s]\n",
             symbol_s(expr->sym_value));
 
+        if (expr->sym_value->type == ARG) // If structure is an argument, load it. 
+            emit("mov rcx, [rcx]\n");
+        
         if (expr->type.t == INTEGER)
             emit("movq %s, [rcx-%d*8]\n", 
                 reg_name(expr->reg), 
@@ -1209,7 +1271,7 @@ void load_to_reg(Expression_t *expr)
     else if ((expr != NULL) && (expr->expr_type == EXPR_SYMBOL))
     {
 
-        if (expr->sym_value->_type.is_array)
+        if (expr->sym_value->_type.is_array || expr->sym_value->_type.is_structure)
         {
             emit("lea %s, [%s]\n",
                 reg_name(expr->reg),
@@ -1235,6 +1297,11 @@ void load_to_reg(Expression_t *expr)
 
             else if (expr->sym_value->_type.t == STRING)
                 emit("mov %s, [%s]\n",
+                    reg_name(expr->reg),
+                    symbol_s(expr->sym_value));
+
+            else if (expr->sym_value->_type.t == STRUCTURE)
+                emit("lea %s, [%s]\n",
                     reg_name(expr->reg),
                     symbol_s(expr->sym_value));
         }
@@ -1331,10 +1398,18 @@ void store_to_stack(Expression_t *expr, Symbol_t *sym)
     else if (sym->_type.t == STRUCTURE)
     {
         Statement_t *str = get_struct_by_name(sym->_type.ptr);
-        unsigned int pos = struct_member_pos(str, expr->string_value);
+
+        unsigned int pos;
+        if (expr->args)
+            pos = struct_member_pos(str, expr->args->name);
+        else
+            pos = struct_member_pos(str, expr->string_value);
 
         emit("lea rcx, [%s]\n",
             symbol_s(sym));
+
+        if (sym->type == ARG) // If structure is an argument, load it. 
+            emit("mov rcx, [rcx]\n");    
 
         if (expr->type.t == INTEGER)
             emit("movq [rcx-%d*8], %s\n", 

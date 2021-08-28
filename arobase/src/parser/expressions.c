@@ -582,8 +582,8 @@ void free_expression(Expression_t *expr)
     if (expr->access != NULL)
         free_expression(expr->access);
 
-    if (expr->args != NULL)
-        free_args(expr->args);
+//    if (expr->args != NULL)
+//        free_args(expr->args);
 
     if (expr->expr_type == EXPR_STRING_LITTERAL)
         free(expr->string_value);

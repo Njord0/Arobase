@@ -30,6 +30,8 @@ void emit_assert(Statement_t *stmt);
 void emit_break(Statement_t *stmt);
 
 void emit_array_initialization(Args_t *args, Symbol_t *sym);
+void emit_structure_initialization(Args_t *args, Symbol_t *sym);
+
 
 
 void emit_move_args_to_stack(Args_t *args);

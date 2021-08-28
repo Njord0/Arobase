@@ -24,7 +24,6 @@ Type_s get_type(Token_t **token)
     {
         MISSING_TYPE(tok);
     }
-
     
     tok = tok->next;
 
@@ -135,11 +134,10 @@ Type_s get_type_decl(Token_t **token)
     
     tok = tok->next;
 
-    if (!token_expect(tok, KEYWORD))
+    if (!token_checks(tok, 2 , KEYWORD, SYMBOL))
     {
         MISSING_TYPE(tok);
     }
-
 
     Type_s type;
     type.is_array = false;
@@ -176,11 +174,21 @@ Type_s get_type_decl(Token_t **token)
     
     else
     {
-        show_error_source(tok);
-        fprintf(stderr, 
-            "Unknow type '%s'\n", 
-            tok->value.p);
-        cc_exit();
+        if (is_defined_struct(tok->value.p))
+        {
+            type.t = STRUCTURE;
+            type.is_structure = true;
+            type.ptr = tok->value.p;
+        }
+        else
+        {
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Unknow type '%s'\n", 
+                tok->value.p);
+            cc_exit();
+        }
+
     }
 
     tok = tok->next;

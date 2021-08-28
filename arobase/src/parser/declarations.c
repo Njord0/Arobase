@@ -5,6 +5,7 @@
 
 #include <args.h>
 #include <tokens.h>
+#include <struct.h>
 #include <declarations.h>
 #include <error_handler.h>
 #include <symbol_table.h>
@@ -63,7 +64,7 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
 
         tok = tok->next;
 
-        decl->args = get_args(&tok, type.t);
+        decl->args = get_args(&tok, _VOID);
 
         if (!token_expect(tok, RBRACE))
         {
@@ -131,7 +132,7 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
         cc_exit();
     tok = tok->next;
 
-    if (!token_expect(tok, KEYWORD))
+    if (!token_checks(tok, 2, KEYWORD, SYMBOL))
         cc_exit();
 
     if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
@@ -152,6 +153,25 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
         fprintf(stderr,
             "Function can't return strings\n");
         cc_exit();
+    }
+
+    else
+    {
+        if (is_defined_struct(tok->value.p))
+        {
+            decl->type.t = STRUCTURE;
+            decl->type.ptr = tok->value.p;
+            decl->type.is_structure = true;
+        }
+        else
+        {
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Unknow type '%s'\n", 
+                tok->value.p);
+            cc_exit();
+        }
+
     }
 
     add_symbol(symtab_g, decl);

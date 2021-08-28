@@ -180,6 +180,11 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
                     st->rname = realloc(st->rname, strlen(st->rname)+6);
                     strcat(st->rname, "Zbyte");
                     break;
+                case STRUCTURE:
+                    st->rname = realloc(st->rname, strlen(st->rname)+strlen(args->type.ptr)+5);
+                    strcat(st->rname, "Zstr");
+                    strcat(st->rname, args->type.ptr);
+                    break;
                 default:
                     fprintf(stderr,
                         "Error:\n\tInvalid type in function parameters\n");
