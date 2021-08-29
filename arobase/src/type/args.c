@@ -8,7 +8,8 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
-Args_t *get_args(Token_t **token, enum Type t)
+Args_t*
+get_args(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
@@ -34,7 +35,8 @@ Args_t *get_args(Token_t **token, enum Type t)
     return args;
 }
 
-Args_t *get_args_decl(Token_t **token)
+Args_t*
+get_args_decl(Token_t **token)
 {
     Token_t *tok = *token;
 
@@ -59,7 +61,7 @@ Args_t *get_args_decl(Token_t **token)
 
     c += 1;
     
-    if ((tok != NULL) && (tok->type == COMMA))
+    if (tok && (tok->type == COMMA))
     {
 
         if (c == 3)
@@ -81,12 +83,13 @@ Args_t *get_args_decl(Token_t **token)
     return args;
 }
 
-unsigned int get_args_count(Args_t *args)
+unsigned int
+get_args_count(Args_t *args)
 {
 
     unsigned int count = 0;
 
-    while (args != NULL)
+    while (args)
     {
         args = args->next;
         count++;
@@ -96,21 +99,22 @@ unsigned int get_args_count(Args_t *args)
 
 }
 
-void free_args(Args_t *args)
+void
+free_args(Args_t *args)
 {
 
     Args_t *next;
 
-    while (args != NULL)
+    while (args)
     {
         next = args->next;
-        if (args->expr != NULL)
+        if (args->expr)
         {
             free_expression(args->expr);
             args->expr = NULL;
         }
 
-        if ((args->sym != NULL) && args->sym->_type.is_array)
+        if (args->sym && args->sym->_type.is_array)
             free(args->sym->_type.ptr);
 
         free(args->sym);

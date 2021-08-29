@@ -9,14 +9,15 @@
 
 bool prev_char = false;
 
-Lexer_t *lexer_create(const char *filename)
+Lexer_t*
+lexer_create(const char *filename)
 {
     Lexer_t *lexer = xmalloc(sizeof(Lexer_t));
 
     lexer->filename = filename;
     lexer->pos = 0;
     lexer->file = fopen(filename, "r");
-    if (lexer->file == NULL)
+    if (!lexer->file)
     {
         free(lexer);
         return NULL;
@@ -29,9 +30,10 @@ Lexer_t *lexer_create(const char *filename)
     return lexer;
 }
 
-void lexer_free(Lexer_t *lexer)
+void
+lexer_free(Lexer_t *lexer)
 {
-    if (lexer == NULL)
+    if (!lexer)
         return;
 
     fclose(lexer->file);
@@ -39,7 +41,7 @@ void lexer_free(Lexer_t *lexer)
     Token_t *tok = lexer->first_token;
     Token_t *next;
 
-    while (tok != NULL)
+    while (tok)
     {
         next = tok->next;
         free_token(tok);
@@ -50,18 +52,19 @@ void lexer_free(Lexer_t *lexer)
 
 }
 
-void lexer_tokenize(Lexer_t *lexer)
+void
+lexer_tokenize(Lexer_t *lexer)
 {
     Token_t *tok;
 
     tok = lexer_get_next_token(lexer);
-    if (tok == NULL)
+    if (!tok)
         return;
 
     lexer->first_token = tok;
     lexer->last_token = tok;
 
-    while ((tok = lexer_get_next_token(lexer)) != NULL)
+    while ((tok = lexer_get_next_token(lexer)))
     {
         lexer->last_token->next = tok;
         lexer->last_token = tok;
@@ -69,7 +72,8 @@ void lexer_tokenize(Lexer_t *lexer)
 
 }
 
-Token_t *lexer_get_next_token(Lexer_t *lexer)
+Token_t*
+lexer_get_next_token(Lexer_t *lexer)
 {
     char c;
     int64_t value;
@@ -300,7 +304,8 @@ Token_t *lexer_get_next_token(Lexer_t *lexer)
 
 }
 
-char lexer_skip_whitespaces(Lexer_t *lexer)
+char
+lexer_skip_whitespaces(Lexer_t *lexer)
 {
     int c;
     while (((((c = getc(lexer->file)) == ' ')) || (c == '\n') || (c == '\t')) 
@@ -314,7 +319,8 @@ char lexer_skip_whitespaces(Lexer_t *lexer)
 
 }
 
-int64_t lexer_get_number(Lexer_t *lexer)
+int64_t
+lexer_get_number(Lexer_t *lexer)
 {
     int64_t value = 0;
     int c;
@@ -346,7 +352,8 @@ int64_t lexer_get_number(Lexer_t *lexer)
     return value;
 }
 
-char *lexer_get_symbolname(Lexer_t *lexer)
+char*
+lexer_get_symbolname(Lexer_t *lexer)
 {
     int c;
     unsigned int i = 0;
@@ -358,7 +365,7 @@ char *lexer_get_symbolname(Lexer_t *lexer)
         i++;
 
         ptr = xrealloc(ptr, sizeof(char) * (i+1));
-        if (ptr == NULL)
+        if (!ptr)
             return NULL;
 
         ptr[i-1] = (char)c;
@@ -372,7 +379,8 @@ char *lexer_get_symbolname(Lexer_t *lexer)
 
 }
 
-char *lexer_get_string(Lexer_t *lexer)
+char*
+lexer_get_string(Lexer_t *lexer)
 {
     int c;
     unsigned int i = 0;
@@ -384,7 +392,7 @@ char *lexer_get_string(Lexer_t *lexer)
         i++;
 
         ptr = xrealloc(ptr, sizeof(char) * (i+1));
-        if (ptr == NULL)
+        if (!ptr)
             return NULL;
 
         ptr[i-1] = (char)c;

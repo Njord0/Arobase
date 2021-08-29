@@ -9,7 +9,8 @@
 
 int fcount = 0;
 
-Symtable_t *symtab_create()
+Symtable_t*
+symtab_create()
 {
     Symtable_t *st = xmalloc(sizeof(Symtable_t));
 
@@ -21,20 +22,21 @@ Symtable_t *symtab_create()
     return st;
 }
 
-void symtab_free(Symtable_t *st)
+void
+symtab_free(Symtable_t *st)
 {
-    if (st == NULL)
+    if (!st)
         return;
 
-    if (st->scope != NULL)
+    if (st->scope)
     {
 
         Symbol_t *sym = st->scope->symbol;
         Symbol_t *next;
-        while (sym != NULL)
+        while (sym)
         {
             next = sym->next;
-            if ((sym->decl != NULL) && (sym->decl->is_imported))
+            if (sym->decl && (sym->decl->is_imported))
                 free_declaration(sym->decl);
 
             sym = next;
@@ -48,18 +50,20 @@ void symtab_free(Symtable_t *st)
 }
 
 
-void scopetable_free(ScopeTable_t *st)
+void
+scopetable_free(ScopeTable_t *st)
 {
-    if (st == NULL)
+    if (!st)
         return;
 
-    if (st->next != NULL)
+    if (st->next)
         scopetable_free(st->next);
 
     free(st);
 }
 
-void scope_enter()
+void
+scope_enter()
 {
     ScopeTable_t *scope = xmalloc(sizeof(ScopeTable_t));
 
@@ -69,10 +73,11 @@ void scope_enter()
     scope->symbol = NULL;
 }
 
-void scope_exit()
+void
+scope_exit()
 {
     ScopeTable_t *scope = symtab_g->scope;
-    if (scope->next == NULL)
+    if (!scope->next)
     {
         fprintf(stderr, 
             "Can't exit GLOBAL scope\n");
@@ -85,14 +90,15 @@ void scope_exit()
     scopetable_free(scope);
 }
 
-void symbol_pos()
+void
+symbol_pos()
 {
     ScopeTable_t *scope = symtab_g->scope;
     Symbol_t *sym = scope->symbol;
 
     unsigned int pos = 0;
 
-    while (sym != NULL)
+    while (sym)
     {
 
         sym->pos = pos++;
@@ -130,7 +136,8 @@ void symbol_pos()
 }
 
 
-void add_symbol(Symtable_t *symtab, Declaration_t *decl)
+void
+add_symbol(Symtable_t *symtab, Declaration_t *decl)
 {
     Symbol_t *sym = NULL;
     Symbol_t *prev = NULL;
@@ -160,7 +167,7 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
     if ((strcmp(decl->name, "main") != 0))
     {
         Args_t *args = decl->args;
-        while (args != NULL)
+        while (args)
         {
             switch (args->type.t)
             {
@@ -205,13 +212,13 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
 
     sym  = scope->symbol;
 
-    if (sym == NULL)
+    if (!sym)
     {
         scope->symbol = st;
     }
     else 
     {
-        while (sym != NULL)
+        while (sym)
         {
             prev = sym;
             sym = sym->next;
@@ -222,14 +229,15 @@ void add_symbol(Symtable_t *symtab, Declaration_t *decl)
 
 }
 
-void add_symbol_from_args(Symtable_t *symtab, Args_t *args)
+void
+add_symbol_from_args(Symtable_t *symtab, Args_t *args)
 {
     Symbol_t *sym = NULL;
     Symbol_t *prev = NULL;
 
     ScopeTable_t *scope = symtab->scope;
 
-    if (args == NULL)
+    if (!args)
         return;
     Symbol_t *st = xmalloc(sizeof(Symbol_t));
 
@@ -244,14 +252,14 @@ void add_symbol_from_args(Symtable_t *symtab, Args_t *args)
 
     args->sym = st;
 
-    if (sym == NULL)
+    if (!sym)
     {
         scope->symbol = st;
     }
 
     else
     {
-        while (sym != NULL)
+        while (sym)
         {
             prev = sym;
             sym = sym->next;
@@ -260,21 +268,22 @@ void add_symbol_from_args(Symtable_t *symtab, Args_t *args)
         prev->next = st;
     }
 
-    if ((args->next != NULL))
-            add_symbol_from_args(symtab, args->next);
+    if (args->next)
+        add_symbol_from_args(symtab, args->next);
 
 }
 
-Symbol_t *symbol_resolve(Symtable_t *symtab, const char *name)
+Symbol_t*
+symbol_resolve(Symtable_t *symtab, const char *name)
 {
 
     ScopeTable_t *scope = symtab->scope;
     Symbol_t *symbol = NULL;
 
-    while (scope != NULL)
+    while (scope)
     {
         symbol = scope->symbol;
-        while (symbol != NULL)
+        while (symbol)
         {
             if (strcmp(symbol->name, name) == 0)
                 return symbol;
@@ -288,16 +297,17 @@ Symbol_t *symbol_resolve(Symtable_t *symtab, const char *name)
 
 }
 
-Symbol_t *symbol_resolve_func(Symtable_t *symtab, const char *name)
+Symbol_t*
+symbol_resolve_func(Symtable_t *symtab, const char *name)
 {
 
     ScopeTable_t *scope = symtab->scope;
     Symbol_t *symbol = NULL;
 
-    while (scope != NULL)
+    while (scope)
     {
         symbol = scope->symbol;
-        while (symbol != NULL)
+        while (symbol)
         {
             if (strcmp(symbol->name, name) == 0 && symbol->decl->decl_type == FUNCTION)
                 return symbol;
@@ -311,46 +321,49 @@ Symbol_t *symbol_resolve_func(Symtable_t *symtab, const char *name)
 
 }
 
-bool is_declared_func(Symtable_t *symtab, const char *name, Symbol_t **symbol)
+bool
+is_declared_func(Symtable_t *symtab, const char *name, Symbol_t **symbol)
 {
 
     Symbol_t *sym = symbol_resolve_func(symtab, name);
     *symbol = sym;
 
-    return ((sym != NULL) && (sym->decl->decl_type == FUNCTION));
+    return (sym && (sym->decl->decl_type == FUNCTION));
 
 }
 
-bool is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol)
+bool
+is_declared_var(Symtable_t *symtab, const char *name, Symbol_t **symbol)
 {
     Symbol_t *sym = symbol_resolve(symtab, name);
 
     *symbol = sym;
 
-    if ((sym != NULL) && (sym->decl == NULL))
+    if (sym && !sym->decl)
         return true;
 
-    return ((sym != NULL) && (sym->decl->decl_type == VARIABLE));
+    return (sym && (sym->decl->decl_type == VARIABLE));
  }
 
-Symbol_t *find_matching_function(const char *name, Args_t *c_args)
+Symbol_t*
+find_matching_function(const char *name, Args_t *c_args)
 {
     ScopeTable_t *scope = symtab_g->scope;
     Symbol_t *symbol = NULL;
 
     Args_t *tmp;
 
-    while (scope != NULL)
+    while (scope)
     {
         symbol = scope->symbol;
-        while (symbol != NULL)
+        while (symbol)
         {
             if ((strcmp(symbol->name, name) == 0) && (symbol->decl->decl_type == FUNCTION))
             {    
                 /* Checking if function call parameters and function decl parameters are the same */
                 Args_t *args = symbol->decl->args;
                 tmp = c_args;
-                while ((args != NULL) && (tmp != NULL))
+                while (args && tmp)
                 {
                     if (((args->type.is_array != tmp->type.is_array) && (tmp->expr != NULL && tmp->expr->expr_type != EXPR_ARRAYA)) || (args->type.t != tmp->type.t))
                         break;
@@ -358,7 +371,7 @@ Symbol_t *find_matching_function(const char *name, Args_t *c_args)
                     tmp = tmp->next;
                 }
 
-                if ((args == NULL) && (tmp == NULL))
+                if (!args && !tmp)
                     return symbol; // symbol matching the prototype...
 
             }
@@ -370,7 +383,8 @@ Symbol_t *find_matching_function(const char *name, Args_t *c_args)
 
 }
 
-void import_from(const char *str)
+void
+import_from(const char *str)
 {
 
     char *ptr = xmalloc(strlen("/usr/local/include/arobase/")+strlen(str)+1);
@@ -381,11 +395,11 @@ void import_from(const char *str)
     strcat(ptr, str);
 
     Lexer_t *lexer = lexer_create(ptr);
-    if (lexer == NULL)
+    if (!lexer)
     {
 
         lexer = lexer_create(str); // trying to import from current folder...
-        if (lexer == NULL)
+        if (!lexer)
         {
             fprintf(stderr,
                 "Error while trying to import '%s'\n\tNo file named '%s'\n",
@@ -402,7 +416,7 @@ void import_from(const char *str)
 
     Token_t *tok = lexer->first_token;
 
-    while (tok != NULL)
+    while (tok)
     { 
         if ((tok->type != KEYWORD) || (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FN]) != 0))
         {
@@ -536,7 +550,7 @@ void import_from(const char *str)
 
         tok = tok->next;
 
-        if (tok == NULL)
+        if (!tok)
             break;
 
     }

@@ -55,7 +55,8 @@ const char *args_regs[] = {
 char scratch_in_use[7] = {0};
 char pos[100] = {0};
 
-void begin_codegen(AST_t *ast, const char *out)
+void
+begin_codegen(AST_t *ast, const char *out)
 {
     file = fopen(out, "w");
 
@@ -68,14 +69,15 @@ void begin_codegen(AST_t *ast, const char *out)
     fclose(file);
 }
 
-void emit_statements(Statement_t **statement)
+void
+emit_statements(Statement_t **statement)
 {
     Statement_t *stmt = *statement;
-    while (stmt != NULL)
+    while (stmt)
     {
-        if ((stmt->stmt_type == STMT_DECLARATION) && (stmt->decl != NULL) && (stmt->decl->decl_type == FUNCTION))        
+        if ((stmt->stmt_type == STMT_DECLARATION) && stmt->decl && (stmt->decl->decl_type == FUNCTION))        
             emit_function(&stmt);
-        else if ((stmt->stmt_type == STMT_DECLARATION) && (stmt->decl != NULL) && (stmt->decl->decl_type == VARIABLE))
+        else if ((stmt->stmt_type == STMT_DECLARATION) && stmt->decl && (stmt->decl->decl_type == VARIABLE))
             emit_var_declaration(stmt);
 
         else if ((stmt->stmt_type == STMT_EXPR))
@@ -108,16 +110,17 @@ void emit_statements(Statement_t **statement)
         else if (stmt->stmt_type == STMT_BREAK)
             emit_break(stmt);
 
-        if (stmt != NULL)
+        if (stmt)
             stmt = stmt->next;
     }
 
     *statement = stmt;
 }
 
-void emit_expression(Expression_t *expr, enum Type t)
+void
+emit_expression(Expression_t *expr, enum Type t)
 {   
-    if (expr == NULL)
+    if (!expr)
         return;
 
     switch (expr->expr_type)
@@ -249,7 +252,8 @@ void emit_expression(Expression_t *expr, enum Type t)
     }
 }
 
-void emit_var_declaration(Statement_t *statement)
+void
+emit_var_declaration(Statement_t *statement)
 {
     if (statement->decl->type.is_array)
     {
@@ -379,7 +383,8 @@ void emit_var_declaration(Statement_t *statement)
     reg_free(statement->decl->expr);
 }
 
-void emit_var_assign(Statement_t *statement)
+void
+emit_var_assign(Statement_t *statement)
 {
     if (statement->expr->sym->_type.is_array)
     {
@@ -422,7 +427,8 @@ void emit_var_assign(Statement_t *statement)
 
 }
 
-void emit_function(Statement_t **statement)
+void
+emit_function(Statement_t **statement)
 {
     Statement_t *stmt = *statement;
 
@@ -439,13 +445,14 @@ void emit_function(Statement_t **statement)
     emit_epilogue();
 }
 
-void emit_if_else(Statement_t *statement)
+void
+emit_if_else(Statement_t *statement)
 {
     Expression_t *expr = statement->expr;
 
     emit_expression(expr->left, expr->type.t);
 
-    if (expr->right != NULL)
+    if (expr->right)
         emit_expression(expr->right, expr->right->type.t);
 
     if (expr->type.t == INTEGER)
@@ -526,7 +533,8 @@ void emit_if_else(Statement_t *statement)
     emit(".LC%.5d:\n", lbl_done);
 }
 
-void emit_while(Statement_t *statement)
+void
+emit_while(Statement_t *statement)
 {
     int lbl_cond = new_label();
     int lbl_out = new_label();
@@ -629,7 +637,8 @@ void emit_while(Statement_t *statement)
 
 }
 
-void emit_for(Statement_t *statement)
+void
+emit_for(Statement_t *statement)
 {
     int lbl_cond = new_label();
     int lbl_out = new_label();
@@ -736,7 +745,8 @@ void emit_for(Statement_t *statement)
     current_loop = prev;
 }
 
-void emit_return(Statement_t *stmt)
+void
+emit_return(Statement_t *stmt)
 {
     static int c = 0;
 
@@ -758,7 +768,8 @@ void emit_return(Statement_t *stmt)
     c = 0;
 }
 
-void emit_func_call(Expression_t *expr)
+void
+emit_func_call(Expression_t *expr)
 {
     Args_t *args = expr->args;
     unsigned int pos = 0;
@@ -785,7 +796,7 @@ void emit_func_call(Expression_t *expr)
         }
     }
 
-    while (args != NULL)
+    while (args)
     {   
         emit_expression(args->expr, args->expr->type.t);
 
@@ -829,11 +840,12 @@ void emit_func_call(Expression_t *expr)
     nested_c = 0;
 }
 
-void emit_print(Statement_t *stmt)
+void
+emit_print(Statement_t *stmt)
 {
     Args_t *args = stmt->args;
 
-    while (args != NULL)
+    while (args)
     {
         emit_expression(args->expr, args->expr->type.t);
 
@@ -873,7 +885,8 @@ void emit_print(Statement_t *stmt)
     }
 }
 
-void emit_input(Statement_t *stmt)
+void
+emit_input(Statement_t *stmt)
 {
     if (stmt->decl->sym->_type.t == INTEGER)
     {
@@ -897,7 +910,8 @@ void emit_input(Statement_t *stmt)
     }
 }
 
-void emit_assert(Statement_t *stmt)
+void
+emit_assert(Statement_t *stmt)
 {
     Expression_t *expr = stmt->expr;
 
@@ -990,7 +1004,8 @@ void emit_assert(Statement_t *stmt)
     emit(".LC%.5d:\n", lbl_done);
 }
 
-void emit_break(Statement_t *stmt)
+void
+emit_break(Statement_t *stmt)
 {
     if (!current_loop)
         return;
@@ -998,11 +1013,12 @@ void emit_break(Statement_t *stmt)
     emit("jmp .LC%.5d\n", current_loop->lbl);
 }
 
-void emit_move_args_to_stack(Args_t *args)
+void
+emit_move_args_to_stack(Args_t *args)
 {
     unsigned int pos = 0;
 
-    while ((args != NULL) && (pos < 3))
+    while (args && (pos < 3))
     {
 
         emit("movq [%s], %s\n", 
@@ -1014,7 +1030,8 @@ void emit_move_args_to_stack(Args_t *args)
     }
 }
 
-void emit_array_initialization(Args_t *args, Symbol_t *sym)
+void
+emit_array_initialization(Args_t *args, Symbol_t *sym)
 {
     unsigned int count = 0;
 
@@ -1046,7 +1063,8 @@ void emit_array_initialization(Args_t *args, Symbol_t *sym)
     }
 }
 
-void emit_structure_initialization(Args_t *args, Symbol_t *sym)
+void
+emit_structure_initialization(Args_t *args, Symbol_t *sym)
 {
 
     Statement_t *str = get_struct_by_name(sym->_type.ptr);
@@ -1054,8 +1072,6 @@ void emit_structure_initialization(Args_t *args, Symbol_t *sym)
         return;
 
     Args_t *args_decl = str->args;
-
-
 
     while (args)
     {
@@ -1093,13 +1109,15 @@ void emit_structure_initialization(Args_t *args, Symbol_t *sym)
 
 }
 
-int new_label()
+int
+new_label()
 {
     static int i = 0;
     return i++;
 }
 
-void emit_prologue(Statement_t *stmt)
+void
+emit_prologue(Statement_t *stmt)
 {
     unsigned int size = get_stack_size(stmt);
     emit("push rbp\n");
@@ -1107,30 +1125,32 @@ void emit_prologue(Statement_t *stmt)
     emit("sub rsp, %u\n", size);
 }
 
-void emit_epilogue()
+void
+emit_epilogue()
 {
     emit("leave\nret\n");
 }
 
-unsigned int get_stack_size(Statement_t *stmt)
+unsigned int
+get_stack_size(Statement_t *stmt)
 {
     unsigned int size = 0;
 
     Args_t *args = NULL;
-    if (stmt->decl != NULL)
+    if (stmt->decl)
         args = stmt->decl->args;
 
-    while (args != NULL)
+    while (args)
     {
         size += 8;
         args = args->next;
     }
 
-    if (stmt->decl != NULL)
+    if (stmt->decl)
         stmt = stmt->decl->code;
 
 
-    while (stmt != NULL)
+    while (stmt)
     {
         if (stmt->stmt_type == STMT_DECLARATION)
         {
@@ -1162,10 +1182,10 @@ unsigned int get_stack_size(Statement_t *stmt)
     
         else if ((stmt->stmt_type == STMT_FOR) || (stmt->stmt_type == STMT_WHILE))
         {
-            if (stmt->if_block != NULL)
+            if (stmt->if_block)
                 size += get_stack_size(stmt->if_block);
 
-            if ((stmt->for_loop != NULL) && stmt->for_loop->stmt_type == STMT_DECLARATION)
+            if (stmt->for_loop && stmt->for_loop->stmt_type == STMT_DECLARATION)
                 size += 8;
         }
 
@@ -1174,7 +1194,8 @@ unsigned int get_stack_size(Statement_t *stmt)
     return size;
 }
 
-unsigned int reg_alloc(unsigned int reg)
+unsigned int
+reg_alloc(unsigned int reg)
 {
 
     if (reg != UINT_MAX)
@@ -1190,17 +1211,20 @@ unsigned int reg_alloc(unsigned int reg)
     }
 }
 
-const char *reg_name(unsigned int r)
+const char*
+reg_name(unsigned int r)
 {
     return scratch_regs[r];
 }
 
-const char *reg_name_l(unsigned int r)
+const char*
+reg_name_l(unsigned int r)
 {
     return scratch_regs_l[r];
 }
 
-void reg_free(Expression_t *expr)
+void
+reg_free(Expression_t *expr)
 {
     if (expr->reg != UINT_MAX)
     {
@@ -1209,7 +1233,8 @@ void reg_free(Expression_t *expr)
     }
 }
 
-void load_to_reg(Expression_t *expr)
+void
+load_to_reg(Expression_t *expr)
 {
     if ((expr != NULL) && (expr->expr_type == EXPR_FUNCCALL))
     {
@@ -1217,7 +1242,7 @@ void load_to_reg(Expression_t *expr)
             reg_name(expr->reg));
     }
 
-    else if ((expr != NULL) && (expr->expr_type == EXPR_NUMBER))
+    else if (expr && (expr->expr_type == EXPR_NUMBER))
     {
         if (expr->type.t == INTEGER)
             emit("movq %s, %ld\n", 
@@ -1268,7 +1293,7 @@ void load_to_reg(Expression_t *expr)
                 pos);
     }
 
-    else if ((expr != NULL) && (expr->expr_type == EXPR_SYMBOL))
+    else if (expr && (expr->expr_type == EXPR_SYMBOL))
     {
 
         if (expr->sym_value->_type.is_array || expr->sym_value->_type.is_structure)
@@ -1309,7 +1334,7 @@ void load_to_reg(Expression_t *expr)
         
     }
 
-    else if ((expr != NULL) && (expr->expr_type == EXPR_ARRAYA))
+    else if (expr && (expr->expr_type == EXPR_ARRAYA))
     {
         emit_expression(expr->access, INTEGER);
         if (in_function_call)
@@ -1373,7 +1398,8 @@ void load_to_reg(Expression_t *expr)
     }
 }
 
-void store_to_stack(Expression_t *expr, Symbol_t *sym)
+void
+store_to_stack(Expression_t *expr, Symbol_t *sym)
 {
     if (sym->_type.t == INTEGER)
         emit("movq [%s], %s\n",
@@ -1433,7 +1459,8 @@ void store_to_stack(Expression_t *expr, Symbol_t *sym)
     }
 }
 
-char *symbol_s(Symbol_t *sym)
+char*
+symbol_s(Symbol_t *sym)
 {
 
     if ((sym->_type.is_array) && (sym->type != ARG))
@@ -1452,7 +1479,8 @@ char *symbol_s(Symbol_t *sym)
     return pos;
 }
 
-void _start_def()
+void
+_start_def()
 {
     emit(".text\n.global _start\n_start:\n");
     emit("push rbp\nmov rbp, rsp\nsub rsp, 16\n");

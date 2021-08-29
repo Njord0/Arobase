@@ -12,7 +12,8 @@
 #include <struct.h>
 #include <symbol_table.h>
 
-Expression_t *expr_create(Token_t **token, enum Type t)
+Expression_t*
+expr_create(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
@@ -67,7 +68,8 @@ Expression_t *expr_create(Token_t **token, enum Type t)
     return expr;
 }
 
-Expression_t *expr_factor(Token_t **token, enum Type t)
+Expression_t*
+expr_factor(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
@@ -256,7 +258,8 @@ Expression_t *expr_factor(Token_t **token, enum Type t)
     return expr;
 }
 
-Expression_t *expr_term(Token_t **token, enum Type t)
+Expression_t*
+expr_term(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
@@ -281,7 +284,7 @@ Expression_t *expr_term(Token_t **token, enum Type t)
 
         Expression_t *factor = expr_factor(&tok, t);
 
-        if (factor == NULL)
+        if (!factor)
         {
             show_error_source(tok);
             fprintf(stderr,
@@ -302,7 +305,8 @@ Expression_t *expr_term(Token_t **token, enum Type t)
     return node;
 }
 
-Expression_t *expr_(Token_t **token, enum Type t)
+Expression_t*
+expr_(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
@@ -323,7 +327,7 @@ Expression_t *expr_(Token_t **token, enum Type t)
         tok = tok->next;
         Expression_t *term = expr_term(&tok, t);
     
-        if (term == NULL)
+        if (!term)
         {
             show_error_source(tok);
             fprintf(stderr,
@@ -342,7 +346,8 @@ Expression_t *expr_(Token_t **token, enum Type t)
     return node;
 }
 
-Expression_t *expr_create_funccall(Token_t **token, char *name)
+Expression_t*
+expr_create_funccall(Token_t **token, char *name)
 {
     Token_t *tok = *token;
     Token_t *next_token = tok->next;
@@ -391,7 +396,7 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
     Args_t *c_args = expr->args;
 
     sym = find_matching_function(name, c_args);
-    if (sym == NULL)
+    if (!sym)
     {
         show_error_source(next_token);
         fprintf(stderr, 
@@ -407,7 +412,8 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
     return expr;
 }
 
-Expression_t *expr_create_cond(Token_t **token, enum Type t)
+Expression_t*
+expr_create_cond(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
@@ -475,12 +481,13 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t)
     return expr;
 }
 
-Expression_t *expr_fold(Expression_t *expr)
+Expression_t*
+expr_fold(Expression_t *expr)
 {
-    if (expr->left != NULL)
+    if (expr->left)
         expr->left = expr_fold(expr->left);
 
-    if (expr->right != NULL)
+    if (expr->right)
         expr->right = expr_fold(expr->right);
 
     if (expr->expr_type == EXPR_UNARY_MINUS && expr->left->expr_type == EXPR_NUMBER)
@@ -552,7 +559,8 @@ Expression_t *expr_fold(Expression_t *expr)
     }
 }
 
-void expr_init(Expression_t *expr)
+void
+expr_init(Expression_t *expr)
 {
     expr->left = NULL;
     expr->right = NULL;
@@ -567,19 +575,20 @@ void expr_init(Expression_t *expr)
     expr->type.is_array = false;
 }
 
-void free_expression(Expression_t *expr)
+void
+free_expression(Expression_t *expr)
 {
 
-    if (expr == NULL)
+    if (!expr)
         return;
 
-    if (expr->right != NULL)
+    if (expr->right)
         free_expression(expr->right);
 
-    if (expr->left != NULL)
+    if (expr->left)
         free_expression(expr->left);
 
-    if (expr->access != NULL)
+    if (expr->access)
         free_expression(expr->access);
 
 //    if (expr->args != NULL)

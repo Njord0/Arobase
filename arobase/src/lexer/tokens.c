@@ -39,7 +39,8 @@ const char *tokens[29] = {
     "%%"
 };
 
-Token_t *create_token_number(int64_t value)
+Token_t*
+create_token_number(int64_t value)
 {
     Token_t *tok = xmalloc(sizeof(Token_t));
 
@@ -49,7 +50,8 @@ Token_t *create_token_number(int64_t value)
     return tok;
 }
 
-Token_t *create_token_char(int type, char c)
+Token_t*
+create_token_char(int type, char c)
 {
     Token_t *tok = xmalloc(sizeof(Token_t));
 
@@ -59,7 +61,8 @@ Token_t *create_token_char(int type, char c)
     return tok;
 }
 
-Token_t *create_token_s(char *ptr)
+Token_t*
+create_token_s(char *ptr)
 {
     Token_t *tok = xmalloc(sizeof(Token_t));
 
@@ -69,7 +72,8 @@ Token_t *create_token_s(char *ptr)
     return tok;
 }
 
-bool token_symbol_is_reserved(const char *str)
+bool
+token_symbol_is_reserved(const char *str)
 {
     for (int i = 0; i < KW_NO; i++)
     {
@@ -79,22 +83,23 @@ bool token_symbol_is_reserved(const char *str)
     return false;
 }
 
-bool token_expect(Token_t *tok, enum TokensTypes t)
+bool
+token_expect(Token_t *tok, enum TokensTypes t)
 {
     const char *name;
 
-    if (tok != NULL)
+    if (tok)
         name = tokens[tok->type];
     else
         name = "none";
 
     long unsigned int line = 0;
 
-    if (tok != NULL)
+    if (tok)
         line = tok->lineno;
     
 
-    if ((tok == NULL) || (tok->type != t))
+    if (!tok || (tok->type != t))
     {
         fprintf(stderr, 
             "Syntax error on line: %lu\n\tExpected '%s', found '%s'\n",
@@ -108,7 +113,8 @@ bool token_expect(Token_t *tok, enum TokensTypes t)
     return true;
 }
 
-bool token_check(Token_t *tok, enum TokensTypes t)
+bool
+token_check(Token_t *tok, enum TokensTypes t)
 {
     if ((tok == NULL) || (tok->type != t))
         return false;
@@ -116,9 +122,10 @@ bool token_check(Token_t *tok, enum TokensTypes t)
     return true;
 }
 
-bool token_checks(Token_t *tok, unsigned int count, ...)
+bool
+token_checks(Token_t *tok, unsigned int count, ...)
 {
-    if (tok == NULL)
+    if (!tok)
         return false;
 
     va_list params;
@@ -137,9 +144,10 @@ bool token_checks(Token_t *tok, unsigned int count, ...)
     return false;
 }
 
-void free_token(Token_t *token)
+void
+free_token(Token_t *token)
 {
-    if (token == NULL)
+    if (!token)
         return;
 
     if ((token->type == SYMBOL))

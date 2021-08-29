@@ -9,7 +9,8 @@
 
 Statement_t *struct_l = NULL; 
 
-void struct_add(Statement_t *stmt)
+void
+struct_add(Statement_t *stmt)
 {
     if (!stmt)
         return;
@@ -26,7 +27,8 @@ void struct_add(Statement_t *stmt)
     }
 }
 
-void struct_free()
+void
+struct_free()
 {
     Statement_t *next;
     Statement_t *stmt = struct_l;
@@ -40,7 +42,8 @@ void struct_free()
     }
 }
 
-bool is_defined_struct(const char *name)
+bool
+is_defined_struct(const char *name)
 {
     Statement_t *stmt = struct_l;
     
@@ -55,7 +58,8 @@ bool is_defined_struct(const char *name)
     return false;
 }
 
-Statement_t *get_struct_by_name(const char *name)
+Statement_t*
+get_struct_by_name(const char *name)
 {
     Statement_t *stmt = struct_l;
     
@@ -70,7 +74,8 @@ Statement_t *get_struct_by_name(const char *name)
     return NULL;
 }
 
-Args_t *struct_get_member(Statement_t *str, const char *name)
+Args_t*
+struct_get_member(Statement_t *str, const char *name)
 {
     Args_t *member = str->args;
 
@@ -85,7 +90,8 @@ Args_t *struct_get_member(Statement_t *str, const char *name)
     return NULL;
 }
 
-unsigned int struct_member_pos(Statement_t *str, const char *name)
+unsigned int
+struct_member_pos(Statement_t *str, const char *name)
 {
     Args_t *member = struct_get_member(str, name);
     if (!member)
@@ -101,14 +107,14 @@ unsigned int struct_member_pos(Statement_t *str, const char *name)
             return pos;
 
         pos += 1;
-
         members = members->next;
     }
 
     return 0;
 }
 
-Args_t *struct_get_args(Token_t **token)
+Args_t*
+struct_get_args(Token_t **token)
 {
     Token_t *tok = *token;
 
@@ -129,7 +135,7 @@ Args_t *struct_get_args(Token_t **token)
 
     args->type = get_type_decl(&tok);
     
-    if ((tok != NULL) && (tok->type == COMMA))
+    if (tok && (tok->type == COMMA))
     {
 
         if (args->type.is_array)

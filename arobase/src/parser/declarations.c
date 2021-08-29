@@ -10,7 +10,8 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
-Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
+Declaration_t*
+declaration_create_var(Token_t **token, char *name, Type_s type)
 {
     Token_t *tok = *token;
 
@@ -74,11 +75,11 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
         tok = tok->next;
     }
 
-    else if (tok != NULL)
+    else if (tok)
     {
 
         decl->expr = expr_create(&tok, decl->type.t);
-        if (decl->expr == NULL)
+        if (!decl->expr)
         {
             fprintf(stderr, 
                 "Error on line : %lu\n\t Invalid expression",
@@ -107,7 +108,8 @@ Declaration_t *declaration_create_var(Token_t **token, char *name, Type_s type)
 
 }
 
-Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
+Declaration_t*
+declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
 {
     Token_t *tok = *token;
 
@@ -194,10 +196,10 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
     Statement_t *stmt = NULL;
     Statement_t *last_stmt = NULL;
 
-    while ((tok != NULL) && (tok->type != RBRACE))
+    while (tok && (tok->type != RBRACE))
     {
         stmt = get_next_statement(&tok);
-        if ((stmt != NULL) && (stmt->decl != NULL) &&(stmt->decl->decl_type == FUNCTION))
+        if (stmt && stmt->decl &&(stmt->decl->decl_type == FUNCTION))
         {
             show_error_source(tok);
             fprintf(stderr, 
@@ -207,7 +209,7 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
             cc_exit();
         }
 
-        if ((stmt != NULL) && (stmt->stmt_type == STMT_RETURN))
+        if (stmt && (stmt->stmt_type == STMT_RETURN))
         {
             type_set(stmt->expr, decl->type);
             type_check(stmt->expr);
@@ -222,7 +224,7 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
         }
 
 
-        if (decl->code == NULL)
+        if (!decl->code)
         {
             decl->code = stmt;
             last_stmt = stmt;
@@ -253,7 +255,8 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
 
 }
 
-void decl_init(Declaration_t *decl)
+void
+decl_init(Declaration_t *decl)
 {
     decl->name = NULL;
     decl->expr = NULL;
@@ -266,43 +269,44 @@ void decl_init(Declaration_t *decl)
 }
 
 
-void free_declaration(Declaration_t *decl)
+void
+free_declaration(Declaration_t *decl)
 {
-    if (decl->expr != NULL)
+    if (decl->expr)
     {
         free_expression(decl->expr);
         decl->expr = NULL;
     }
 
-    if (decl->sym != NULL)
+    if (decl->sym)
     {
         free(decl->sym->rname);
         free(decl->sym);
     }
 
-    if (decl->code != NULL)
+    if (decl->code)
     {
 
         Statement_t *stmt = decl->code;
         Statement_t *next = NULL;
-        while (stmt != NULL)
+        while (stmt)
         {
             next = stmt->next;
             free_statement(stmt);
             stmt = next;
         }
 
-        if (next != NULL)
+        if (next)
             free_statement(next);
     }
 
-    if (decl->args != NULL)
+    if (decl->args)
     {
         free_args(decl->args);
         decl->args = NULL;
     }
 
-    if (decl->is_imported && decl->name != NULL)
+    if (decl->is_imported && decl->name)
         free(decl->name);
 
     if (decl->type.is_array)

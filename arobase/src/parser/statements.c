@@ -38,7 +38,8 @@ const char *Arobase_ReservedKeywords[] = {
 
 unsigned int loop_count = 0;
 
-Statement_t *get_next_statement(Token_t **token)
+Statement_t*
+get_next_statement(Token_t **token)
 {
     Token_t *tok = *token;
 
@@ -81,10 +82,10 @@ Statement_t *get_next_statement(Token_t **token)
 
     else if (tok->type == SYMBOL)
     {
-        if ((tok->next != NULL) && ((tok->next->type == ASSIGN) || (tok->next->type == LBRACKET) || (tok->next->type == DOT)))
+        if (tok->next && ((tok->next->type == ASSIGN) || (tok->next->type == LBRACKET) || (tok->next->type == DOT)))
             stmt = stmt_create_var_assign(&tok);
 
-        else if ((tok->next != NULL) && (tok->next->type == LPAR))
+        else if (tok->next && (tok->next->type == LPAR))
             stmt = stmt_create_func_call(&tok);
 
         else
@@ -111,7 +112,8 @@ Statement_t *get_next_statement(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_var_declaration(Token_t **token)
+Statement_t*
+stmt_create_var_declaration(Token_t **token)
 {
     Token_t *tok = *token;
     Token_t *next_token = tok->next;
@@ -174,7 +176,7 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
 
         // Check array elements
         Args_t *args = stmt->decl->args;
-        while (args != NULL)
+        while (args)
         {
             if (args->type.t != type.t)
             {
@@ -199,6 +201,8 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
                 "Invalid structure initialization\n");
             cc_exit();
         }
+
+        // Checking type for every member of structure...
 
         Args_t *args = str->args;
         Args_t *args_decl = stmt->decl->args;
@@ -232,9 +236,9 @@ Statement_t *stmt_create_var_declaration(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_var_assign(Token_t **token)
+Statement_t*
+stmt_create_var_assign(Token_t **token)
 {
-
     Token_t *tok = *token;
     Token_t *next_token = tok->next;
     
@@ -245,13 +249,13 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
     Symbol_t *sym = symbol_resolve(symtab_g, name);
 
-    if (sym == NULL) 
+    if (!sym) 
     {
-        free_statement(stmt);
         show_error_source(next_token);
         fprintf(stderr,
             "Undeclared variable '%s'\n",
             name);
+        free_statement(stmt);
         cc_exit();
     }
 
@@ -289,7 +293,7 @@ Statement_t *stmt_create_var_assign(Token_t **token)
 
     stmt->expr = expr_create(&next_token, sym->_type.t);
 
-    if (stmt->expr == NULL)
+    if (!stmt->expr)
     {
         show_error_source(next_token);
         fprintf(stderr, 
@@ -331,7 +335,8 @@ Statement_t *stmt_create_var_assign(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const char *name)
+Statement_t*
+stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const char *name)
 {
     Token_t *tok = *token;
     tok = tok->next;
@@ -409,7 +414,8 @@ Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const
     return stmt;
 }
 
-Statement_t *stmt_create_func_declaration(Token_t **token)
+Statement_t*
+stmt_create_func_declaration(Token_t **token)
 {
     Token_t *tok = *token;
     Token_t *next_token = tok->next;
@@ -430,7 +436,7 @@ Statement_t *stmt_create_func_declaration(Token_t **token)
     stmt->decl = malloc(sizeof(Declaration_t));
     stmt->decl = declaration_create_func(&next_token, name, stmt->decl);
 
-    if ((stmt->decl != NULL) && (stmt->decl->code == NULL))
+    if (stmt->decl && !stmt->decl->code)
         fprintf(stderr, 
             "WARNING: empty function body for function '%s'\n", 
             name);
@@ -442,7 +448,8 @@ Statement_t *stmt_create_func_declaration(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_func_call(Token_t **token)
+Statement_t*
+stmt_create_func_call(Token_t **token)
 {
     Token_t *tok = *token;
     Token_t *next_token = tok->next;
@@ -512,17 +519,17 @@ Statement_t *stmt_create_if_else(Token_t **token)
 
     tok = tok->next;
 
-    while ((tok != NULL) && (tok->type != RBRACE))
+    while (tok && (tok->type != RBRACE))
     {
         stmtt = get_next_statement(&tok);
 
-        if ((stmtt != NULL) && (stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->expr == NULL))
+        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
         {
             free_statement(stmtt);
             invalid_syntax_error(tok);
         }
 
-        if (stmt->if_block == NULL)
+        if (!stmt->if_block)
         {
             stmt->if_block = stmtt;
             last_stmt = stmtt;
@@ -537,7 +544,7 @@ Statement_t *stmt_create_if_else(Token_t **token)
         tok = tok->next;
     }
 
-    if (tok == NULL)
+    if (!tok)
     {
         fprintf(stderr, 
             "Missing '}'\n");
@@ -554,7 +561,7 @@ Statement_t *stmt_create_if_else(Token_t **token)
     Token_t *tmp = tok;
     tok = tok->next;
 
-    if ((tok != NULL) && (tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_ELSE]) == 0))
+    if (tok && (tok->type == KEYWORD) && (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_ELSE]) == 0))
     {
         tok = tok->next;
 
@@ -570,17 +577,17 @@ Statement_t *stmt_create_if_else(Token_t **token)
         last_stmt = NULL;
 
 
-        while ((tok != NULL) && (tok->type != RBRACE))
+        while (tok && (tok->type != RBRACE))
         {
             stmtt = get_next_statement(&tok);
 
-            if ((stmtt != NULL) && (stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->expr == NULL))
+            if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
             {
                 free_statement(stmtt);
                 invalid_syntax_error(tok);
             }
 
-            if (stmt->else_block == NULL)
+            if (!stmt->else_block)
             {
                 stmt->else_block = stmtt;
                 last_stmt = stmtt;
@@ -608,7 +615,8 @@ Statement_t *stmt_create_if_else(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_while_loop(Token_t **token)
+Statement_t*
+stmt_create_while_loop(Token_t **token)
 {
     Token_t *tok = *token;
 
@@ -659,13 +667,13 @@ Statement_t *stmt_create_while_loop(Token_t **token)
     {
         stmtt = get_next_statement(&tok);
 
-        if ((stmtt != NULL) && (stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->expr == NULL))
+        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
         {
             free_statement(stmtt);
             invalid_syntax_error(tok);
         }
 
-        if (stmt->if_block == NULL)
+        if (!stmt->if_block)
         {
             stmt->if_block = stmtt;
             last_stmt = stmtt;
@@ -692,7 +700,8 @@ Statement_t *stmt_create_while_loop(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_for_loop(Token_t **token)
+Statement_t*
+stmt_create_for_loop(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -746,7 +755,6 @@ Statement_t *stmt_create_for_loop(Token_t **token)
         cc_exit();
     }
 
-
     tok = tok->next;
 
     stmt->else_block = get_next_statement(&tok);
@@ -790,13 +798,13 @@ Statement_t *stmt_create_for_loop(Token_t **token)
     {
         stmtt = get_next_statement(&tok);
 
-        if ((stmtt != NULL) && (stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->expr == NULL))
+        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
         {
             free_statement(stmtt);
             invalid_syntax_error(tok);
         }
 
-        if (stmt->if_block == NULL)
+        if (!stmt->if_block)
         {
             stmt->if_block = stmtt;
             last_stmt = stmtt;
@@ -823,7 +831,8 @@ Statement_t *stmt_create_for_loop(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_return(Token_t **token)
+Statement_t*
+stmt_create_return(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -848,7 +857,8 @@ Statement_t *stmt_create_return(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_print(Token_t **token)
+Statement_t*
+stmt_create_print(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -890,7 +900,8 @@ Statement_t *stmt_create_print(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_input(Token_t **token)
+Statement_t*
+stmt_create_input(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -937,7 +948,8 @@ Statement_t *stmt_create_input(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_import(Token_t **token)
+Statement_t*
+stmt_create_import(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -982,7 +994,8 @@ Statement_t *stmt_create_import(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_assert(Token_t **token)
+Statement_t*
+stmt_create_assert(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -1023,7 +1036,8 @@ Statement_t *stmt_create_assert(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_break(Token_t **token)
+Statement_t*
+stmt_create_break(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -1055,7 +1069,8 @@ Statement_t *stmt_create_break(Token_t **token)
     return stmt;
 }
 
-Statement_t *stmt_create_struct(Token_t **token)
+Statement_t*
+stmt_create_struct(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -1120,7 +1135,8 @@ Statement_t *stmt_create_struct(Token_t **token)
     return stmt;
 }
 
-void stmt_init(Statement_t *stmt)
+void
+stmt_init(Statement_t *stmt)
 {
     stmt->decl = NULL;
     stmt->expr = NULL;
@@ -1133,16 +1149,17 @@ void stmt_init(Statement_t *stmt)
     stmt->for_loop = NULL;
 }
 
-void free_statement(Statement_t *stmt)
+void
+free_statement(Statement_t *stmt)
 {
-    if (stmt != NULL)
+    if (stmt)
     {
-        if ((stmt->decl != NULL) && (stmt->expr == NULL) && (stmt->stmt_type != STMT_INPUT))
+        if (stmt->decl && !stmt->expr && (stmt->stmt_type != STMT_INPUT))
         {
             free_declaration(stmt->decl);
         }
 
-        if (stmt->expr != NULL)
+        if (stmt->expr)
             free_expression(stmt->expr);
     }
 
@@ -1155,10 +1172,10 @@ void free_statement(Statement_t *stmt)
     else if (stmt->stmt_type == STMT_IMPORT)
         free(stmt->import_name);
 
-    if (stmt->args != NULL)
+    if (stmt->args)
         free_args(stmt->args);
 
-    if (stmt->access != NULL)
+    if (stmt->access)
         free_expression(stmt->access);
 
     if (stmt->stmt_type == STMT_ASSERT)
@@ -1171,12 +1188,13 @@ void free_statement(Statement_t *stmt)
     free(stmt);
 }
 
-void free_while_loop(Statement_t *stmt)
+void
+free_while_loop(Statement_t *stmt)
 {
     Statement_t *prev = stmt->if_block;
     Statement_t *last = NULL;
 
-    while (prev != NULL)
+    while (prev)
     {
         last = prev->next;
         free_statement(prev);
@@ -1185,7 +1203,8 @@ void free_while_loop(Statement_t *stmt)
 
 }
 
-void free_for_loop(Statement_t *stmt)
+void
+free_for_loop(Statement_t *stmt)
 {
     Statement_t *prev = stmt->if_block;
     Statement_t *last = NULL;
@@ -1193,7 +1212,7 @@ void free_for_loop(Statement_t *stmt)
     free_statement(stmt->else_block);
     free_statement(stmt->for_loop);
 
-    while (prev != NULL)
+    while (prev)
     {
         last = prev->next;
         free_statement(prev);
@@ -1201,12 +1220,13 @@ void free_for_loop(Statement_t *stmt)
     }
 }
 
-void free_if_else_statement(Statement_t *stmt)
+void
+free_if_else_statement(Statement_t *stmt)
 {
     Statement_t *prev = stmt->if_block;
     Statement_t *last = NULL;
 
-    while (prev != NULL)
+    while (prev)
     {
         last = prev->next;
         free_statement(prev);
@@ -1216,7 +1236,7 @@ void free_if_else_statement(Statement_t *stmt)
     prev = stmt->else_block;
     last = NULL;
 
-    while (prev != NULL)
+    while (prev)
     {
         last = prev->next;
         free_statement(prev);
@@ -1225,7 +1245,8 @@ void free_if_else_statement(Statement_t *stmt)
 }
 
 
-unsigned int find_keyword(const char *ptr)
+unsigned int
+find_keyword(const char *ptr)
 {
     for (unsigned int i = 0; i < KW_NO; i++)
     {
@@ -1236,7 +1257,8 @@ unsigned int find_keyword(const char *ptr)
     return 5;
 }
 
-bool is_reserved(const char *str)
+bool
+is_reserved(const char *str)
 {
     for (unsigned int i = 0; i < KW_NO; i++)
     {

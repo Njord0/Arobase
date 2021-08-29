@@ -16,7 +16,8 @@
             "Missing type\n"); \
         cc_exit(); \
 
-Type_s get_type(Token_t **token)
+Type_s
+get_type(Token_t **token)
 {
     Token_t *tok = *token;
 
@@ -123,7 +124,8 @@ Type_s get_type(Token_t **token)
 }
 
 
-Type_s get_type_decl(Token_t **token)
+Type_s
+get_type_decl(Token_t **token)
 {
     Token_t *tok = *token;
 
@@ -222,7 +224,8 @@ Type_s get_type_decl(Token_t **token)
 }
 
 
-Type_s type_evaluate(Expression_t *expr, enum Type t)
+Type_s
+type_evaluate(Expression_t *expr, enum Type t)
 {
     Type_s type;
     Symbol_t *sym;
@@ -246,10 +249,10 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
         case EXPR_DIV:
         case EXPR_MUL:
         case EXPR_MOD:
-            if (expr->left != NULL)
+            if (expr->left)
                 left = type_evaluate(expr->left, t);
 
-            if (expr->right != NULL)
+            if (expr->right)
                 right = type_evaluate(expr->right, t);
 
 
@@ -321,13 +324,13 @@ Type_s type_evaluate(Expression_t *expr, enum Type t)
 
 }
 
-void type_check(Expression_t *expr)
+void
+type_check(Expression_t *expr)
 {
-
-    if (expr == NULL)
+    if (!expr)
         return;
 
-    if ((expr->left == NULL) && (expr->right == NULL) && (expr->expr_type == EXPR_NUMBER))
+    if (expr->left && expr->right && (expr->expr_type == EXPR_NUMBER))
     {
         if (expr->type.t == _BYTE)
         {
@@ -351,7 +354,8 @@ void type_check(Expression_t *expr)
 
 }
 
-Type_s type_of_first_symbol(Expression_t *expr)
+Type_s
+type_of_first_symbol(Expression_t *expr)
 {
     Expression_t *l = expr->left;
     Expression_t *r = expr->right;
@@ -359,16 +363,16 @@ Type_s type_of_first_symbol(Expression_t *expr)
     if (expr->expr_type == EXPR_SYMBOL)
         return expr->sym_value->_type;
 
-    if ((l != NULL) && ((l->expr_type == EXPR_SYMBOL) || (l->expr_type == EXPR_FUNCCALL)))
+    if (l && ((l->expr_type == EXPR_SYMBOL) || (l->expr_type == EXPR_FUNCCALL)))
         return l->sym_value->_type;
         
-    else if ((r != NULL) && ((r->expr_type == EXPR_SYMBOL) || (r->expr_type == EXPR_FUNCCALL)))
+    else if (r && ((r->expr_type == EXPR_SYMBOL) || (r->expr_type == EXPR_FUNCCALL)))
         return r->sym_value->_type;
 
-    if (l != NULL)
+    if (l)
         return type_of_first_symbol(l);
 
-    else if (r != NULL)
+    else if (r)
         return type_of_first_symbol(r);
 
     
@@ -381,22 +385,24 @@ Type_s type_of_first_symbol(Expression_t *expr)
 
 }
 
-void type_set(Expression_t *expr, Type_s type)
+void
+type_set(Expression_t *expr, Type_s type)
 {
-    if (expr == NULL)
+    if (!expr)
         return;
 
-    if (expr->left != NULL)
+    if (expr->left)
         type_set(expr->left, type);
 
-    if (expr->right != NULL)
+    if (expr->right)
         type_set(expr->right, type);
 
-    if (expr != NULL)
+    if (expr)
         expr->type = type;
 }
 
-Array_s *type_create_array(enum Type t, unsigned int size)
+Array_s*
+type_create_array(enum Type t, unsigned int size)
 {
     Array_s *array = xmalloc(sizeof(Array_s));
 
@@ -406,7 +412,8 @@ Array_s *type_create_array(enum Type t, unsigned int size)
     return array;
 }
 
-char *type_name(enum Type t)
+char*
+type_name(enum Type t)
 {
     switch (t)
     {

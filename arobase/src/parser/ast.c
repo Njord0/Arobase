@@ -8,7 +8,8 @@
 #include <statements.h>
 #include <error_handler.h>
 
-AST_t *create_ast()
+AST_t*
+create_ast()
 {
     AST_t *ast = xmalloc(sizeof(AST_t));
 
@@ -16,28 +17,28 @@ AST_t *create_ast()
     return ast;
 }
 
-
-void free_ast(AST_t *ast)
+void
+free_ast(AST_t *ast)
 {
     
     Statement_t *stmt;
     Statement_t *prev;
 
-    if (ast == NULL)
+    if (!ast)
         return;
 
-    if (ast->first_stmt != NULL)
+    if (ast->first_stmt)
     {
         prev = ast->first_stmt;
 
-        if (prev->next == NULL)
+        if (!prev->next)
         {
             free_statement(prev);
             free(ast);
             return;
         }
 
-        while ((prev != NULL) && (prev->next != NULL))
+        while (prev && prev->next)
         {
             stmt = prev;
             prev = prev->next;
@@ -51,14 +52,15 @@ void free_ast(AST_t *ast)
     free(ast);
 }
 
-void ast_parse(AST_t *ast, Lexer_t *lexer)
+void
+ast_parse(AST_t *ast, Lexer_t *lexer)
 {
     Token_t *tok;
     tok = lexer->first_token;
 
     Statement_t *stmt = NULL;
 
-    while (tok != NULL)
+    while (tok)
     {
         stmt = get_next_statement(&tok);
 

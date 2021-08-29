@@ -9,10 +9,11 @@
 
 Statement_t *current_function = NULL;
 
-void invalid_syntax_error(Token_t *token)
+void
+invalid_syntax_error(Token_t *token)
 {
     long unsigned int line = 0;
-    if (token != NULL)
+    if (token)
         line = token->lineno;
 
     fprintf(stderr, 
@@ -21,9 +22,10 @@ void invalid_syntax_error(Token_t *token)
     cc_exit();
 }
 
-void cc_exit()
+void
+cc_exit()
 {
-    if (current_function != NULL)
+    if (current_function)
         scope_exit();
 
     symtab_free(symtab_g);
@@ -31,13 +33,14 @@ void cc_exit()
     lexer_free(lexer_g);
     struct_free();
 
-    if (current_function != NULL)
+    if (current_function)
         free_statement(current_function);
 
     exit(1);
 }
 
-void show_error_source(Token_t *token)
+void
+show_error_source(Token_t *token)
 {
     char *ptr = dump_line(token);
     if (!ptr)
@@ -55,7 +58,8 @@ void show_error_source(Token_t *token)
     
 }
 
-char *dump_line(Token_t *token)
+char*
+dump_line(Token_t *token)
 {
     if (!token)
         return NULL;
@@ -89,11 +93,12 @@ char *dump_line(Token_t *token)
 
 }
 
-void *xmalloc(size_t size)
+void*
+xmalloc(size_t size)
 {
     void *ptr = malloc(size);
 
-    if (ptr == NULL)
+    if (!ptr)
     {
         fprintf(stderr,
             "ERROR: unable to allocate memory (%lu bytes) !\n",
@@ -104,10 +109,11 @@ void *xmalloc(size_t size)
     return ptr;
 }
 
-void *xrealloc(void *ptr, size_t size)
+void*
+xrealloc(void *ptr, size_t size)
 {
     void *new = realloc(ptr, size);
-    if (new == NULL)
+    if (!new)
     {
         free(ptr);
         fprintf(stderr, 
