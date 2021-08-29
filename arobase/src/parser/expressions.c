@@ -369,7 +369,7 @@ Expression_t *expr_create_funccall(Token_t **token, char *name)
             free(expr);
             cc_exit();
         }
-
+        expr->sym_value = sym;
         next_token = next_token->next;
         *token = next_token;
         return expr;
