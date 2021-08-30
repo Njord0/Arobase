@@ -36,7 +36,6 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
     decl->is_initialised = true; 
 
-
     if (type.is_array)
     {
         if (!token_expect(tok, LBRACKET))
@@ -153,7 +152,7 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     {
         show_error_source(tok);
         fprintf(stderr,
-            "Function can't return strings\n");
+            "Functions can't return strings\n");
         cc_exit();
     }
 
@@ -161,9 +160,10 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     {
         if (is_defined_struct(tok->value.p))
         {
-            decl->type.t = STRUCTURE;
-            decl->type.ptr = tok->value.p;
-            decl->type.is_structure = true;
+            show_error_source(tok);
+            fprintf(stderr,
+                "Functions can't return structures\n");
+            cc_exit();
         }
         else
         {
@@ -174,6 +174,14 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
             cc_exit();
         }
 
+    }
+
+    if (tok->next && tok->next->type == LBRACKET)
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Functions can't return arrays\n");
+        cc_exit();
     }
 
     add_symbol(symtab_g, decl);
@@ -217,7 +225,7 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
             {
                 show_error_source(tok);
                 fprintf(stderr,
-                    "tInvalid return value type\n");
+                    "Invalid return value type\n");
                 free_statement(stmt);
                 cc_exit();
             }

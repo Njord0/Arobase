@@ -39,13 +39,10 @@ symtab_free(Symtable_t *st)
             if (sym->decl && (sym->decl->is_imported))
                 free_declaration(sym->decl);
 
-            sym = next;
-            
+            sym = next;   
         }
-
         scopetable_free(st->scope);
     }
-
     free(st);
 }
 
@@ -77,14 +74,9 @@ void
 scope_exit()
 {
     ScopeTable_t *scope = symtab_g->scope;
-    if (!scope->next)
-    {
-        fprintf(stderr, 
-            "Can't exit GLOBAL scope\n");
+    if (!scope->next) // can't exit global scope
         return;
-    }
-
-
+    
     symtab_g->scope = scope->next;
     scope->next = NULL; // to avoid next one being free'd
     scopetable_free(scope);

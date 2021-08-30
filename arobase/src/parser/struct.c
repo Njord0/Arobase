@@ -146,8 +146,18 @@ struct_get_args(Token_t **token)
             free_args(args);
             cc_exit();
         }
+
+        else if (args->type.is_structure)
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Struct can't be structs members\n");
+            free_args(args);
+            cc_exit();
+        }
+
         tok  = tok->next;
-        args->next = get_args_decl(&tok);
+        args->next = struct_get_args(&tok);
     }
 
     *token = tok;
