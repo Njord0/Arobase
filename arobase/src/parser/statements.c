@@ -484,20 +484,17 @@ Statement_t *stmt_create_if_else(Token_t **token)
     stmt->stmt_type = STMT_IF_ELSE;
 
     tok = tok->next;
-    if (!token_check(tok, LPAR))
-    {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing left parenthesis before condition\n");
-        free(stmt);
-        cc_exit();
-    }
 
-    tok = tok->next;
+    bool has_left_par = false;
+    if (token_check(tok, LPAR))
+    {
+        has_left_par = true;
+        tok = tok->next;
+    }
 
     stmt->expr = expr_create_cond(&tok, _VOID);
 
-    if (!token_check(tok, RPAR))
+    if (!token_check(tok, RPAR) && has_left_par)
     {
         show_error_source(tok);
         fprintf(stderr,
@@ -505,8 +502,17 @@ Statement_t *stmt_create_if_else(Token_t **token)
         free_statement(stmt);
         cc_exit();
     }
+    else if (token_check(tok, RPAR) && !has_left_par)
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Unmatched right-parenthesis\n");
+        free_statement(stmt);
+        cc_exit();
+    }
 
-    tok = tok->next;
+    if (has_left_par)
+        tok = tok->next;
 
     if (!token_expect(tok, LBRACE))
     {
@@ -624,22 +630,18 @@ stmt_create_while_loop(Token_t **token)
     stmt_init(stmt);
     tok = tok->next;
 
-    if (!token_check(tok, LPAR))
+    bool has_left_par = false;
+    if (token_check(tok, LPAR))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing left parenthesis before condition\n");
-        free(stmt);
-        cc_exit();
+        has_left_par = true;
+        tok = tok->next;
     }
-
-    tok = tok->next;
 
     stmt->stmt_type = STMT_WHILE;
     stmt->expr = expr_create_cond(&tok, _VOID);
 
 
-    if (!token_check(tok, RPAR))
+    if (!token_check(tok, RPAR) && has_left_par)
     {
         show_error_source(tok);
         fprintf(stderr,
@@ -647,8 +649,17 @@ stmt_create_while_loop(Token_t **token)
         free_statement(stmt);
         cc_exit();
     }
+    else if (token_check(tok, RPAR) && !has_left_par)
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Unmatched right-parenthesis\n");
+        free_statement(stmt);
+        cc_exit();
+    }
 
-    tok = tok->next;
+    if (has_left_par)
+        tok = tok->next;
 
     if (!token_expect(tok, LBRACE))
     {
