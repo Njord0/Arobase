@@ -1,4 +1,4 @@
-import core.type.array; @_internal_get_size
+import core.array; @_internal_get_size
 import core.cast;
 
 fn size(a: integer[]) : integer
