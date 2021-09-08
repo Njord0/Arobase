@@ -673,6 +673,7 @@ stmt_create_while_loop(Token_t **token)
     tok = tok->next;
 
     loop_count++;
+    scope_enter();
 
     while (!token_check(tok, RBRACE))
     {
@@ -700,6 +701,8 @@ stmt_create_while_loop(Token_t **token)
     }
 
     loop_count--;
+    symbol_pos();
+    scope_exit();
 
     if (!token_expect(tok, RBRACE))
     {
@@ -804,6 +807,7 @@ stmt_create_for_loop(Token_t **token)
     tok = tok->next;
 
     loop_count++;
+    scope_enter();
 
     while (!token_check(tok, RBRACE))
     {
@@ -831,6 +835,8 @@ stmt_create_for_loop(Token_t **token)
     }
 
     loop_count--;
+    symbol_pos();
+    scope_exit();
 
     if (!token_expect(tok, RBRACE))
     {

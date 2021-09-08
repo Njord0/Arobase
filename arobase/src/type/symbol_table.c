@@ -88,11 +88,10 @@ symbol_pos()
     ScopeTable_t *scope = symtab_g->scope;
     Symbol_t *sym = scope->symbol;
 
-    unsigned int pos = 0;
+    static unsigned int pos = 0;
 
     while (sym)
     {
-
         sym->pos = pos++;
 
         if ((sym->_type.is_array) && (sym->type != ARG))
@@ -120,11 +119,14 @@ symbol_pos()
                 arg = arg->next;
             }
         }
-    
+
         sym = sym->next;
 
+        if (sym == NULL && scope->next && scope->next->next) // three scopes or more, not re-initializing pos
+            return;
     }
 
+    pos = 0;
 }
 
 
