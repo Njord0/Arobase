@@ -385,6 +385,8 @@ lexer_get_string(Lexer_t *lexer)
     int c;
     unsigned int i = 0;
     
+    bool backslash = false;
+
     char *ptr = xmalloc(sizeof(char) * (i+1));
 
     while (((c = getc(lexer->file)) != EOF) && (isascii(c) || (c == ' ')) && (c != '"') && (c != '\n'))
@@ -395,13 +397,19 @@ lexer_get_string(Lexer_t *lexer)
         if (!ptr)
             return NULL;
 
+        if (c == '\\' && !backslash)
+            backslash = true;
+        
+        else if (backslash)
+            backslash = false;
+
         ptr[i-1] = (char)c;
     }
 
     if ((c == EOF) || (c == '\n'))
     {
         fprintf(stderr,
-            "Error on line: %lu\n\t Invalid string end\n",
+            "Error on line: %lu\n\t Invalid end of string\n",
             lexer->current_lineno);
         cc_exit();
     }
@@ -410,6 +418,14 @@ lexer_get_string(Lexer_t *lexer)
     {
         fprintf(stderr,
             "Error on line : %lu\n\tNon-ascii character in string\n",
+            lexer->current_lineno);
+        cc_exit();
+    }
+
+    if (backslash)
+    {
+        fprintf(stderr,
+            "Error on line : %lu\n\tInvalid end of string\n",
             lexer->current_lineno);
         cc_exit();
     }
