@@ -53,7 +53,7 @@ const char *args_regs[] = {
 };
 
 char scratch_in_use[7] = {0};
-char pos[100] = {0};
+char symbol_stack_pos[100] = {0};
 
 void
 begin_codegen(AST_t *ast, const char *out)
@@ -1209,6 +1209,8 @@ reg_alloc(unsigned int reg)
             return i;
         }
     }
+
+    return UINT_MAX;
 }
 
 const char*
@@ -1467,16 +1469,16 @@ symbol_s(Symbol_t *sym)
     {
 
         if (sym->_type.t == _BYTE || sym->_type.t == _CHAR)
-            snprintf(pos, sizeof(pos), "rbp-%u", 8 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)));
+            snprintf(symbol_stack_pos, sizeof(symbol_stack_pos), "rbp-%u", 8 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)));
         else
-            snprintf(pos, sizeof(pos), "rbp-%u", 8 * (sym->pos+1+((Array_s*)(sym->_type.ptr))->size));
+            snprintf(symbol_stack_pos, sizeof(symbol_stack_pos), "rbp-%u", 8 * (sym->pos+1+((Array_s*)(sym->_type.ptr))->size));
     }
     else
     {
-        snprintf(pos, sizeof(pos), "rbp-%u", 8*(sym->pos+1));
+        snprintf(symbol_stack_pos, sizeof(symbol_stack_pos), "rbp-%u", 8*(sym->pos+1));
     }
 
-    return pos;
+    return symbol_stack_pos;
 }
 
 void
