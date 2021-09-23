@@ -1,0 +1,7 @@
+extraction:
+  cpp:
+    index:
+      build_command:
+      - "cd arobase/"
+      - "make"
+
