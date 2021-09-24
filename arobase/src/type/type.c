@@ -321,7 +321,6 @@ type_evaluate(Expression_t *expr, enum Type t)
     }
 
     return type;
-
 }
 
 void
@@ -334,6 +333,9 @@ type_check(Expression_t *expr)
     {
         if (expr->type.t == _BYTE)
         {
+            /*
+                Checks if byte value is in [0;255]
+            */
             if ((expr->int_value < 0) || (expr->int_value > 255))
             {
                 fprintf(stderr, 
@@ -344,14 +346,7 @@ type_check(Expression_t *expr)
                 expr->int_value &= 255;
             }
         }
-
-        else if (expr->type.t == INTEGER)
-        {
-
-        }
-
     }
-
 }
 
 Type_s
@@ -382,7 +377,6 @@ type_of_first_symbol(Expression_t *expr)
     type.ptr = NULL;
 
     return type;
-
 }
 
 void
