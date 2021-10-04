@@ -2,11 +2,22 @@
 
 <div align="center">
     <img width="140px" src="others/logo.png"/><br/>
-    Arobase is a simple programming language with a c-like syntax.
+    Arobase is a simple programming language with a c-like syntax.<br/><br/>
+</div>
+
+<div align="center">
+    <a href="https://github.com/Njord0/Arobase/tree/main/arobase">
+        <img src="https://img.shields.io/tokei/lines/github/njord0/Arobase?color=green&label=lines%20of%20code"/></a>
+    <a href="https://github.com/Njord0/Arobase/tree/main/arobase">
+        <img src="https://img.shields.io/github/last-commit/njord0/Arobase"/></a>
+    <img src="https://img.shields.io/github/stars/njord0/Arobase.svg"/>
+    <img src="https://img.shields.io/lgtm/grade/cpp/g/Njord0/Arobase.svg?logo=lgtm&logoWidth=18"/>
+    <img src="https://img.shields.io/lgtm/alerts/g/Njord0/Arobase.svg?logo=lgtm&logoWidth=18"/>
+
 </div>
 
 ## About
-Arobase is a simple programming language, actual implementation is a compiler written in C
+Arobase is a simple programming language, current implementation is a compiler written in C
 
 The language is meant to be easy to use and easy to learn! 
 
