@@ -40,35 +40,19 @@ typedef struct statement_ {
 
 Statement_t *get_next_statement(Token_t **token);
 
-Statement_t *stmt_create_var_declaration(Token_t **token);
-Statement_t *stmt_create_var_assign(Token_t **token);
-Statement_t *stmt_create_struct_assign(Token_t **token, Statement_t *stmt, const char *name);
 
-
-Statement_t *stmt_create_func_declaration(Token_t **token);
-Statement_t *stmt_create_func_call(Token_t **token);
-
-Statement_t *stmt_create_if_else(Token_t **token);
-Statement_t *stmt_create_while_loop(Token_t **token);
-Statement_t *stmt_create_for_loop(Token_t **token);
-
-Statement_t *stmt_create_return(Token_t **token);
 Statement_t *stmt_create_print(Token_t **token);
 Statement_t *stmt_create_input(Token_t **token);
-
 Statement_t *stmt_create_import(Token_t **token);
-
 Statement_t *stmt_create_assert(Token_t **token);
-
-Statement_t *stmt_create_break(Token_t **token);
 Statement_t *stmt_create_struct(Token_t **token);
 
 void stmt_init(Statement_t *stmt);
 
 void free_statement(Statement_t *stmt);
+
 void free_while_loop(Statement_t *stmt);
 void free_for_loop(Statement_t *stmt);
-
 void free_if_else_statement(Statement_t *stmt);
 
 
@@ -98,6 +82,5 @@ extern const char *Arobase_ReservedKeywords[19];
 
 unsigned int find_keyword(const char *ptr);
 bool is_reserved(const char *str);
-
 
 #endif

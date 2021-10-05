@@ -62,9 +62,6 @@ Expression_t *expr_create_cond(Token_t **token, enum Type t);
 Expression_t *expr_fold(Expression_t *expr);
 void expr_init(Expression_t *expr);
 
-
 void free_expression(Expression_t *expr);
-
-
 
 #endif

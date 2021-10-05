@@ -231,7 +231,6 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
             }
         }
 
-
         if (!decl->code)
         {
             decl->code = stmt;

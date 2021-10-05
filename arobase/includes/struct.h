@@ -12,9 +12,6 @@ unsigned int struct_member_pos(Statement_t *str, const char *name);
 Args_t *struct_get_args(Token_t **token);
 
 
-
-
-
 extern Statement_t *struct_l;
 
 #endif
