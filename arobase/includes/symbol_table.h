@@ -15,9 +15,9 @@ struct _symbol;
 typedef struct _symbol {
     enum SymbolType type;
     struct decl_ *decl;
-    struct _symbol *next;
-    const char *name;
-    char *rname;
+    struct _symbol *next; // next symbol in scope, order is meaningless
+    const char *name; // Symbol name as used in the program
+    char *rname; // Symbol real name, for function only after name mangling
     Type_s _type;
     unsigned int pos;
 } Symbol_t;

@@ -5,13 +5,13 @@
 #include <lexer.h>
 
 typedef struct {
-
     Statement_t *first_stmt;
     Statement_t *last_stmt;
-
 } AST_t;
 
 AST_t *create_ast();
+
+/* Parse the program AST given the lexer */
 void ast_parse(AST_t *ast, Lexer_t *lexer);
 void free_ast(AST_t *ast);
 

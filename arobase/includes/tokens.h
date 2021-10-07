@@ -37,17 +37,18 @@ enum TokensTypes {
     TOK_CHAR,
 };
 
+
 typedef struct Token {
-    enum TokensTypes type;
+    enum TokensTypes type; // The kind of the token
     union
     {
         int64_t i;
         char c;
         char *p;
-    } value;
+    } value; // An union to store the value associated with the token, depends on the token type
 
-    unsigned long int lineno;
-    struct Token *next;
+    unsigned long int lineno; // The line on which the token was lexed
+    struct Token *next; // Pointer to the next token
 
 } Token_t;
 
