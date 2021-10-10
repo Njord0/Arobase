@@ -20,7 +20,9 @@ enum statement {
     STMT_ASSERT,
     STMT_FOR,
     STMT_BREAK,
-    STMT_STRUCT
+    STMT_STRUCT,
+    STMT_TRY_EXCEPT,
+    STMT_RAISE
 };
 
 typedef struct statement_ {
@@ -75,12 +77,20 @@ void free_if_else_statement(Statement_t *stmt);
 #define KW_FOR      16
 #define KW_BREAK    17
 #define KW_STRUCT   18
+#define KW_TRY      19
+#define KW_EXCEPT   20
+#define KW_RAISE    21
 
-#define KW_NO       19
+#define KW_NO       22
 
-extern const char *Arobase_ReservedKeywords[19];
+extern const char *Arobase_ReservedKeywords[22];
 
 unsigned int find_keyword(const char *ptr);
 bool is_reserved(const char *str);
+
+
+// macro to check keyword
+#define IS_KEYWORD(x, y) \
+    x->type == KEYWORD && strcmp(x->value.p, Arobase_ReservedKeywords[y]) == 0 
 
 #endif

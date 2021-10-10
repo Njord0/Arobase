@@ -13,9 +13,7 @@
 #include <conds.h>
 #include <function.h>
 #include <var.h>
-
-#define IS_KEYWORD(x, y) \
-    x->type == KEYWORD && strcmp(x->value.p, Arobase_ReservedKeywords[y]) == 0 
+#include <exceptions.h>
 
 const char *Arobase_ReservedKeywords[] = {
     "let",
@@ -36,7 +34,10 @@ const char *Arobase_ReservedKeywords[] = {
     "assert",
     "for",
     "break",
-    "struct"
+    "struct",
+    "try",
+    "except",
+    "raise"
 };
 
 
@@ -82,6 +83,9 @@ get_next_statement(Token_t **token)
     else if (IS_KEYWORD(tok, KW_STRUCT))
         stmt = stmt_create_struct(&tok);
 
+    else if (IS_KEYWORD(tok, KW_TRY))
+        stmt = stmt_parse_try_block(&tok);
+
     else if (tok->type == SYMBOL)
     {
         if (tok->next && ((tok->next->type == ASSIGN) || (tok->next->type == LBRACKET) || (tok->next->type == DOT)))
@@ -93,6 +97,7 @@ get_next_statement(Token_t **token)
         else
             invalid_syntax_error(tok);
     }
+
     else if (IS_KEYWORD(tok, KW_ELSE))
     {
 
@@ -100,6 +105,13 @@ get_next_statement(Token_t **token)
         fprintf(stderr,
             "'else' statement without 'if' statement!\n");
         cc_exit();
+    }
+
+    else if (IS_KEYWORD(tok, KW_EXCEPT))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "'except' statement without 'try' statement\n");
     }
 
     else
