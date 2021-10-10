@@ -42,12 +42,12 @@ typedef struct statement_ {
 
 Statement_t *get_next_statement(Token_t **token);
 
+Statement_t *stmt_parse_print(Token_t **token);
+Statement_t *stmt_parse_input(Token_t **token);
+Statement_t *stmt_parse_import(Token_t **token);
+Statement_t *stmt_parse_assert(Token_t **token);
 
-Statement_t *stmt_create_print(Token_t **token);
-Statement_t *stmt_create_input(Token_t **token);
-Statement_t *stmt_create_import(Token_t **token);
-Statement_t *stmt_create_assert(Token_t **token);
-Statement_t *stmt_create_struct(Token_t **token);
+Statement_t *stmt_parse_struct(Token_t **token);
 
 void stmt_init(Statement_t *stmt);
 

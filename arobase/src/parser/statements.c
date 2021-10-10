@@ -66,22 +66,22 @@ get_next_statement(Token_t **token)
         stmt = stmt_parse_return(&tok);
 
     else if (IS_KEYWORD(tok, KW_PRINT))
-        stmt = stmt_create_print(&tok);
+        stmt = stmt_parse_print(&tok);
     
     else if (IS_KEYWORD(tok, KW_INPUT))
-        stmt = stmt_create_input(&tok);
+        stmt = stmt_parse_input(&tok);
 
     else if (IS_KEYWORD(tok, KW_IMPORT))
-        stmt = stmt_create_import(&tok);
+        stmt = stmt_parse_import(&tok);
 
     else if (IS_KEYWORD(tok, KW_ASSERT))
-        stmt = stmt_create_assert(&tok);
+        stmt = stmt_parse_assert(&tok);
 
     else if (IS_KEYWORD(tok, KW_BREAK))
         stmt = stmt_parse_break(&tok);
 
     else if (IS_KEYWORD(tok, KW_STRUCT))
-        stmt = stmt_create_struct(&tok);
+        stmt = stmt_parse_struct(&tok);
 
     else if (IS_KEYWORD(tok, KW_TRY))
         stmt = stmt_parse_try_block(&tok);
@@ -128,7 +128,7 @@ get_next_statement(Token_t **token)
 
 
 Statement_t*
-stmt_create_print(Token_t **token)
+stmt_parse_print(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -171,7 +171,7 @@ stmt_create_print(Token_t **token)
 }
 
 Statement_t*
-stmt_create_input(Token_t **token)
+stmt_parse_input(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -219,7 +219,7 @@ stmt_create_input(Token_t **token)
 }
 
 Statement_t*
-stmt_create_import(Token_t **token)
+stmt_parse_import(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -265,7 +265,7 @@ stmt_create_import(Token_t **token)
 }
 
 Statement_t*
-stmt_create_assert(Token_t **token)
+stmt_parse_assert(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
@@ -307,7 +307,7 @@ stmt_create_assert(Token_t **token)
 }
 
 Statement_t*
-stmt_create_struct(Token_t **token)
+stmt_parse_struct(Token_t **token)
 {
     Token_t *tok = *token;
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
