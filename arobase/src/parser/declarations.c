@@ -38,8 +38,12 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
     if (type.is_array)
     {
-        if (!token_expect(tok, LBRACKET))
+        if (!token_check(tok, LBRACKET))
         {
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Missing '[' before array initialization\n");
+            free_declaration(decl);
             cc_exit();
         }
 
@@ -47,8 +51,12 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
         decl->args = get_args(&tok, type.t);
 
-        if (!token_expect(tok, RBRACKET))
+        if (!token_check(tok, RBRACKET))
         {
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Missing ']'\n");
+            free_declaration(decl);
             cc_exit();
         }
 
@@ -57,8 +65,12 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
     else if (type.is_structure)
     {
-        if (!token_expect(tok, LBRACE))
+        if (!token_check(tok, LBRACE))
         {
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Missing '{' before structure initialization\n");
+            free_declaration(decl);
             cc_exit();
         }
 
@@ -66,8 +78,12 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
         decl->args = get_args(&tok, _VOID);
 
-        if (!token_expect(tok, RBRACE))
+        if (!token_check(tok, RBRACE))
         {
+            show_error_source(tok);
+            fprintf(stderr, 
+                "Missing '}'\n");
+            free_declaration(decl);
             cc_exit();
         }
 
