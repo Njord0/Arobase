@@ -9,6 +9,7 @@
 #include <struct.h>
 #include <statements.h>
 #include <symbol_table.h>
+#include <exceptions.h>
 
 Lexer_t *lexer_g = NULL;
 AST_t *ast_g = NULL;
@@ -62,14 +63,14 @@ int main(int argc, char **argv)
 
     parse_args(argc, argv, &out, &src);
 
-    if (src == NULL)
+    if (!src)
     {
         fprintf(stderr,
             "Error: \n\tNo source file specified!\n");
         return 1;
     }
 
-    if (out == NULL)
+    if (!out)
     {
         fprintf(stderr,
             "Warning: \n\tNo output file specified, default is 'out.s'.\n");
@@ -77,7 +78,7 @@ int main(int argc, char **argv)
     }
 
     lexer_g = lexer_create(src);
-    if (lexer_g == NULL)
+    if (!lexer_g)
     {
         fprintf(stderr, 
             "Error: \n\tNo file named '%s'\n",
@@ -88,14 +89,14 @@ int main(int argc, char **argv)
     lexer_tokenize(lexer_g);
 
     ast_g = create_ast();
-    if (ast_g == NULL)
+    if (!ast_g)
     {
         lexer_free(lexer_g);
         return 1;
     }
 
     symtab_g = symtab_create();
-    if (symtab_g == NULL)
+    if (!symtab_g)
     {
         lexer_free(lexer_g);
         free_ast(ast_g);
