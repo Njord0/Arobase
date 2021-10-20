@@ -58,6 +58,8 @@ void free_while_loop(Statement_t *stmt);
 void free_for_loop(Statement_t *stmt);
 void free_if_else_statement(Statement_t *stmt);
 
+void free_try_except(Statement_t *stmt);
+
 
 #define KW_LET      0
 #define KW_IF       1

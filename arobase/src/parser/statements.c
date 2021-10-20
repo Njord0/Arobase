@@ -422,8 +422,11 @@ free_statement(Statement_t *stmt)
     if (stmt->stmt_type == STMT_ASSERT)
         free(stmt->import_name);
 
-    if (stmt->stmt_type == STMT_FOR)
+    else if (stmt->stmt_type == STMT_FOR)
         free_for_loop(stmt);
+
+    else if (stmt->stmt_type == STMT_TRY_EXCEPT)
+        free_try_except(stmt);
 
     free(stmt);
 }
@@ -484,6 +487,29 @@ free_if_else_statement(Statement_t *stmt)
     }
 }
 
+void
+free_try_except(Statement_t *stmt)
+{
+    Statement_t *prev = stmt->if_block;
+    Statement_t *last = NULL;
+
+    while (prev)
+    {
+        last = prev->next;
+        free_statement(prev);
+        prev = last;
+    }
+
+    prev = stmt->else_block;
+    last = NULL;
+
+    while (prev)
+    {
+        last = prev->next;
+        free_statement(prev);
+        prev = last;
+    }
+}
 
 unsigned int
 find_keyword(const char *ptr)
