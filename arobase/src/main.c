@@ -103,6 +103,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    exception_vector = vec_create(EXCEPTIONS);
+    add_exception("Exception");
+
     ast_parse(ast_g, lexer_g);
 
     begin_codegen(ast_g, out);
@@ -111,6 +114,7 @@ int main(int argc, char **argv)
     free_ast(ast_g);
     lexer_free(lexer_g);
     struct_free();
+    vec_free(exception_vector);
 
     return 0;
 }

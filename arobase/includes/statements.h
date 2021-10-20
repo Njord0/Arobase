@@ -36,6 +36,7 @@ typedef struct statement_ {
     struct statement_ *else_block;
     struct statement_ *for_loop;
     struct statement_ *next;
+    struct exception *exception;
 
     char *import_name;
 } Statement_t;

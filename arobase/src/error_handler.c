@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <utils/vectors.h>
+#include <exceptions.h>
 #include <error_handler.h>
 #include <symbol_table.h>
 #include <struct.h>
@@ -32,6 +34,7 @@ cc_exit()
     free_ast(ast_g);
     lexer_free(lexer_g);
     struct_free();
+    vec_free(exception_vector);
 
     if (current_function)
         free_statement(current_function);

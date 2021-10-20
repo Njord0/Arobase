@@ -85,6 +85,9 @@ get_next_statement(Token_t **token)
 
     else if (IS_KEYWORD(tok, KW_TRY))
         stmt = stmt_parse_try_block(&tok);
+    
+    else if (IS_KEYWORD(tok, KW_RAISE))
+        stmt = stmt_parse_raise(&tok);
 
     else if (tok->type == SYMBOL)
     {
@@ -384,6 +387,7 @@ stmt_init(Statement_t *stmt)
     stmt->next = NULL;
     stmt->import_name = NULL;
     stmt->for_loop = NULL;
+    stmt->exception = NULL;
 }
 
 void
@@ -420,7 +424,6 @@ free_statement(Statement_t *stmt)
 
     if (stmt->stmt_type == STMT_FOR)
         free_for_loop(stmt);
-
 
     free(stmt);
 }
