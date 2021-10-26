@@ -8,6 +8,7 @@
 #include <codegen/conds.h>
 #include <codegen/functions.h>
 #include <codegen/vars.h>
+#include <codegen/exceptions.h>
 
 #include <statements.h>
 #include <struct.h>
@@ -100,6 +101,9 @@ emit_statements(Statement_t **statement)
 
         else if (stmt->stmt_type == STMT_BREAK)
             emit_break(stmt);
+
+        else if (stmt->stmt_type == STMT_TRY_EXCEPT)
+            emit_try_block(stmt);
 
         if (stmt)
             stmt = stmt->next;
