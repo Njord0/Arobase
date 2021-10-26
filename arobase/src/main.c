@@ -5,7 +5,7 @@
 #include <ast.h>
 #include <lexer.h>
 #include <tokens.h>
-#include <code_gen.h>
+#include <codegen/start.h>
 #include <struct.h>
 #include <statements.h>
 #include <symbol_table.h>
