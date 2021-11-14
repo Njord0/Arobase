@@ -104,6 +104,9 @@ emit_statements(Statement_t **statement)
 
         else if (stmt->stmt_type == STMT_TRY_EXCEPT)
             emit_try_block(stmt);
+        
+        else if (stmt->stmt_type == STMT_RAISE)
+            emit_raise(stmt);
 
         if (stmt)
             stmt = stmt->next;
