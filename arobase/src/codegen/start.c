@@ -196,22 +196,22 @@ load_to_reg(Expression_t *expr)
             emit("mov rcx, [rcx]\n");
         
         if (expr->type.t == INTEGER)
-            emit("movq %s, [rcx-%d*8]\n", 
+            emit("movq %s, [rcx-%u*8]\n", 
                 reg_name(expr->reg), 
                 pos);
 
         else if (expr->type.t == _BYTE)
-            emit("mov %s, [rcx-%d*8]\n",
+            emit("mov %s, [rcx-%u*8]\n",
                 reg_name_l(expr->reg),
                 pos);
 
         else if (expr->type.t == _CHAR)
-            emit("mov %s, [rcx-%d*8]\n",
+            emit("mov %s, [rcx-%u*8]\n",
                 reg_name_l(expr->reg),
                 pos);
 
         else if (expr->type.t == STRING)
-            emit("mov %s, [rcx-%d*8]\n",
+            emit("mov %s, [rcx-%u*8]\n",
                 reg_name(expr->reg),
                 pos);
     }
@@ -361,22 +361,22 @@ store_to_stack(Expression_t *expr, Symbol_t *sym)
             emit("mov rcx, [rcx]\n");    
 
         if (expr->type.t == INTEGER)
-            emit("movq [rcx-%d*8], %s\n", 
+            emit("movq [rcx-%u*8], %s\n", 
                 pos,
                 reg_name(expr->reg));
 
         else if (expr->type.t == _BYTE)
-            emit("mov [rcx-%d*8], %s\n",
+            emit("mov [rcx-%u*8], %s\n",
                 pos,
                 reg_name_l(expr->reg));
 
         else if (expr->type.t == _CHAR)
-            emit("mov [rcx-%d*8], %s\n",
+            emit("mov [rcx-%u*8], %s\n",
                 pos,
                 reg_name_l(expr->reg));
 
         else if (expr->type.t == STRING)
-            emit("mov [rcx-%d*8], %s\n",
+            emit("mov [rcx-%u*8], %s\n",
                 pos,
                 reg_name(expr->reg));
     }

@@ -52,7 +52,7 @@ show_error_source(Token_t *token)
     unsigned int line = token ? token->lineno : 0;
 
     fprintf(stderr,
-        "Error : File '%s', line %d\n%s\n",
+        "Error : File '%s', line %u\n%s\n",
         lexer_g->filename,
         line,
         ptr);

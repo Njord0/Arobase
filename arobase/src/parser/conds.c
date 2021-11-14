@@ -10,6 +10,8 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
+#include <conds.h>
+
 
 unsigned int loop_count = 0;
 

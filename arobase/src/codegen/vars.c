@@ -378,22 +378,22 @@ emit_structure_initialization(Args_t *args, Symbol_t *sym)
             symbol_s(sym));
 
         if (args->expr->type.t == INTEGER)
-            emit("movq [rcx-%d*8], %s\n",
+            emit("movq [rcx-%u*8], %s\n",
                 pos,
                 reg_name(args->expr->reg));
 
         else if (args->expr->type.t == _BYTE)
-            emit("mov [rcx-%d*8], %s\n",
+            emit("mov [rcx-%u*8], %s\n",
                 pos,
                 reg_name_l(args->expr->reg));
 
         else if (args->expr->type.t == _CHAR)
-            emit("mov [rcx-%d*8], %s\n",
+            emit("mov [rcx-%u*8], %s\n",
                 pos,
                 reg_name_l(args->expr->reg));
 
         else if (args->expr->type.t == STRING)
-            emit("mov [rcx-%d*8], %s\n",
+            emit("mov [rcx-%u*8], %s\n",
             pos,
             reg_name(args->expr->reg));
 

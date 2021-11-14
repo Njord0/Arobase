@@ -11,6 +11,8 @@
 #include <error_handler.h>
 #include <symbol_table.h>
 
+#include <function.h>
+
 Statement_t*
 stmt_parse_func_declaration(Token_t **token)
 {
