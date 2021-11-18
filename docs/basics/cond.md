@@ -44,7 +44,7 @@ fn main() : void
 }
 ```
 This code will print all numbers from 0 to 9, we can translate it to : 
-print `i` and increment `i` by one until `i` is strictly inferior to 10
+print `i` and increment `i` by one as long as `i` is strictly inferior to 10
 
 ## For
 

@@ -42,3 +42,7 @@ You can't declare a variable of type `void`.
 ## Arrays
 
 Arrays are sets of variable of the same type.
+
+## Structures
+
+Structures are sets of variable of differents type (could be the same), with some restriction, for example structs and arrays can't be structs members.

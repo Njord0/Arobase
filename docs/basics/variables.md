@@ -39,4 +39,31 @@ fn main() : void
 }
 ```
 
-You can't declare array of strings !
+You can't declare array of strings or arrays of structures.
+
+## Structures declaration
+
+To declare a structure you have to use the `struct` keyword followed by the structure name. 
+The differents members of the structure are then declared in braces.
+
+```c
+Player {
+    name: string,
+    stamina: integer,
+    health: integer
+}
+```
+Here we declare a structure `Player` with 3 members.
+
+Structures variables are initialised the same as any other variable using the let keyword and the structure name.
+
+```c
+fn main() : void
+{
+    let player: Player;
+    player.name = "username";
+    player.stamina = 0;
+    player.health = 100;
+}
+```
+Quite easy, isn't it ?
