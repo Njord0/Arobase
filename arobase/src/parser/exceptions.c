@@ -79,10 +79,22 @@ stmt_parse_try_block(Token_t **token)
     {
         tok = tok->next;
 
+        if (!token_check(tok, COLON))
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Invalid syntax\n");
+            cc_exit();
+        }
+
+        tok = tok->next;
+
         if (!token_check(tok, SYMBOL) || !is_valid_exception(tok->value.p))
         {
             show_error_source(tok);
-            printf("unknow exception %s\n", tok->value.p);
+            fprintf(stderr,
+                "unknow exception %s\n",
+                tok->value.p);
             cc_exit();
         }
 
