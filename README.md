@@ -82,4 +82,4 @@ Usage: ./arobase -s source_file [options]
 
 ## Documentation / Tutorial
 
-You can find documentation and tutorial ~~[here](docs/README.md)~~ [here](https://arobase.njord.re)
+You can find documentation and tutorial [here](docs/README.md)
