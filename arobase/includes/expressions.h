@@ -1,6 +1,8 @@
 #ifndef _EXPRESSIONS_H
 #define _EXPRESSIONS_H
 
+#include <stdbool.h>
+
 #include <tokens.h>
 #include <type.h>
 
@@ -63,5 +65,7 @@ Expression_t *expr_fold(Expression_t *expr);
 void expr_init(Expression_t *expr);
 
 void free_expression(Expression_t *expr);
+
+bool is_type_allowed(Type_s type);
 
 #endif

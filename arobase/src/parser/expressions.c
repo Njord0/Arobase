@@ -124,7 +124,7 @@ expr_factor(Token_t **token, enum Type t)
         Symbol_t *sym;
         if (is_declared_var(symtab_g, tok->value.p, &sym) && !token_check(tok->next, LPAR))
         {
-            if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING) && (sym->_type.t != STRUCTURE))
+            if (is_type_allowed(sym->_type))
             {
                 show_error_source(tok);
                 fprintf(stderr,
@@ -220,7 +220,7 @@ expr_factor(Token_t **token, enum Type t)
 
         else if (is_declared_func(symtab_g, tok->value.p, &sym))
         {
-            if ((sym->_type.t != INTEGER) && (sym->_type.t != _BYTE) && (sym->_type.t != _CHAR) && (sym->_type.t != STRING))
+            if (is_type_allowed(sym->_type))
             {
                 show_error_source(tok);
                 fprintf(stderr,
@@ -573,6 +573,12 @@ expr_init(Expression_t *expr)
     expr->int_value = 0;
     expr->type.is_structure = false;
     expr->type.is_array = false;
+}
+
+bool
+is_type_allowed(Type_s type)
+{
+ return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE);
 }
 
 void

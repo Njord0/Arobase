@@ -24,15 +24,14 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
     add_symbol(symtab_g, decl);
 
-    if (token_check(tok, ASSIGN))
-    {
-        tok = tok->next;
-    }
-    else
+    if (!token_check(tok, ASSIGN))
     {
         *token = tok;
         return decl;
     }
+
+    tok = tok->next;
+
 
     decl->is_initialised = true; 
 
@@ -147,58 +146,10 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
 
     if (!token_expect(tok, COLON))
         cc_exit();
+        
     tok = tok->next;
 
-    if (!token_checks(tok, 2, KEYWORD, SYMBOL))
-        cc_exit();
-
-    if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
-        decl->type.t = INTEGER;
-
-    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
-        decl->type.t = _BYTE;
-
-    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
-        decl->type.t = _VOID;
-
-    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
-        decl->type.t = _CHAR;
-    
-    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
-    {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Functions can't return strings\n");
-        cc_exit();
-    }
-
-    else
-    {
-        if (is_defined_struct(tok->value.p))
-        {
-            show_error_source(tok);
-            fprintf(stderr,
-                "Functions can't return structures\n");
-            cc_exit();
-        }
-        else
-        {
-            show_error_source(tok);
-            fprintf(stderr, 
-                "Unknow type '%s'\n", 
-                tok->value.p);
-            cc_exit();
-        }
-
-    }
-
-    if (tok->next && tok->next->type == LBRACKET)
-    {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Functions can't return arrays\n");
-        cc_exit();
-    }
+    check_function_return_value(tok, decl);
 
     add_symbol(symtab_g, decl);
     scope_enter();
@@ -237,6 +188,7 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
         {
             type_set(stmt->expr, decl->type);
             type_check(stmt->expr);
+            
             if (decl->type.t != type_evaluate(stmt->expr, decl->type.t).t)
             {
                 show_error_source(tok);
@@ -289,6 +241,58 @@ decl_init(Declaration_t *decl)
     decl->is_imported = false;
     decl->type.is_array = false;
     decl->is_initialised = false;
+}
+
+void
+check_function_return_value(Token_t *token, Declaration_t *decl)
+{
+    if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
+        decl->type.t = INTEGER;
+
+    else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
+        decl->type.t = _BYTE;
+
+    else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
+        decl->type.t = _VOID;
+
+    else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
+        decl->type.t = _CHAR;
+    
+    else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
+    {
+        show_error_source(token);
+        fprintf(stderr,
+            "Functions can't return strings\n");
+        cc_exit();
+    }
+
+    else
+    {
+        if (is_defined_struct(token->value.p))
+        {
+            show_error_source(token);
+            fprintf(stderr,
+                "Functions can't return structures\n");
+            cc_exit();
+        }
+        else
+        {
+            show_error_source(token);
+            fprintf(stderr, 
+                "Unknow type '%s'\n", 
+                token->value.p);
+            cc_exit();
+        }
+
+    }
+
+    if (token->next && token->next->type == LBRACKET)
+    {
+        show_error_source(token);
+        fprintf(stderr,
+            "Functions can't return arrays\n");
+        cc_exit();
+    }
 }
 
 

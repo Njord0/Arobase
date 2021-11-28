@@ -30,6 +30,9 @@ Declaration_t *declaration_create_func(Token_t **token, char *name, Declaration_
 
 void decl_init(Declaration_t *decl);
 
+void check_function_return_value(Token_t *token, Declaration_t *decl);
+
 void free_declaration(Declaration_t *decl);
+
 
 #endif

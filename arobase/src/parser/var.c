@@ -225,7 +225,6 @@ stmt_parse_var_assign(Token_t **token)
         show_error_source(next_token);
         fprintf(stderr,
             "Invalid end of statement\n");
-
         free_statement(stmt);
         cc_exit();
     }
