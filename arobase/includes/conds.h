@@ -11,4 +11,7 @@ Statement_t *stmt_parse_while_loop(Token_t **token);
 Statement_t *stmt_parse_for_loop(Token_t **token);
 Statement_t *stmt_parse_break(Token_t **token);
 
+void scope_add_statement(Statement_t *scope, Statement_t *stmt, Statement_t **last_stmt);
+
+
 #endif // _CONDS_H

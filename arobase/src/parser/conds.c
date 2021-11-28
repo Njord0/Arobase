@@ -76,17 +76,7 @@ stmt_parse_if_else(Token_t **token)
             invalid_syntax_error(tok);
         }
 
-        if (!stmt->if_block)
-        {
-            stmt->if_block = stmtt;
-            last_stmt = stmtt;
-        }
-
-        else
-        {
-            last_stmt->next = stmtt;
-            last_stmt = stmtt;
-        }
+        scope_add_statement(stmt, stmtt, &last_stmt);
 
         tok = tok->next;
     }
@@ -226,17 +216,7 @@ stmt_parse_while_loop(Token_t **token)
             invalid_syntax_error(tok);
         }
 
-        if (!stmt->if_block)
-        {
-            stmt->if_block = stmtt;
-            last_stmt = stmtt;
-        }
-
-        else
-        {
-            last_stmt->next = stmtt;
-            last_stmt = stmtt;
-        }
+        scope_add_statement(stmt, stmtt, &last_stmt);
 
         tok = tok->next;
     }
@@ -360,17 +340,7 @@ stmt_parse_for_loop(Token_t **token)
             invalid_syntax_error(tok);
         }
 
-        if (!stmt->if_block)
-        {
-            stmt->if_block = stmtt;
-            last_stmt = stmtt;
-        }
-
-        else
-        {
-            last_stmt->next = stmtt;
-            last_stmt = stmtt;
-        }
+        scope_add_statement(stmt, stmtt, &last_stmt);
 
         tok = tok->next;
     }
@@ -420,4 +390,19 @@ stmt_parse_break(Token_t **token)
 
     *token = tok;
     return stmt;
+}
+
+void
+scope_add_statement(Statement_t *scope, Statement_t *stmt, Statement_t **last_stmt)
+{
+    if (!scope->if_block)
+    {
+        scope->if_block = stmt;
+        *last_stmt = stmt;
+    }
+    else
+    {
+        (*last_stmt)->next = stmt;
+        *last_stmt = stmt;
+    }
 }
