@@ -2,7 +2,8 @@
 
 #include "string.h"
 
-size_t _internal_string_len(const char *ptr)
+size_t
+_internal_string_len(const char *ptr)
 {
     size_t t = 0;
 
@@ -15,7 +16,8 @@ size_t _internal_string_len(const char *ptr)
     return t;
 }
 
-void _internal_string_reverse(char *ptr)
+void
+_internal_string_reverse(char *ptr)
 {
     char tmp;
     size_t len = _internal_string_len(ptr);

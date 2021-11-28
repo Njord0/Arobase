@@ -4,7 +4,8 @@
 
 #include "input.h"
 
-int64_t input_integer()
+int64_t
+input_integer()
 {
     int64_t i = 0;
 
@@ -33,7 +34,8 @@ int64_t input_integer()
     return i; 
 }
 
-char input_char()
+char
+input_char()
 {
     char buf[2] = {0};
     _internal_read(buf, 1);
@@ -46,7 +48,8 @@ char input_char()
     return buf[0];
 }
 
-char input_byte()
+char
+input_byte()
 {
     char buf[2] = {0};
     _internal_read(buf, 1);
@@ -57,7 +60,8 @@ char input_byte()
 }
 
 
-ssize_t _internal_read(char *ptr, unsigned int len)
+ssize_t
+_internal_read(char *ptr, unsigned int len)
 {
 
     ssize_t size = 0;
@@ -75,7 +79,8 @@ ssize_t _internal_read(char *ptr, unsigned int len)
 
 }
 
-void _internal_flush()
+void
+_internal_flush()
 {
     char c[2] = {0};
 

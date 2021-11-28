@@ -3,7 +3,8 @@
 #include "file.h"
 #include "../type/string.h"
 
-int64_t file_openZstring(const char *name)
+int64_t
+file_openZstring(const char *name)
 {
     int64_t out = -1;
 
@@ -20,7 +21,8 @@ int64_t file_openZstring(const char *name)
     return out;
 }
 
-int64_t file_readZintegerZbyteArr(int64_t fd, int64_t arr[])
+int64_t
+file_readZintegerZbyteArr(int64_t fd, int64_t arr[])
 {
     int64_t size = arr[0];
     uint8_t *ptr = (uint8_t*)arr+8;
@@ -38,7 +40,8 @@ int64_t file_readZintegerZbyteArr(int64_t fd, int64_t arr[])
     return out;
 }
 
-int64_t file_readZintegerZcharArr(int64_t fd, int64_t arr[])
+int64_t
+file_readZintegerZcharArr(int64_t fd, int64_t arr[])
 {
     int64_t size = arr[0];
     uint8_t *ptr = (uint8_t*)arr+8;
@@ -57,7 +60,8 @@ int64_t file_readZintegerZcharArr(int64_t fd, int64_t arr[])
 
 }
 
-void file_writeZintegerZbyteArr(int64_t fd, int64_t arr[])
+void
+file_writeZintegerZbyteArr(int64_t fd, int64_t arr[])
 {
     int64_t size = arr[0];
     uint8_t *ptr = (uint8_t*)arr+8;
@@ -70,7 +74,8 @@ void file_writeZintegerZbyteArr(int64_t fd, int64_t arr[])
         );
 }
 
-void file_writeZintegerZcharArr(int64_t fd, int64_t arr[])
+void
+file_writeZintegerZcharArr(int64_t fd, int64_t arr[])
 {
     int64_t size = arr[0];
     uint8_t *ptr = (uint8_t*)arr+8;
@@ -83,7 +88,8 @@ void file_writeZintegerZcharArr(int64_t fd, int64_t arr[])
         );
 }
 
-void file_writeZintegerZstring(int64_t fd, const char *ptr)
+void
+file_writeZintegerZstring(int64_t fd, const char *ptr)
 {
     int64_t size = _internal_string_len(ptr);
 
@@ -95,7 +101,8 @@ void file_writeZintegerZstring(int64_t fd, const char *ptr)
         );
 }
 
-void file_setposZintegerZinteger(int64_t fd, int64_t pos)
+void
+file_setposZintegerZinteger(int64_t fd, int64_t pos)
 {
     asm("mov $8, %%rax\n\t"
         "mov $0, %%rdx\n\t"
@@ -106,7 +113,8 @@ void file_setposZintegerZinteger(int64_t fd, int64_t pos)
         );
 }
 
-void file_closeZinteger(int64_t fd)
+void
+file_closeZinteger(int64_t fd)
 {
     asm("mov $3, %%rax\n\t"
         "mov %0, %%rdi\n\t"

@@ -5,7 +5,8 @@
 #include "print.h"
 #include "type/string.h"
 
-void print_integer(int64_t integer)
+void
+print_integer(int64_t integer)
 {
 
     if (integer == 0)
@@ -47,18 +48,21 @@ void print_integer(int64_t integer)
     _internal_print(out);
 }
 
-void print_char(char c)
+void
+print_char(char c)
 {
     char array[2] = {c, '\x00'};
     _internal_print(array);
 }
 
-void print_string(const char *ptr)
+void
+print_string(const char *ptr)
 {
     _internal_print(ptr);
 }
 
-void _internal_print(const char *ptr)
+void
+_internal_print(const char *ptr)
 {
     size_t len = _internal_string_len(ptr);
     asm("movq $1, %%rax\n\t"
@@ -71,7 +75,8 @@ void _internal_print(const char *ptr)
 
 }
 
-void _internal_assert(const char *ptr)
+void
+_internal_assert(const char *ptr)
 {
     _internal_print("Assertion failed : \n\t");
     if (ptr != NULL)

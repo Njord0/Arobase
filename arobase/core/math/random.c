@@ -3,7 +3,8 @@
 
 #include "random.h"
 
-int64_t random_intZintegerZinteger(int64_t min, int64_t max)
+int64_t
+random_intZintegerZinteger(int64_t min, int64_t max)
 {
     int64_t val;
     if (_internal_get_random(&val) == -1)
@@ -15,7 +16,8 @@ int64_t random_intZintegerZinteger(int64_t min, int64_t max)
     return val % (max - min + 1) + min;
 }
 
-int _internal_get_random(int64_t *ptr)
+int
+_internal_get_random(int64_t *ptr)
 {
     ssize_t ret = 0;
 
