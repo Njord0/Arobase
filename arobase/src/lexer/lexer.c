@@ -86,8 +86,8 @@ lexer_get_next_token(Lexer_t *lexer)
     if (isdigit(c))
     {
         ungetc(c, lexer->file);
-        value = lexer_get_number(lexer);
-        tok = create_token_number(value);
+        lexer_get_integer(lexer, &value);
+        tok = create_token_integer(value);
     }
 
     else if (c == '(')
@@ -319,37 +319,31 @@ lexer_skip_whitespaces(Lexer_t *lexer)
 
 }
 
-int64_t
-lexer_get_number(Lexer_t *lexer)
+int
+lexer_get_integer(Lexer_t *lexer, int64_t *value)
 {
-    int64_t value = 0;
+    int64_t val = 0;
     int c;
 
     char a[20] = {0};
     unsigned int i = 0;
+
+    char *endptr = NULL;
 
     while (((c = getc(lexer->file)) != EOF) && isdigit(c) && (i <= 18))
         a[i++] = (char)c;
     
     a[i] = '\x00';
 
-    if ((i == 19) && (isdigit(c)))
-    {
-        fprintf(stderr,
-            "Error on line : %lu\n\tNumber too big to fit in an integer\n",
-            lexer->current_lineno);
-        cc_exit();
-    }
+    val = strtol(a, &endptr, 10);
+    *value = val;
+
+    if (*endptr != '\0')
+        return 1;
 
     ungetc(c, lexer->file);
-
-    for (unsigned int j = 0; j < i; j++)
-    {
-        value *= 10;
-        value += (a[j] - 0x30);
-    }
     
-    return value;
+    return 0;
 }
 
 char*

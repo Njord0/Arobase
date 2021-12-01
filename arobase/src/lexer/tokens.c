@@ -40,11 +40,11 @@ const char *tokens[29] = {
 };
 
 Token_t*
-create_token_number(int64_t value)
+create_token_integer(int64_t value)
 {
     Token_t *tok = xmalloc(sizeof(Token_t));
 
-    tok->type = NUMBER;
+    tok->type = TOK_INTEGER;
     tok->value.i = value;
 
     return tok;

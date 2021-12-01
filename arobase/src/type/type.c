@@ -102,7 +102,7 @@ get_type(Token_t **token)
 
         tok = tok->next;
 
-        if (!token_expect(tok, NUMBER))
+        if (!token_expect(tok, TOK_INTEGER))
             cc_exit();
 
 
@@ -267,7 +267,7 @@ type_evaluate(Expression_t *expr, enum Type t)
             type.t = left.t;
             break;
 
-        case EXPR_NUMBER:
+        case EXPR_INTEGER:
             if (t == INTEGER)
                 type.t = INTEGER;
             else if (t == _BYTE)
@@ -329,7 +329,7 @@ type_check(Expression_t *expr)
     if (!expr)
         return;
 
-    if (expr->left && expr->right && (expr->expr_type == EXPR_NUMBER))
+    if (expr->left && expr->right && (expr->expr_type == EXPR_INTEGER))
     {
         if (expr->type.t == _BYTE)
         {

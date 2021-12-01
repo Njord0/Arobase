@@ -85,8 +85,10 @@ stmt_parse_try_block(Token_t **token)
 
         tok = tok->next;
 
+        scope_enter();
         stmt->else_block = get_scope(&tok, NULL);
-
+        symbol_pos();
+        scope_exit();
 
     }
 

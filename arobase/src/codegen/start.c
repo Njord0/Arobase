@@ -165,7 +165,7 @@ load_to_reg(Expression_t *expr)
             reg_name(expr->reg));
     }
 
-    else if (expr && (expr->expr_type == EXPR_NUMBER))
+    else if (expr && (expr->expr_type == EXPR_INTEGER))
     {
         if (expr->type.t == INTEGER)
             emit("movq %s, %ld\n", 

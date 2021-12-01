@@ -21,7 +21,7 @@ expr_create(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if (token_checks(tok, 4, NUMBER, LPAR, SYMBOL, MINUS))
+    if (token_checks(tok, 4, TOK_INTEGER, LPAR, SYMBOL, MINUS))
     {
         free(expr);
         expr = expr_(&tok, t);
@@ -76,7 +76,7 @@ expr_factor(Token_t **token, enum Type t)
     Expression_t *expr = xmalloc(sizeof(Expression_t));
     expr_init(expr);
 
-    if (!token_checks(tok, 4, NUMBER, LPAR, SYMBOL, MINUS))
+    if (!token_checks(tok, 4, INTEGER, LPAR, SYMBOL, MINUS))
     {
         show_error_source(tok);
         fprintf(stderr,
@@ -85,9 +85,9 @@ expr_factor(Token_t **token, enum Type t)
         cc_exit();
     }
 
-    if (tok->type == NUMBER)
+    if (tok->type == TOK_INTEGER)
     {
-        expr->expr_type = EXPR_NUMBER;
+        expr->expr_type = EXPR_INTEGER;
         expr->int_value = tok->value.i;
         expr->type.t = t;
 
@@ -490,11 +490,11 @@ expr_fold(Expression_t *expr)
     if (expr->right)
         expr->right = expr_fold(expr->right);
 
-    if (expr->expr_type == EXPR_UNARY_MINUS && expr->left->expr_type == EXPR_NUMBER)
+    if (expr->expr_type == EXPR_UNARY_MINUS && expr->left->expr_type == EXPR_INTEGER)
     {
         Expression_t *e = xmalloc(sizeof(Expression_t));
         expr_init(e);
-        e->expr_type = EXPR_NUMBER;
+        e->expr_type = EXPR_INTEGER;
         e->type = expr->left->type;
         e->int_value = expr->left->int_value * (-1);
         free_expression(expr->left);
@@ -502,13 +502,13 @@ expr_fold(Expression_t *expr)
         return e;
     }
 
-    else if ((expr->left != NULL && expr->left->expr_type == EXPR_NUMBER) && (expr->right != NULL && expr->right->expr_type == EXPR_NUMBER))
+    else if ((expr->left != NULL && expr->left->expr_type == EXPR_INTEGER) && (expr->right != NULL && expr->right->expr_type == EXPR_INTEGER))
     {
         
         Expression_t *e = xmalloc(sizeof(Expression_t));
         expr_init(e);
     
-        e->expr_type = EXPR_NUMBER;
+        e->expr_type = EXPR_INTEGER;
         e->type = expr->left->type;
 
 
@@ -578,7 +578,7 @@ expr_init(Expression_t *expr)
 bool
 is_type_allowed(Type_s type)
 {
- return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE);
+    return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE);
 }
 
 void

@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 enum TokensTypes {
-    NUMBER,
+    TOK_INTEGER,
     PLUS,
     MINUS,
     MUL,
@@ -53,7 +53,7 @@ typedef struct Token {
 } Token_t;
 
 
-Token_t *create_token_number(int64_t value);
+Token_t *create_token_integer(int64_t value);
 Token_t *create_token_char(int type, char c);
 Token_t *create_token_s(char *ptr);
 

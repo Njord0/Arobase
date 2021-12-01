@@ -13,7 +13,7 @@ enum expression {
     EXPR_DIV,
     EXPR_MUL,
 
-    EXPR_NUMBER,
+    EXPR_INTEGER,
     EXPR_STRING_LITTERAL,
     EXPR_CHAR,
     EXPR_FUNCCALL,

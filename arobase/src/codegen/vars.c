@@ -17,7 +17,7 @@ emit_expression(Expression_t *expr, enum Type t)
     switch (expr->expr_type)
     {
         case EXPR_CHAR:
-        case EXPR_NUMBER:
+        case EXPR_INTEGER:
         case EXPR_SYMBOL:
         case EXPR_STRING_LITTERAL:
         case EXPR_ARRAYA:
@@ -166,12 +166,12 @@ emit_var_declaration(Statement_t *statement)
     else if ((statement->decl->expr->left == NULL) && (statement->decl->expr->right == NULL))
     {   
 
-        if ((statement->decl->type.t == INTEGER) && (statement->decl->expr->expr_type == EXPR_NUMBER))
+        if ((statement->decl->type.t == INTEGER) && (statement->decl->expr->expr_type == EXPR_INTEGER))
             emit("movq [%s], %ld\n",
                 symbol_s(statement->decl->sym),
                 statement->decl->expr->int_value);
 
-        else if ((statement->decl->type.t == _BYTE) && (statement->decl->expr->expr_type == EXPR_NUMBER))
+        else if ((statement->decl->type.t == _BYTE) && (statement->decl->expr->expr_type == EXPR_INTEGER))
         {
             emit("mov byte ptr [%s], %ld\n",
                 symbol_s(statement->decl->sym),
