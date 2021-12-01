@@ -1,7 +1,7 @@
 #include <stdint.h>
+#include <string.h>
 
 #include "file.h"
-#include "../type/string.h"
 
 int64_t
 file_openZstring(const char *name)
@@ -91,7 +91,7 @@ file_writeZintegerZcharArr(int64_t fd, int64_t arr[])
 void
 file_writeZintegerZstring(int64_t fd, const char *ptr)
 {
-    int64_t size = _internal_string_len(ptr);
+    int64_t size = (int64_t)strlen(ptr);
 
     asm("mov $1, %%rax\n\t"
         "syscall\n\t"
