@@ -11,6 +11,7 @@
 #include <struct.h>
 #include <symbol_table.h>
 #include <exceptions.h>
+#include <scope.h>
 
 Vector *exception_vector = NULL;
 
@@ -35,32 +36,7 @@ stmt_parse_try_block(Token_t **token)
 
     scope_enter();
 
-    Statement_t *stmtt = NULL, *last_stmt = NULL;
-
-    while (!token_check(tok, RBRACE))
-    {
-        stmtt = get_next_statement(&tok);
-
-        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
-        {
-            free_statement(stmtt);
-            invalid_syntax_error(tok);
-        }
-
-        if (!stmt->if_block) // used as try block
-        {
-            stmt->if_block = stmtt;
-            last_stmt = stmtt;
-        }
-
-        else
-        {
-            last_stmt->next = stmtt;
-            last_stmt = stmtt;
-        }
-
-        tok = tok->next;
-    }
+    stmt->if_block = get_scope(&tok, NULL);
 
     if (!tok)
     {
@@ -109,35 +85,8 @@ stmt_parse_try_block(Token_t **token)
 
         tok = tok->next;
 
-        stmtt = NULL;
-        last_stmt = NULL;
+        stmt->else_block = get_scope(&tok, NULL);
 
-        while (!token_check(tok, RBRACE))
-        {
-            stmtt = get_next_statement(&tok);
-
-            if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
-            {
-                free_statement(stmtt);
-                invalid_syntax_error(tok);
-            }
-
-            if (!stmt->else_block) // used as except block
-            {
-                stmt->else_block = stmtt;
-                last_stmt = stmtt;
-            }
-
-            else
-            {
-                last_stmt->next = stmtt;
-                last_stmt = stmtt;
-            }
-
-            tok = tok->next;
-        }
-
-        
 
     }
 

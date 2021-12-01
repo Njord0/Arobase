@@ -9,6 +9,7 @@
 #include <declarations.h>
 #include <error_handler.h>
 #include <symbol_table.h>
+#include <scope.h>
 
 Declaration_t*
 declaration_create_var(Token_t **token, char *name, Type_s type)
@@ -150,7 +151,6 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     tok = tok->next;
 
     check_function_return_value(tok, decl);
-
     add_symbol(symtab_g, decl);
     scope_enter();
     add_symbol_from_args(symtab_g, decl->args);
@@ -166,58 +166,14 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
         free(decl);
         cc_exit();
     }
-
     tok = tok->next;
-    Statement_t *stmt = NULL;
-    Statement_t *last_stmt = NULL;
 
-    while (tok && (tok->type != RBRACE))
-    {
-        stmt = get_next_statement(&tok);
-        if (stmt && stmt->decl &&(stmt->decl->decl_type == FUNCTION))
-        {
-            show_error_source(tok);
-            fprintf(stderr, 
-                "Nested function declaration are not allowed\n");
-            free_statement(stmt);
-            free_declaration(decl);
-            cc_exit();
-        }
+    decl->code = get_scope(&tok, decl);
 
-        if (stmt && (stmt->stmt_type == STMT_RETURN))
-        {
-            type_set(stmt->expr, decl->type);
-            type_check(stmt->expr);
-            
-            if (decl->type.t != type_evaluate(stmt->expr, decl->type.t).t)
-            {
-                show_error_source(tok);
-                fprintf(stderr,
-                    "Invalid return value type\n");
-                free_statement(stmt);
-                cc_exit();
-            }
-        }
-
-        if (!decl->code)
-        {
-            decl->code = stmt;
-            last_stmt = stmt;
-        }
-
-        else
-        {
-            last_stmt->next = stmt;
-            last_stmt = stmt;
-        }
-
-        tok = tok->next;
-    }
-
-    if (decl->type.t != _VOID && last_stmt->stmt_type != STMT_RETURN)
+    /* if (decl->type.t != _VOID && last_stmt->stmt_type != STMT_RETURN)
         fprintf(stderr,
             "Warnings on line : %lu\n\tLast statement of 'non-void' function should be a 'return', or return value may be unknown\n",
-            tok->lineno);
+            tok->lineno); */
     
     if (!token_expect(tok, RBRACE))
         cc_exit();

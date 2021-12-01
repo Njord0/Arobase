@@ -9,6 +9,7 @@
 #include <struct.h>
 #include <error_handler.h>
 #include <symbol_table.h>
+#include <scope.h>
 
 #include <conds.h>
 
@@ -61,25 +62,9 @@ stmt_parse_if_else(Token_t **token)
         invalid_syntax_error(tok);
     }
 
-    Statement_t *stmtt = NULL;
-    Statement_t *last_stmt = NULL;
-
     tok = tok->next;
 
-    while (tok && (tok->type != RBRACE))
-    {
-        stmtt = get_next_statement(&tok);
-
-        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
-        {
-            free_statement(stmtt);
-            invalid_syntax_error(tok);
-        }
-
-        scope_add_statement(stmt, stmtt, &last_stmt);
-
-        tok = tok->next;
-    }
+    stmt->if_block = get_scope(&tok, NULL);
 
     if (!tok)
     {
@@ -110,34 +95,7 @@ stmt_parse_if_else(Token_t **token)
 
         tok = tok->next;
 
-        stmtt = NULL;
-        last_stmt = NULL;
-
-
-        while (tok && (tok->type != RBRACE))
-        {
-            stmtt = get_next_statement(&tok);
-
-            if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
-            {
-                free_statement(stmtt);
-                invalid_syntax_error(tok);
-            }
-
-            if (!stmt->else_block)
-            {
-                stmt->else_block = stmtt;
-                last_stmt = stmtt;
-            }
-
-            else
-            {
-                last_stmt->next = stmtt;
-                last_stmt = stmtt;
-            }
-
-            tok = tok->next;
-        }
+        stmt->else_block = get_scope(&tok, NULL);
 
         if (!token_expect(tok, RBRACE))
         {
@@ -198,28 +156,12 @@ stmt_parse_while_loop(Token_t **token)
         cc_exit();
     }
 
-    Statement_t *stmtt = NULL;
-    Statement_t *last_stmt = NULL;
-
     tok = tok->next;
 
     loop_count++;
     scope_enter();
 
-    while (!token_check(tok, RBRACE))
-    {
-        stmtt = get_next_statement(&tok);
-
-        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
-        {
-            free_statement(stmtt);
-            invalid_syntax_error(tok);
-        }
-
-        scope_add_statement(stmt, stmtt, &last_stmt);
-
-        tok = tok->next;
-    }
+    stmt->if_block = get_scope(&tok, NULL);
 
     loop_count--;
     symbol_pos();
@@ -322,28 +264,12 @@ stmt_parse_for_loop(Token_t **token)
         cc_exit();
     }
 
-    stmtt = NULL;
-    Statement_t *last_stmt = NULL;
-
     tok = tok->next;
 
     loop_count++;
     scope_enter();
 
-    while (!token_check(tok, RBRACE))
-    {
-        stmtt = get_next_statement(&tok);
-
-        if (stmtt && (stmtt->stmt_type == STMT_DECLARATION) && !stmtt->decl->expr)
-        {
-            free_statement(stmtt);
-            invalid_syntax_error(tok);
-        }
-
-        scope_add_statement(stmt, stmtt, &last_stmt);
-
-        tok = tok->next;
-    }
+    stmt->if_block = get_scope(&tok, NULL);
 
     loop_count--;
     symbol_pos();
@@ -390,19 +316,4 @@ stmt_parse_break(Token_t **token)
 
     *token = tok;
     return stmt;
-}
-
-void
-scope_add_statement(Statement_t *scope, Statement_t *stmt, Statement_t **last_stmt)
-{
-    if (!scope->if_block)
-    {
-        scope->if_block = stmt;
-        *last_stmt = stmt;
-    }
-    else
-    {
-        (*last_stmt)->next = stmt;
-        *last_stmt = stmt;
-    }
 }
