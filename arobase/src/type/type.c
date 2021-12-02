@@ -67,6 +67,11 @@ get_type(Token_t **token)
     {
         type.t = STRING;
     }
+
+    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FLOAT]) == 0)
+    {
+        type.t = _FLOAT;
+    }
     
     else
     {
@@ -173,6 +178,11 @@ get_type_decl(Token_t **token)
     {
         type.t = STRING;
     }
+
+    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FLOAT]) == 0)
+    {
+        type.t = _FLOAT;
+    }
     
     else
     {
@@ -274,6 +284,9 @@ type_evaluate(Expression_t *expr, enum Type t)
                 type.t = _BYTE;
             else
                 type.t = INTEGER; //default choice
+            break;
+        case EXPR_FLOAT:
+            type.t = _FLOAT;
             break;
 
         case EXPR_ARRAYA:
@@ -413,6 +426,8 @@ type_name(enum Type t)
     {
         case INTEGER:
             return "integer";
+        case _FLOAT:
+            return "float";
         case _BYTE:
             return "byte";
         case _VOID:

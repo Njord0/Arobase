@@ -21,7 +21,7 @@ expr_create(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if (token_checks(tok, 4, TOK_INTEGER, LPAR, SYMBOL, MINUS))
+    if (token_checks(tok, 4, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
     {
         free(expr);
         expr = expr_(&tok, t);
@@ -76,7 +76,7 @@ expr_factor(Token_t **token, enum Type t)
     Expression_t *expr = xmalloc(sizeof(Expression_t));
     expr_init(expr);
 
-    if (!token_checks(tok, 4, INTEGER, LPAR, SYMBOL, MINUS))
+    if (!token_checks(tok, 4, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
     {
         show_error_source(tok);
         fprintf(stderr,
@@ -94,6 +94,15 @@ expr_factor(Token_t **token, enum Type t)
         if (t == _VOID)
             expr->type.t = INTEGER;
 
+        tok = tok->next;
+    }
+
+    else if (tok->type == TOK_FLOAT)
+    {
+        expr->expr_type = EXPR_FLOAT;
+        expr->double_value = tok->value.d;
+        expr->type.t = _FLOAT;
+        
         tok = tok->next;
     }
 

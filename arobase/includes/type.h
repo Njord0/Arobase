@@ -5,6 +5,7 @@
 
 enum Type {
     INTEGER,
+    _FLOAT,
     _BYTE,
     _VOID,
     _BOOL,

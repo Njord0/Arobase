@@ -14,6 +14,7 @@ enum expression {
     EXPR_MUL,
 
     EXPR_INTEGER,
+    EXPR_FLOAT,
     EXPR_STRING_LITTERAL,
     EXPR_CHAR,
     EXPR_FUNCCALL,
@@ -44,6 +45,7 @@ typedef struct Expression {
 
     struct args *args;
     int64_t int_value;
+    double double_value;
     char *string_value;
     struct _symbol *sym_value;
 
