@@ -153,7 +153,7 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     check_function_return_value(tok, decl);
     add_symbol(symtab_g, decl);
     scope_enter();
-    add_symbol_from_args(symtab_g, decl->args);
+    add_symbol_from_args(symtab_g, decl->args); // visible only inside function scope
 
     Symbol_t *sym = find_matching_function(decl->name, decl->args);
 
@@ -169,11 +169,7 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     tok = tok->next;
 
     decl->code = get_scope(&tok, decl);
-
-    /* if (decl->type.t != _VOID && last_stmt->stmt_type != STMT_RETURN)
-        fprintf(stderr,
-            "Warnings on line : %lu\n\tLast statement of 'non-void' function should be a 'return', or return value may be unknown\n",
-            tok->lineno); */
+    scope_check_return_value_type(decl->code, decl, tok);
     
     if (!token_expect(tok, RBRACE))
         cc_exit();

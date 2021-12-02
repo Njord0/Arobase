@@ -37,24 +37,6 @@ get_scope(Token_t **token, Declaration_t *decl)
             cc_exit();
         }
 
-        else if (stmt && (stmt->stmt_type == STMT_RETURN))
-        {
-            if (decl)
-            {
-                type_set(stmt->expr, decl->type);
-                type_check(stmt->expr);
-                
-                if (decl->type.t != type_evaluate(stmt->expr, decl->type.t).t)
-                {
-                    show_error_source(tok);
-                    fprintf(stderr,
-                        "Invalid return value type\n");
-                    free_statement(stmt);
-                    cc_exit();
-                }
-            }
-        }
-
         if (!scope)
         {
             scope = stmt;
@@ -71,4 +53,42 @@ get_scope(Token_t **token, Declaration_t *decl)
 
     *token = tok;
     return scope;
+}
+
+void
+scope_check_return_value_type(Statement_t *stmt, Declaration_t *decl, Token_t *tok)
+{
+    while (stmt)
+    {
+        switch(stmt->stmt_type)
+        {
+            case STMT_IF_ELSE:
+            case STMT_TRY_EXCEPT:
+                scope_check_return_value_type(stmt->if_block, decl, tok);
+                scope_check_return_value_type(stmt->else_block, decl, tok);
+                break;
+            case STMT_WHILE:
+            case STMT_FOR:
+                scope_check_return_value_type(stmt->if_block, decl, tok);
+                break;
+
+            case STMT_RETURN:
+                type_set(stmt->expr, decl->type);
+                type_check(stmt->expr);
+                
+                if (decl->type.t != type_evaluate(stmt->expr, decl->type.t).t)
+                {
+                    show_error_source(tok);
+                    fprintf(stderr,
+                        "Invalid return value type for function '%s'\n",
+                        decl->name);
+                    cc_exit();
+                }
+
+            default:
+                break;
+        }
+
+        stmt = stmt->next;
+    }
 }
