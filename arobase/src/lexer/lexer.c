@@ -348,12 +348,22 @@ lexer_get_integer(Lexer_t *lexer, int64_t *value)
     a[i] = '\x00';
 
     if (c == '.')
+    {
+        ungetc(c, lexer->file);
+        while (i--)
+            ungetc(a[i], lexer->file);
         return 1;
+    }
 
     val = strtol(a, &endptr, 10);
 
     if (*endptr != '\0')
+    {
+        ungetc(c, lexer->file);
+        while (i--)
+            ungetc(a[i], lexer->file);
         return 1;
+    }
 
     ungetc(c, lexer->file);
 
@@ -372,7 +382,7 @@ lexer_get_float(Lexer_t *lexer, double *value)
 
     char *endptr = NULL;
 
-    while (((c = getc(lexer->file)) != EOF) && isdigit(c) && (i <= 18))
+    while (((c = getc(lexer->file)) != EOF) && (isdigit(c) || c == '.') && (i <= 18))
         a[i++] = (char)c;
     
     a[i] = '\x00';

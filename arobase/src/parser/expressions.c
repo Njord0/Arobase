@@ -21,7 +21,7 @@ expr_create(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if (token_checks(tok, 4, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
+    if (token_checks(tok, 5, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
     {
         free(expr);
         expr = expr_(&tok, t);
@@ -76,7 +76,7 @@ expr_factor(Token_t **token, enum Type t)
     Expression_t *expr = xmalloc(sizeof(Expression_t));
     expr_init(expr);
 
-    if (!token_checks(tok, 4, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
+    if (!token_checks(tok, 5, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
     {
         show_error_source(tok);
         fprintf(stderr,
@@ -587,7 +587,7 @@ expr_init(Expression_t *expr)
 bool
 is_type_allowed(Type_s type)
 {
-    return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE);
+    return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE) && (type.t != _FLOAT);
 }
 
 void
