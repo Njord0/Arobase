@@ -6,6 +6,7 @@
 
 enum TokensTypes {
     TOK_INTEGER,
+    TOK_FLOAT,
     PLUS,
     MINUS,
     MUL,
@@ -43,6 +44,7 @@ typedef struct Token {
     union
     {
         int64_t i;
+        double d;
         char c;
         char *p;
     } value; // An union to store the value associated with the token, depends on the token type
@@ -54,6 +56,7 @@ typedef struct Token {
 
 
 Token_t *create_token_integer(int64_t value);
+Token_t *create_token_float(double value);
 Token_t *create_token_char(int type, char c);
 Token_t *create_token_s(char *ptr);
 

@@ -49,6 +49,16 @@ create_token_integer(int64_t value)
 
     return tok;
 }
+Token_t*
+create_token_float(double value)
+{
+    Token_t *tok = xmalloc(sizeof(Token_t));
+    tok->type = TOK_FLOAT;
+    tok->value.d = value;
+
+    return tok;
+}
+
 
 Token_t*
 create_token_char(int type, char c)

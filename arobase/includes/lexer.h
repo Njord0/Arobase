@@ -26,6 +26,7 @@ char *lexer_get_symbolname(Lexer_t *lexer);
 char *lexer_get_string(Lexer_t *lexer);
 
 int lexer_get_integer(Lexer_t *lexer, int64_t *value);
+int lexer_get_float(Lexer_t *lexer, double *value);
 
 extern Lexer_t *lexer_g; // global lexer
 

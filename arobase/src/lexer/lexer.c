@@ -77,6 +77,7 @@ lexer_get_next_token(Lexer_t *lexer)
 {
     char c;
     int64_t value;
+    double value_d;
     Token_t *tok = NULL;
 
     c = lexer_skip_whitespaces(lexer);
@@ -86,8 +87,19 @@ lexer_get_next_token(Lexer_t *lexer)
     if (isdigit(c))
     {
         ungetc(c, lexer->file);
-        lexer_get_integer(lexer, &value);
-        tok = create_token_integer(value);
+        if(lexer_get_integer(lexer, &value) == 0)
+            tok = create_token_integer(value);
+        else if (lexer_get_float(lexer, &value_d) == 0)
+        {
+            tok = create_token_float(value_d);
+        }
+        else
+        {
+            fprintf(stderr, 
+                "Unknow token on line : %lu\n",
+                lexer->current_lineno);
+            cc_exit();
+        }
     }
 
     else if (c == '(')
@@ -335,16 +347,49 @@ lexer_get_integer(Lexer_t *lexer, int64_t *value)
     
     a[i] = '\x00';
 
+    if (c == '.')
+        return 1;
+
     val = strtol(a, &endptr, 10);
-    *value = val;
 
     if (*endptr != '\0')
         return 1;
 
     ungetc(c, lexer->file);
-    
+
+    *value = val;
     return 0;
 }
+
+int
+lexer_get_float(Lexer_t *lexer, double *value)
+{
+    double val = 0.0;
+    int c;
+
+    char a[20] = {0};
+    unsigned int i = 0;
+
+    char *endptr = NULL;
+
+    while (((c = getc(lexer->file)) != EOF) && isdigit(c) && (i <= 18))
+        a[i++] = (char)c;
+    
+    a[i] = '\x00';
+
+    val = strtod(a, &endptr);
+
+    if (*endptr != '\0')
+        return 1;
+
+    ungetc(c, lexer->file);
+
+    *value = val;
+    return 0;
+
+
+}
+
 
 char*
 lexer_get_symbolname(Lexer_t *lexer)
