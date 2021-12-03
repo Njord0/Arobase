@@ -44,7 +44,25 @@ const char *args_regs[] = {
     "rdx",
 };
 
+const char *xmm_args_regs[] = {
+    "xmm0",
+    "xmm1",
+    "xmm2"
+};
+
+const char *xmm_regs[] = {
+    "xmm8",
+    "xmm9",
+    "xmm10",
+    "xmm11",
+    "xmm12",
+    "xmm13",
+    "xmm14",
+    "xmm15"
+};
+
 char scratch_in_use[7] = {0};
+char xmm_in_use[8] = {0};
 char symbol_stack_pos[100] = {0};
 
 void
@@ -156,6 +174,40 @@ reg_free(Expression_t *expr)
     }
 }
 
+unsigned int
+xmm_reg_alloc(unsigned int reg)
+{
+    if (reg != UINT_MAX)
+        return reg; // Already allocated
+
+    for (unsigned int i = 0; i < 8; i++)
+    {
+        if (xmm_in_use[i] == 0)
+        {
+            xmm_in_use[i] = 1;
+            return i;
+        }
+    }
+
+    return UINT_MAX;
+}
+
+const char*
+xmm_reg_name(unsigned int r)
+{
+    return xmm_regs[r];
+}
+
+void
+xmm_reg_free(Expression_t *expr)
+{
+    if (expr->reg != UINT_MAX)
+    {
+        xmm_in_use[expr->reg] = 0;
+        expr->reg = UINT_MAX;
+    }
+}
+
 void
 load_to_reg(Expression_t *expr)
 {
@@ -178,6 +230,17 @@ load_to_reg(Expression_t *expr)
                 expr->int_value);            
     }
 
+    else if (expr && (expr->expr_type == EXPR_FLOAT))
+    {
+        int lbl = new_label();
+        emit(".data\n"
+             "float%.5d: .double %lf\n"
+             ".text\n"
+             "movsd %s, float%.5d\n",
+             lbl, expr->double_value,
+             xmm_reg_name(expr->reg), lbl);
+    }
+
     else if (expr->expr_type == EXPR_STRUCTA)
     {
         Statement_t *str = get_struct_by_name(expr->sym_value->_type.ptr);
@@ -198,6 +261,11 @@ load_to_reg(Expression_t *expr)
         if (expr->type.t == INTEGER)
             emit("movq %s, [rcx-%u*8]\n", 
                 reg_name(expr->reg), 
+                pos);
+
+        else if (expr->type.t == _FLOAT)
+            emit("movsd %s, [rcx-%u*8]\n",
+                xmm_reg_name(expr->reg),
                 pos);
 
         else if (expr->type.t == _BYTE)
@@ -231,6 +299,11 @@ load_to_reg(Expression_t *expr)
             if (expr->sym_value->_type.t == INTEGER)
                 emit("movq %s, [%s]\n", 
                     reg_name(expr->reg), 
+                    symbol_s(expr->sym_value));
+
+            else if (expr->sym_value->_type.t == _FLOAT)
+                emit("movsd %s, [%s]\n",
+                    xmm_reg_name(expr->reg),
                     symbol_s(expr->sym_value));
 
             else if (expr->sym_value->_type.t == _BYTE)
@@ -287,6 +360,10 @@ load_to_reg(Expression_t *expr)
                     reg_name(expr->reg));
                 break;
 
+            case _FLOAT:
+                // TO-DO
+                break;
+
             case _CHAR:
             case _BYTE:
                 emit("mov %s, al\n",
@@ -329,6 +406,11 @@ store_to_stack(Expression_t *expr, Symbol_t *sym)
             symbol_s(sym),
             reg_name(expr->reg));
 
+    else if (sym->_type.t == _FLOAT)
+        emit("movsd [%s], %s\n", 
+            symbol_s(sym),
+            xmm_reg_name(expr->reg));
+
     else if (sym->_type.t == _BYTE)
         emit("mov byte ptr [%s], %s\n", 
             symbol_s(sym), 
@@ -364,6 +446,12 @@ store_to_stack(Expression_t *expr, Symbol_t *sym)
             emit("movq [rcx-%u*8], %s\n", 
                 pos,
                 reg_name(expr->reg));
+        
+        else if (expr->type.t == _FLOAT)
+            emit("movsd [rcx-%u*8], %s\n",
+                pos,
+                xmm_reg_name(expr->reg));
+        
 
         else if (expr->type.t == _BYTE)
             emit("mov [rcx-%u*8], %s\n",

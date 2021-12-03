@@ -24,6 +24,14 @@ emit_print(Statement_t *stmt)
             emit("call print_integer\n");
 
         }
+
+        else if (args->expr->type.t == _FLOAT)
+        {
+            emit("movsd xmm0, %s\n", 
+                xmm_reg_name(args->expr->reg));
+            emit("call print_float\n");
+        }
+
         else if (args->expr->type.t == _BYTE)
         {
             emit("xor rdi, rdi\n");
@@ -60,6 +68,13 @@ emit_input(Statement_t *stmt)
     {
         emit("call input_integer\n");
         emit("movq [%s], rax\n",
+            symbol_s(stmt->decl->sym));
+    }
+
+    else if (stmt->decl->sym->_type.t == _FLOAT)
+    {
+        emit("call input_float\n");
+        emit("movsd [%s], xmm0\n",
             symbol_s(stmt->decl->sym));
     }
 

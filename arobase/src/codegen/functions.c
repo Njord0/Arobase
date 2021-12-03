@@ -72,6 +72,9 @@ get_stack_size(Statement_t *stmt)
                 }
             }
 
+            else if (sym->_type.t == _FLOAT)
+                size += 16;
+
             else
                 size += 8;
         }

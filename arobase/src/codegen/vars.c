@@ -16,13 +16,18 @@ emit_expression(Expression_t *expr, enum Type t)
 
     switch (expr->expr_type)
     {
+        case EXPR_FLOAT:
         case EXPR_CHAR:
         case EXPR_INTEGER:
         case EXPR_SYMBOL:
         case EXPR_STRING_LITTERAL:
         case EXPR_ARRAYA:
         case EXPR_STRUCTA:
-            expr->reg = reg_alloc(expr->reg);
+            if (expr->expr_type == EXPR_FLOAT)
+                expr->reg = xmm_reg_alloc(expr->reg);
+            else
+                expr->reg = reg_alloc(expr->reg);
+
             load_to_reg(expr);
             break;
 
@@ -35,13 +40,21 @@ emit_expression(Expression_t *expr, enum Type t)
                     reg_name(expr->right->reg),
                     reg_name(expr->left->reg));
 
+            else if (t == _FLOAT)
+                emit("addsd %s, %s\n",
+                    xmm_reg_name(expr->right->reg),
+                    xmm_reg_name(expr->left->reg));
+
             else if (t == _BYTE)
                 emit("add %s, %s\n",
                     reg_name_l(expr->right->reg),
                     reg_name_l(expr->left->reg));
 
             expr->reg = expr->right->reg;
-            reg_free(expr->left);
+            if (expr->expr_type == EXPR_INTEGER)
+                reg_free(expr->left);
+            else
+                xmm_reg_free(expr->left);
             break;
 
         case EXPR_MINUS:
@@ -52,6 +65,11 @@ emit_expression(Expression_t *expr, enum Type t)
                     reg_name(expr->right->reg),
                     reg_name(expr->left->reg));
 
+            else if (expr->type.t == _FLOAT)
+                emit("subsd %s, %s\n", 
+                    xmm_reg_name(expr->right->reg),
+                    xmm_reg_name(expr->left->reg));
+
             else if (expr->type.t == _BYTE)
                 emit("sub %s, %s\n",
                     reg_name_l(expr->right->reg),
@@ -59,7 +77,10 @@ emit_expression(Expression_t *expr, enum Type t)
 
 
             expr->reg = expr->right->reg;
-            reg_free(expr->left);
+            if (expr->expr_type == EXPR_INTEGER)
+                reg_free(expr->left);
+            else
+                xmm_reg_free(expr->left);
             break;
 
         case EXPR_MUL:
@@ -70,6 +91,11 @@ emit_expression(Expression_t *expr, enum Type t)
                 emit("imul %s, %s\n",
                     reg_name(expr->right->reg),
                     reg_name(expr->left->reg));
+            
+            else if (expr->type.t == _FLOAT)
+                emit("mulsd %s, %s\n",
+                    xmm_reg_name(expr->right->reg),
+                    xmm_reg_name(expr->left->reg));
 
             else if (expr->type.t == _BYTE)
             {
@@ -82,23 +108,36 @@ emit_expression(Expression_t *expr, enum Type t)
             }
 
             expr->reg = expr->right->reg;
-            reg_free(expr->left);
+            if (expr->expr_type == EXPR_INTEGER)
+                reg_free(expr->left);
+            else
+                xmm_reg_free(expr->left);
             break;
 
         case EXPR_DIV:
             emit_expression(expr->right, t);
             emit_expression(expr->left, t);
 
-            emit("xor rdx, rdx\n");
-            emit("mov rax, %s\n",
-                reg_name(expr->right->reg));
-            emit("idiv %s\n",
-                reg_name(expr->left->reg));
-            emit("mov %s, rax\n",
-                reg_name(expr->right->reg));
+            if (expr->type.t == INTEGER)
+            {
+                emit("xor rdx, rdx\n");
+                emit("mov rax, %s\n",
+                    reg_name(expr->right->reg));
+                emit("idiv %s\n",
+                    reg_name(expr->left->reg));
+                emit("mov %s, rax\n",
+                    reg_name(expr->right->reg));
+            }
+            else if (expr->type.t == _FLOAT)
+                emit("divsd %s, %s\n",
+                    xmm_reg_name(expr->right->reg),
+                    xmm_reg_name(expr->left->reg));
 
             expr->reg = expr->right->reg;
-            reg_free(expr->left);
+            if (expr->expr_type == EXPR_INTEGER)
+                reg_free(expr->left);
+            else
+                xmm_reg_free(expr->left);
             break;
 
         case EXPR_MOD:
@@ -129,6 +168,9 @@ emit_expression(Expression_t *expr, enum Type t)
             if (expr->left->type.t == INTEGER)
                 emit("neg %s\n",
                     reg_name(expr->left->reg));
+
+            else if (expr->left->type.t == _FLOAT)
+                break; // TO-DO
             else
                 emit("neg %s\n",
                     reg_name_l(expr->left->reg));

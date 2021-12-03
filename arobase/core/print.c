@@ -24,6 +24,13 @@ print_string(const char *ptr)
 }
 
 void
+print_float(double d)
+{
+    printf("%lf", d);
+}
+
+
+void
 _internal_assert(const char *ptr)
 {
     printf("Assertion failed : \n\t");
