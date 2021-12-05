@@ -17,7 +17,7 @@ HEADERS_DIR := /usr/local/include/arobase
 HEADERS := $(shell find core/ -name *.aroh)
 DEST_HEADERS := $(addprefix $(HEADERS_DIR)/,$(HEADERS))
 
-C_FLAGS := -Iincludes -O3 -Wall
+C_FLAGS := -Iincludes -O3 -Wall -g
 
 LD_FLAGS := -lm # math.h
 
@@ -34,11 +34,11 @@ $(BUILD_DIR)/src/%.c.o: src/%.c
 	$(CC) $(C_FLAGS) -c $< -o $@ 
 
 $(BUILD_LIB): $(OBJS_LIB) $(OBJS_LIB_A)
-	$(CC) $(OBJS_LIB) $(OBJS_LIB_A) -o $@ -shared -fno-stack-protector
+	$(CC) $(OBJS_LIB) $(OBJS_LIB_A) -o $@ -shared -fno-stack-protector -mincoming-stack-boundary=3
 
 $(BUILD_DIR)/core/%.c.o: core/%.c
 	@mkdir -p $(dir $@)
-	$(CC) -Wall -fpic -c $< -o $@
+	$(CC) -Wall -fpic -c $< -o $@ -mincoming-stack-boundary=3
 
 $(BUILD_DIR)/core/%.aro.o: core/%.aro
 	@mkdir -p $(dir $@)
