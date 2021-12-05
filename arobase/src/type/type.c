@@ -156,6 +156,11 @@ get_type_decl(Token_t **token)
         type.t = INTEGER;
     }
 
+    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FLOAT]) == 0)
+    {
+        type.t = _FLOAT;
+    }
+
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
     {
         type.t = _BYTE;

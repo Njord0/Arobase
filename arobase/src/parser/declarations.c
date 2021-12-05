@@ -201,6 +201,9 @@ check_function_return_value(Token_t *token, Declaration_t *decl)
     if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
         decl->type.t = INTEGER;
 
+    else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_FLOAT]) == 0)
+        decl->type.t = _FLOAT;
+
     else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
         decl->type.t = _BYTE;
 

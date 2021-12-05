@@ -169,6 +169,10 @@ add_symbol(Symtable_t *symtab, Declaration_t *decl)
                     st->rname = realloc(st->rname, strlen(st->rname)+9);
                     strcat(st->rname, "Zinteger");
                     break;
+                case _FLOAT:
+                    st->rname  = realloc(st->rname, strlen(st->rname)+7);
+                    strcat(st->rname, "Zfloat");
+                    break;
                 case STRING:
                     st->rname = realloc(st->rname, strlen(st->rname)+8);
                     strcat(st->rname, "Zstring");
