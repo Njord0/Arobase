@@ -162,28 +162,27 @@ emit_func_call(Expression_t *expr)
         if ((args->type.is_array || args->type.is_structure) && (args->expr->sym_value->type == ARG))
         {
             emit("movq %s, [%s]\n",
-                args_regs[pos],
+                args_regs[pos++],
                 reg_name(args->expr->reg)); 
         }
         
         else if (args->type.t == _FLOAT)
         {
             emit("movq %s, %s\n",
-                xmm_args_regs[xmm_pos],
+                xmm_args_regs[xmm_pos++],
                 xmm_reg_name(args->expr->reg));
         }
 
         else
         {
             emit("movq %s, %s\n",
-                args_regs[pos],
+                args_regs[pos++],
                 reg_name(args->expr->reg));
         }
 
         free_reg(args->expr);
 
         args = args->next;
-        pos += 1;
     }
 
     emit("call %s\n", expr->sym_value->rname);

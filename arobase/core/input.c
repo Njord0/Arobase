@@ -34,6 +34,15 @@ input_integer()
     return i; 
 }
 
+double
+input_float()
+{
+    double value;
+    scanf("%lf", &value);
+    _internal_flush();
+    return value;
+}
+
 char
 input_char()
 {
@@ -84,7 +93,7 @@ _internal_flush()
 {
     char c[2] = {0};
 
-    while (*c != '\n')
+    while (*c != '\n' && *c != '\0')
         _internal_read(c, 1);
     
     
