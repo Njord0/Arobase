@@ -4,6 +4,7 @@
 #include <codegen/start.h>
 #include <codegen/conds.h>
 #include <codegen/vars.h>
+#include <codegen/regs.h>
 
 #include <error_handler.h>
 
@@ -33,8 +34,8 @@ emit_if_else(Statement_t *statement)
             reg_name_l(expr->right->reg));
 
 
-    reg_free(expr->left);
-    reg_free(expr->right);
+    free_reg(expr->left);
+    free_reg(expr->right);
 
     int lbl_true = new_label();
     int lbl_done = new_label();
@@ -132,8 +133,8 @@ emit_while(Statement_t *statement)
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
 
-    reg_free(expr->left);
-    reg_free(expr->right);
+    free_reg(expr->left);
+    free_reg(expr->right);
     /* Here we generate the reverse condition
        because while loop layout is as:
         expr
@@ -239,8 +240,8 @@ emit_for(Statement_t *statement)
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
 
-    reg_free(expr->left);
-    reg_free(expr->right);
+    free_reg(expr->left);
+    free_reg(expr->right);
     /* Here we generate the reverse condition
        because while loop layout is as:
         expr

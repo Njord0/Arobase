@@ -5,6 +5,7 @@
 #include <codegen/start.h>
 #include <codegen/functions.h>
 #include <codegen/vars.h>
+#include <codegen/regs.h>
 
 
 #include <statements.h>
@@ -179,7 +180,7 @@ emit_func_call(Expression_t *expr)
                 reg_name(args->expr->reg));
         }
 
-        reg_free(args->expr);
+        free_reg(args->expr);
 
         args = args->next;
         pos += 1;
@@ -235,12 +236,7 @@ emit_return(Statement_t *stmt)
                 reg_name(stmt->expr->reg));
 
         if (c == 1)
-        {
-            if (stmt->expr->type.t == _FLOAT)
-                xmm_reg_free(stmt->expr);
-            else
-                reg_free(stmt->expr);
-        }
+            free_reg(stmt->expr);
     }
 
 

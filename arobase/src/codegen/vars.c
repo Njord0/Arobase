@@ -4,6 +4,7 @@
 #include <codegen/start.h>
 #include <codegen/vars.h>
 #include <codegen/functions.h>
+#include <codegen/regs.h>
 
 #include <struct.h>
 #include <error_handler.h>
@@ -23,10 +24,7 @@ emit_expression(Expression_t *expr, enum Type t)
         case EXPR_STRING_LITTERAL:
         case EXPR_ARRAYA:
         case EXPR_STRUCTA:
-            if (expr->expr_type == EXPR_FLOAT)
-                expr->reg = xmm_reg_alloc(expr->reg);
-            else
-                expr->reg = reg_alloc(expr->reg);
+            alloc_reg(expr);
             load_to_reg(expr);
             break;
 
@@ -50,10 +48,7 @@ emit_expression(Expression_t *expr, enum Type t)
                     reg_name_l(expr->left->reg));
 
             expr->reg = expr->right->reg;
-            if (expr->type.t == _FLOAT)
-                xmm_reg_free(expr->left);
-            else
-                reg_free(expr->left);
+            free_reg(expr->left);
 
             break;
 
@@ -77,10 +72,7 @@ emit_expression(Expression_t *expr, enum Type t)
 
 
             expr->reg = expr->right->reg;
-            if (expr->type.t == _FLOAT)
-                xmm_reg_free(expr->left);
-            else
-                reg_free(expr->left);
+            free_reg(expr->left);
 
             break;
 
@@ -109,10 +101,7 @@ emit_expression(Expression_t *expr, enum Type t)
             }
 
             expr->reg = expr->right->reg;
-            if (expr->type.t == _FLOAT)
-                xmm_reg_free(expr->left);
-            else
-                reg_free(expr->left);
+            free_reg(expr->left);
             break;
 
         case EXPR_DIV:
@@ -135,10 +124,7 @@ emit_expression(Expression_t *expr, enum Type t)
                     xmm_reg_name(expr->left->reg));
 
             expr->reg = expr->right->reg;
-            if (expr->type.t == _FLOAT)
-                xmm_reg_free(expr->left);
-            else
-                reg_free(expr->left);
+            free_reg(expr->left);
             break;
 
         case EXPR_MOD:
@@ -154,15 +140,13 @@ emit_expression(Expression_t *expr, enum Type t)
                 reg_name(expr->right->reg));
 
             expr->reg = expr->right->reg;
-            reg_free(expr->left);
+            free_reg(expr->left);
             break;
 
         case EXPR_FUNCCALL:
             emit_func_call(expr);
-            if (expr->type.t == _FLOAT)
-                expr->reg = xmm_reg_alloc(expr->reg);
-            else
-                expr->reg = reg_alloc(expr->reg);
+
+            alloc_reg(expr);
             load_to_reg(expr);
             break;
 
@@ -239,7 +223,7 @@ emit_var_declaration(Statement_t *statement)
                 lbl, statement->decl->expr->string_value);
 
             emit(".text\n");
-            statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
+            alloc_reg(statement->decl->expr);
             emit("lea %s, [rip+s%d]\n",
                 reg_name(statement->decl->expr->reg),
                 lbl);
@@ -248,7 +232,7 @@ emit_var_declaration(Statement_t *statement)
                 symbol_s(statement->decl->sym),
                 reg_name(statement->decl->expr->reg));
 
-            reg_free(statement->decl->expr);
+            free_reg(statement->decl->expr);
 
         }
 
@@ -256,7 +240,7 @@ emit_var_declaration(Statement_t *statement)
         {
             if (statement->decl->sym->_type.t == INTEGER)
             {
-                statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
+                alloc_reg(statement->decl->expr);
                 emit("movq %s, [%s]\n", 
                     reg_name(statement->decl->expr->reg),
                     symbol_s(statement->decl->expr->sym_value));
@@ -265,11 +249,11 @@ emit_var_declaration(Statement_t *statement)
                     symbol_s(statement->decl->sym),
                     reg_name(statement->decl->expr->reg));
 
-                reg_free(statement->decl->expr);
+                free_reg(statement->decl->expr);
             }
             else if ((statement->decl->sym->_type.t == _BYTE) || (statement->decl->sym->_type.t == _CHAR))
             {
-                statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
+                alloc_reg(statement->decl->expr);
                 emit("mov %s, [%s]\n",
                     reg_name_l(statement->decl->expr->reg),
                     symbol_s(statement->decl->expr->sym_value));
@@ -278,12 +262,12 @@ emit_var_declaration(Statement_t *statement)
                     symbol_s(statement->decl->sym),
                     reg_name_l(statement->decl->expr->reg));
 
-                reg_free(statement->decl->expr);
+                free_reg(statement->decl->expr);
             }
 
             else if (statement->decl->sym->_type.t == STRING)
             {
-                statement->decl->expr->reg = reg_alloc(statement->decl->expr->reg);
+                alloc_reg(statement->decl->expr);
                 emit("movq %s, [%s]\n", 
                     reg_name(statement->decl->expr->reg),
                     symbol_s(statement->decl->expr->sym_value));
@@ -292,7 +276,7 @@ emit_var_declaration(Statement_t *statement)
                     symbol_s(statement->decl->sym),
                     reg_name(statement->decl->expr->reg));
 
-                reg_free(statement->decl->expr);
+                free_reg(statement->decl->expr);
             }
         }
 
@@ -317,10 +301,7 @@ emit_var_declaration(Statement_t *statement)
         store_to_stack(statement->decl->expr, statement->decl->sym); 
     }
     
-    if (statement->decl->expr->type.t == _FLOAT)
-        xmm_reg_free(statement->decl->expr);
-    else
-        reg_free(statement->decl->expr);
+    free_reg(statement->decl->expr);
 }
 
 void
@@ -357,21 +338,21 @@ emit_var_assign(Statement_t *statement)
         else
             emit("call array_set_element\n");
 
-        reg_free(statement->expr);
-        reg_free(statement->access);
+        free_reg(statement->expr);
+        free_reg(statement->access);
     }
     else if (statement->expr->sym->_type.is_structure)
     {
         emit_expression(statement->expr, statement->expr->type.t);
         store_to_stack(statement->expr, statement->expr->sym);
-        reg_free(statement->expr);       
+        free_reg(statement->expr);       
     }
 
     else
     {
         emit_expression(statement->expr, statement->expr->sym->_type.t);
         store_to_stack(statement->expr, statement->expr->sym);
-        reg_free(statement->expr);
+        free_reg(statement->expr);
     }
 
 }
@@ -409,7 +390,7 @@ emit_array_initialization(Args_t *args, Symbol_t *sym)
 
         count++;
 
-        reg_free(args->expr);
+        free_reg(args->expr);
         args = args->next;
 
     }
@@ -458,10 +439,8 @@ emit_structure_initialization(Args_t *args, Symbol_t *sym)
             pos,
             reg_name(args->expr->reg));
         
-        if (args->expr->type.t == _FLOAT)
-            xmm_reg_free(args->expr);
-        else
-            reg_free(args->expr);
+
+        free_reg(args->expr);
         args = args->next;
         args_decl = args_decl->next;
 

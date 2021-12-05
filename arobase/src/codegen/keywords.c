@@ -4,6 +4,7 @@
 #include <codegen/start.h>
 #include <codegen/keywords.h>
 #include <codegen/vars.h>
+#include <codegen/regs.h>
 
 
 #include <statements.h>
@@ -55,7 +56,7 @@ emit_print(Statement_t *stmt)
             emit("call print_string\n");
         }
         
-        reg_free(args->expr);
+        free_reg(args->expr);
 
         args = args->next;
     }
@@ -119,8 +120,8 @@ emit_assert(Statement_t *stmt)
             reg_name_l(expr->right->reg));
 
 
-    reg_free(expr->left);
-    reg_free(expr->right);
+    free_reg(expr->left);
+    free_reg(expr->right);
 
     int lbl_false = new_label();
     int lbl_done = new_label();

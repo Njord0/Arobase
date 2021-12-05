@@ -9,6 +9,7 @@
 #include <codegen/functions.h>
 #include <codegen/vars.h>
 #include <codegen/exceptions.h>
+#include <codegen/regs.h>
 
 #include <statements.h>
 #include <struct.h>
@@ -134,83 +135,6 @@ emit_statements(Statement_t **statement)
     *statement = stmt;
 }
 
-unsigned int
-reg_alloc(unsigned int reg)
-{
-    if (reg != UINT_MAX)
-        return reg;
-
-    for (unsigned int i = 0; i < 7; i++)
-    {
-        if (scratch_in_use[i] == 0)
-        {
-            scratch_in_use[i] = 1;
-            return i;
-        }
-    }
-
-    fprintf(stderr,
-        "Internal error: No more free reg\n");
-    cc_exit();
-}
-
-const char*
-reg_name(unsigned int r)
-{
-    return scratch_regs[r];
-}
-
-const char*
-reg_name_l(unsigned int r)
-{
-    return scratch_regs_l[r];
-}
-
-void
-reg_free(Expression_t *expr)
-{
-    if (expr->reg != UINT_MAX)
-    {
-        scratch_in_use[expr->reg] = 0;
-        expr->reg = UINT_MAX;
-    }
-}
-
-unsigned int
-xmm_reg_alloc(unsigned int reg)
-{
-    if (reg != UINT_MAX)
-        return reg; // Already allocated
-
-    for (unsigned int i = 0; i < 8; i++)
-    {
-        if (xmm_in_use[i] == 0)
-        {
-            xmm_in_use[i] = 1;
-            return i;
-        }
-    }
-
-    fprintf(stderr,
-        "Internal error: No more free reg\n");
-    cc_exit();
-}
-
-const char*
-xmm_reg_name(unsigned int r)
-{
-    return xmm_regs[r];
-}
-
-void
-xmm_reg_free(Expression_t *expr)
-{
-    if (expr->reg != UINT_MAX)
-    {
-        xmm_in_use[expr->reg] = 0;
-        expr->reg = UINT_MAX;
-    }
-}
 
 void
 load_to_reg(Expression_t *expr)
@@ -333,9 +257,7 @@ load_to_reg(Expression_t *expr)
                 emit("lea %s, [%s]\n",
                     reg_name(expr->reg),
                     symbol_s(expr->sym_value));
-        }
-
-        
+        }        
     }
 
     else if (expr && (expr->expr_type == EXPR_ARRAYA))
@@ -382,9 +304,8 @@ load_to_reg(Expression_t *expr)
             default:
                 break;
         }
-
-
-        reg_free(expr->access);
+        
+        free_reg(expr->access);
     }
 
     else if ((expr != NULL) && (expr->type.t == _CHAR))
@@ -401,7 +322,7 @@ load_to_reg(Expression_t *expr)
             lbl, expr->string_value);
 
         emit(".text\n");
-        expr->reg = reg_alloc(expr->reg);
+        alloc_reg(expr);
         emit("lea %s, [rip+s%d]\n",
             reg_name(expr->reg),
             lbl);
