@@ -217,8 +217,12 @@ load_to_reg(Expression_t *expr)
 {
     if ((expr != NULL) && (expr->expr_type == EXPR_FUNCCALL))
     {
-        emit("movq %s, rax\n",
-            reg_name(expr->reg));
+        if (expr->type.t == _FLOAT)
+            emit("movsd %s, xmm0\n",
+                xmm_reg_name(expr->reg));
+        else
+            emit("movq %s, rax\n",
+                reg_name(expr->reg));
     }
 
     else if (expr && (expr->expr_type == EXPR_INTEGER))
@@ -350,12 +354,13 @@ load_to_reg(Expression_t *expr)
 
         if (expr->sym_value->_type.t == _BYTE || expr->sym_value->_type.t == _CHAR)
             emit("call array_get_element_c\n");
+        else if (expr->sym_value->_type.t == _FLOAT)
+            emit("call array_get_element_f\n");
         else
             emit("call array_get_element\n");
 
         if (in_function_call)
             emit("pop rcx\npop rsi\npop rdi\n");
-
 
         switch (expr->sym_value->_type.t)
         {
@@ -365,7 +370,8 @@ load_to_reg(Expression_t *expr)
                 break;
 
             case _FLOAT:
-                // TO-DO
+                emit("movq %s, xmm0\n",
+                    xmm_reg_name(expr->reg));
                 break;
 
             case _CHAR:

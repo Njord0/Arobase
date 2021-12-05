@@ -116,6 +116,7 @@ emit_func_call(Expression_t *expr)
 {
     Args_t *args = expr->args;
     unsigned int pos = 0;
+    unsigned int xmm_pos = 0;
     static unsigned int nested_c = 0; // nested function call count
 
     nested_c++;
@@ -150,6 +151,13 @@ emit_func_call(Expression_t *expr)
                 reg_name(args->expr->reg)); 
         }
         
+        else if (args->type.t == _FLOAT)
+        {
+            emit("movq %s, %s\n",
+                xmm_args_regs[xmm_pos],
+                xmm_reg_name(args->expr->reg));
+        }
+
         else
         {
             emit("movq %s, %s\n",
@@ -193,11 +201,21 @@ emit_return(Statement_t *stmt)
     if (stmt->expr != NULL)
     {
         emit_expression(stmt->expr, stmt->expr->type.t);
-        emit("movq rax, %s\n",
-            reg_name(stmt->expr->reg));
+
+        if (stmt->expr->type.t == _FLOAT)
+            emit("movsd xmm0, %s\n",
+                xmm_reg_name(stmt->expr->reg));
+        else
+            emit("movq rax, %s\n",
+                reg_name(stmt->expr->reg));
 
         if (c == 1)
-            reg_free(stmt->expr);
+        {
+            if (stmt->expr->type.t == _FLOAT)
+                xmm_reg_free(stmt->expr);
+            else
+                reg_free(stmt->expr);
+        }
     }
 
 
@@ -210,15 +228,19 @@ void
 emit_move_args_to_stack(Args_t *args)
 {
     unsigned int pos = 0;
+    unsigned int xmm_pos = 0;
 
     while (args && (pos < 3))
     {
+        if (args->sym->_type.t == _FLOAT)
+            emit("movq [%s], %s\n",
+                symbol_s(args->sym),
+                xmm_args_regs[xmm_pos++]);
+        else
+            emit("movq [%s], %s\n", 
+                symbol_s(args->sym), 
+                args_regs[pos++]);
 
-        emit("movq [%s], %s\n", 
-            symbol_s(args->sym), 
-            args_regs[pos]);
-
-        pos += 1;
         args = args->next;
     }
 }

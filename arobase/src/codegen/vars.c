@@ -337,11 +337,20 @@ emit_var_assign(Statement_t *statement)
         emit("movq rsi, %s\n",
             reg_name(statement->access->reg));
 
-        emit("movq rdx, %s\n",
-            reg_name(statement->expr->reg));
+
 
         if (statement->expr->sym->_type.t == _BYTE || statement->expr->sym->_type.t == _CHAR)
+        {
+            emit("movq rdx, %s\n",
+                reg_name(statement->expr->reg));
             emit("call array_set_element_c\n");
+        }
+        else if (statement->expr->sym->_type.t == _FLOAT)
+        {
+            emit("movsd xmm0, %s\n",
+                xmm_reg_name(statement->expr->reg));
+            emit("call array_set_element_f\n");  
+        }
         else
             emit("call array_set_element\n");
 
@@ -445,8 +454,11 @@ emit_structure_initialization(Args_t *args, Symbol_t *sym)
             emit("mov [rcx-%u*8], %s\n",
             pos,
             reg_name(args->expr->reg));
-
-        reg_free(args->expr);
+        
+        if (args->expr->type.t == _FLOAT)
+            xmm_reg_free(args->expr);
+        else
+            reg_free(args->expr);
         args = args->next;
         args_decl = args_decl->next;
 

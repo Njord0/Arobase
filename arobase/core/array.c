@@ -22,6 +22,16 @@ array_get_element_c(int64_t arr[], int64_t ind)
     return ptr[ind];
 }
 
+double
+array_get_element_f(double arr[], int64_t ind)
+{
+    int size = *(int*)arr;
+    if ((ind >= size) || (ind < 0))
+        return -1.0;
+
+    return arr[ind+1];
+}
+
 void
 array_set_element(int64_t arr[], int64_t ind, int64_t el)
 {
@@ -40,6 +50,16 @@ array_set_element_c(int64_t arr[], int64_t ind, int64_t el)
     uint8_t *ptr = (uint8_t*)arr+8;
 
     ptr[ind] = (uint8_t)el;
+}
+
+void
+array_set_element_f(double arr[], int64_t ind, double el)
+{
+    int size = *(int*)arr;
+    if ((ind >= size) || (ind < 0))
+        return;
+
+    arr[ind+1] = el;
 }
 
 int64_t
