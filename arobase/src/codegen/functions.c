@@ -127,7 +127,9 @@ emit_func_call(Expression_t *expr)
     in_function_call = true;
 
     char tmp[7];
+    char tmp_xmm[8];
     memcpy(tmp, scratch_in_use, sizeof(scratch_in_use));
+    memcpy(tmp_xmm, xmm_in_use, sizeof(xmm_in_use));
 
     for (unsigned int i = 0; i < 7; i++)
     {
@@ -137,6 +139,18 @@ emit_func_call(Expression_t *expr)
                 scratch_regs[i]);
 
             scratch_in_use[i] = 0;
+        }
+    }
+
+    for (unsigned int i = 0; i < 8; i++)
+    {
+        if (xmm_in_use[i] == 1)
+        {
+            emit("sub rsp, 8\n");
+            emit("movsd [rsp], %s\n",
+                xmm_regs[i]);
+
+            xmm_in_use[i] = 0;
         }
     }
 
@@ -173,6 +187,16 @@ emit_func_call(Expression_t *expr)
 
     emit("call %s\n", expr->sym_value->rname);
 
+    for (int i = 7; i >= 0; i--)
+    {
+        if (tmp_xmm[i] == 1)
+        {
+            emit("movsd %s, [rsp]\n", 
+                xmm_regs[i]);
+            emit("add rsp, 8\n");
+        }
+    }
+
     for (int i = 6; i >= 0; i--)
     {
         if (tmp[i] == 1)
@@ -183,6 +207,7 @@ emit_func_call(Expression_t *expr)
     }
 
     memcpy(scratch_in_use, tmp, sizeof(scratch_in_use)); // restore in_use registers
+    memcpy(xmm_in_use, tmp_xmm, sizeof(xmm_in_use));
 
     if ((in_function_call) && (nested_c != 1))
         emit("pop rcx\npop rsi\npop rdi\n");

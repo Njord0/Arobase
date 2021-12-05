@@ -316,8 +316,11 @@ emit_var_declaration(Statement_t *statement)
         emit_expression(statement->decl->expr, statement->decl->sym->_type.t);
         store_to_stack(statement->decl->expr, statement->decl->sym); 
     }
-
-    reg_free(statement->decl->expr);
+    
+    if (statement->decl->expr->type.t == _FLOAT)
+        xmm_reg_free(statement->decl->expr);
+    else
+        reg_free(statement->decl->expr);
 }
 
 void
