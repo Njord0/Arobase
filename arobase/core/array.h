@@ -16,5 +16,6 @@ int64_t _internal_bound_check(int64_t arr[], int64_t ind);
 int64_t _internal_get_sizeZintegerArr(int64_t arr[]);
 int64_t _internal_get_sizeZcharArr(int64_t arr[]);
 int64_t _internal_get_sizeZbyteArr(int64_t arr[]);
+int64_t _internal_get_sizeZfloatArr(double arr[]);
 
 #endif

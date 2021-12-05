@@ -38,3 +38,15 @@ to_byteZchar(char c)
 {
     return c;
 }
+
+double
+to_floatZinteger(int64_t i)
+{
+    return (double)i;
+}
+
+int64_t
+to_intZfloat(double d)
+{
+    return (int)d;
+}

@@ -166,7 +166,7 @@ emit_func_call(Expression_t *expr)
                 reg_name(args->expr->reg)); 
         }
         
-        else if (args->type.t == _FLOAT)
+        else if (args->type.t == _FLOAT && !args->type.is_array)
         {
             emit("movq %s, %s\n",
                 xmm_args_regs[xmm_pos++],
@@ -252,10 +252,11 @@ emit_move_args_to_stack(Args_t *args)
 
     while (args && (pos < 3))
     {
-        if (args->sym->_type.t == _FLOAT)
+        if (args->sym->_type.t == _FLOAT && !args->sym->_type.t)
             emit("movq [%s], %s\n",
                 symbol_s(args->sym),
                 xmm_args_regs[xmm_pos++]);
+
         else
             emit("movq [%s], %s\n", 
                 symbol_s(args->sym), 
