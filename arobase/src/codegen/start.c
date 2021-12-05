@@ -12,6 +12,7 @@
 
 #include <statements.h>
 #include <struct.h>
+#include <error_handler.h>
 
 bool in_function_call = false;
 LOOP *current_loop = NULL;
@@ -61,8 +62,8 @@ const char *xmm_regs[] = {
     "xmm15"
 };
 
-char scratch_in_use[7] = {0};
-char xmm_in_use[8] = {0};
+char scratch_in_use[7] = {0, };
+char xmm_in_use[8] = {0, };
 char symbol_stack_pos[100] = {0};
 
 void
@@ -136,7 +137,6 @@ emit_statements(Statement_t **statement)
 unsigned int
 reg_alloc(unsigned int reg)
 {
-
     if (reg != UINT_MAX)
         return reg;
 
@@ -149,7 +149,9 @@ reg_alloc(unsigned int reg)
         }
     }
 
-    return UINT_MAX;
+    fprintf(stderr,
+        "Internal error: No more free reg\n");
+    cc_exit();
 }
 
 const char*
@@ -189,7 +191,9 @@ xmm_reg_alloc(unsigned int reg)
         }
     }
 
-    return UINT_MAX;
+    fprintf(stderr,
+        "Internal error: No more free reg\n");
+    cc_exit();
 }
 
 const char*
@@ -341,7 +345,6 @@ load_to_reg(Expression_t *expr)
 
         if (expr->sym_value->decl == NULL) // Arg
             emit("mov rdi, [rdi]\n");
-
         emit("movq rsi, %s\n",
             reg_name(expr->access->reg));
 
@@ -352,6 +355,7 @@ load_to_reg(Expression_t *expr)
 
         if (in_function_call)
             emit("pop rcx\npop rsi\npop rdi\n");
+
 
         switch (expr->sym_value->_type.t)
         {
@@ -501,7 +505,6 @@ void
 _start_def()
 {
     emit(".text\n.global _start\n_start:\n");
-    emit("push rbp\nmov rbp, rsp\nsub rsp, 16\n");
     emit("call main\n");
     emit("xor rax, rax\nmov al, 60\nxor rdi, rdi\nsyscall\n");
 }

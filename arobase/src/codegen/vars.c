@@ -27,7 +27,6 @@ emit_expression(Expression_t *expr, enum Type t)
                 expr->reg = xmm_reg_alloc(expr->reg);
             else
                 expr->reg = reg_alloc(expr->reg);
-
             load_to_reg(expr);
             break;
 
@@ -51,10 +50,11 @@ emit_expression(Expression_t *expr, enum Type t)
                     reg_name_l(expr->left->reg));
 
             expr->reg = expr->right->reg;
-            if (expr->expr_type == EXPR_INTEGER)
-                reg_free(expr->left);
-            else
+            if (expr->type.t == _FLOAT)
                 xmm_reg_free(expr->left);
+            else
+                reg_free(expr->left);
+
             break;
 
         case EXPR_MINUS:
@@ -77,10 +77,11 @@ emit_expression(Expression_t *expr, enum Type t)
 
 
             expr->reg = expr->right->reg;
-            if (expr->expr_type == EXPR_INTEGER)
-                reg_free(expr->left);
-            else
+            if (expr->type.t == _FLOAT)
                 xmm_reg_free(expr->left);
+            else
+                reg_free(expr->left);
+
             break;
 
         case EXPR_MUL:
@@ -108,10 +109,10 @@ emit_expression(Expression_t *expr, enum Type t)
             }
 
             expr->reg = expr->right->reg;
-            if (expr->expr_type == EXPR_INTEGER)
-                reg_free(expr->left);
-            else
+            if (expr->type.t == _FLOAT)
                 xmm_reg_free(expr->left);
+            else
+                reg_free(expr->left);
             break;
 
         case EXPR_DIV:
@@ -134,10 +135,10 @@ emit_expression(Expression_t *expr, enum Type t)
                     xmm_reg_name(expr->left->reg));
 
             expr->reg = expr->right->reg;
-            if (expr->expr_type == EXPR_INTEGER)
-                reg_free(expr->left);
-            else
+            if (expr->type.t == _FLOAT)
                 xmm_reg_free(expr->left);
+            else
+                reg_free(expr->left);
             break;
 
         case EXPR_MOD:
@@ -158,7 +159,10 @@ emit_expression(Expression_t *expr, enum Type t)
 
         case EXPR_FUNCCALL:
             emit_func_call(expr);
-            expr->reg = reg_alloc(expr->reg);
+            if (expr->type.t == _FLOAT)
+                expr->reg = xmm_reg_alloc(expr->reg);
+            else
+                expr->reg = reg_alloc(expr->reg);
             load_to_reg(expr);
             break;
 
@@ -360,14 +364,6 @@ emit_var_assign(Statement_t *statement)
 
 }
 
-
-
-
-
-
-
-
-
 void
 emit_array_initialization(Args_t *args, Symbol_t *sym)
 {
@@ -386,6 +382,12 @@ emit_array_initialization(Args_t *args, Symbol_t *sym)
                 symbol_s(sym),
                 count+1,
                 reg_name(args->expr->reg));
+
+        else if (args->type.t == _FLOAT)
+            emit("movsd [%s+8*%u], %s\n",
+                symbol_s(sym),
+                count+1,
+                xmm_reg_name(args->expr->reg));
 
         else if (args->type.t == _CHAR || args->type.t == _BYTE)
             emit("mov byte ptr [%s+8+%u], %s\n",
@@ -423,6 +425,11 @@ emit_structure_initialization(Args_t *args, Symbol_t *sym)
             emit("movq [rcx-%u*8], %s\n",
                 pos,
                 reg_name(args->expr->reg));
+
+        else if (args->expr->type.t == _FLOAT)
+            emit("movq [rcx-%u*8], %s\n",
+                pos,
+                xmm_reg_name(args->expr->reg));
 
         else if (args->expr->type.t == _BYTE)
             emit("mov [rcx-%u*8], %s\n",

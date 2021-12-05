@@ -11,7 +11,6 @@
 #include <args.h>
 #include <struct.h>
 
-
 void
 emit_prologue(Statement_t *stmt)
 {
@@ -72,9 +71,6 @@ get_stack_size(Statement_t *stmt)
                 }
             }
 
-            else if (sym->_type.t == _FLOAT)
-                size += 16;
-
             else
                 size += 8;
         }
@@ -90,6 +86,9 @@ get_stack_size(Statement_t *stmt)
 
         stmt = stmt->next;
     }
+/*     if (size % 16 == 8)
+        size += 8; */
+    
     return size;
 }
 
@@ -101,6 +100,7 @@ emit_function(Statement_t **statement)
     emit(".globl %s\n", stmt->decl->sym->rname);
     emit(".type %s, @function\n", stmt->decl->sym->rname);
     emit("%s:\n", stmt->decl->sym->rname);
+
     emit_prologue(stmt);
 
     emit_move_args_to_stack(stmt->decl->args);
@@ -174,7 +174,7 @@ emit_func_call(Expression_t *expr)
         }
     }
 
-    memcpy(scratch_in_use, tmp, sizeof(scratch_in_use));
+    memcpy(scratch_in_use, tmp, sizeof(scratch_in_use)); // restore in_use registers
 
     if ((in_function_call) && (nested_c != 1))
         emit("pop rcx\npop rsi\npop rdi\n");

@@ -274,6 +274,14 @@ type_evaluate(Expression_t *expr, enum Type t)
                     type_name(right.t));
                 cc_exit();
             }
+
+            if (expr->expr_type == EXPR_MOD && (left.t == _FLOAT || right.t == _FLOAT)) // Mod operator can't be used with float type
+            {
+                fprintf(stderr,
+                    "can't use operator '%%' with 'float' type\n");
+                cc_exit();
+            }
+
             type.t = left.t;
             break;
 
