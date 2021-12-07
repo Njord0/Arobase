@@ -48,6 +48,7 @@ typedef struct Expression {
     double double_value;
     char *string_value;
     struct _symbol *sym_value;
+    struct Token *token;
 
     struct _symbol *sym;
     unsigned int reg;

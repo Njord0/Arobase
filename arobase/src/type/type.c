@@ -251,11 +251,13 @@ type_evaluate(Expression_t *expr, enum Type t)
     type.is_structure = false;
     type.ptr = NULL;
 
-    if (expr == NULL)
+    if (!expr)
     {
         type.t = _VOID;
         return type;
     }
+
+    char c;
 
     switch (expr->expr_type)
     {
@@ -270,11 +272,14 @@ type_evaluate(Expression_t *expr, enum Type t)
             if (expr->right)
                 right = type_evaluate(expr->right, t);
 
+            c = expr->expr_type == EXPR_PLUS ? '+' : expr->expr_type == EXPR_MINUS ? '-' : expr->expr_type == EXPR_DIV ? '/' : expr->expr_type == EXPR_MUL ? '*' : '%'; 
 
             if (left.t != right.t)
             {
+                show_error_source(expr->token);
                 fprintf(stderr, 
-                    "can't use operator '?' between '%s' and '%s'\n",
+                    "can't use operator '%c' between '%s' and '%s'\n",
+                    c,
                     type_name(left.t),
                     type_name(right.t));
                 cc_exit();
@@ -282,8 +287,19 @@ type_evaluate(Expression_t *expr, enum Type t)
 
             if (expr->expr_type == EXPR_MOD && (left.t == _FLOAT || right.t == _FLOAT)) // Mod operator can't be used with float type
             {
+                show_error_source(expr->token);
                 fprintf(stderr,
                     "can't use operator '%%' with 'float' type\n");
+                cc_exit();
+            }
+
+            if (left.t == STRING || left.t == _CHAR)
+            {
+                show_error_source(expr->token);
+                fprintf(stderr,
+                    "can't use operator '%c' with '%s' type\n",
+                    c,
+                    type_name(left.t));
                 cc_exit();
             }
 
@@ -306,7 +322,10 @@ type_evaluate(Expression_t *expr, enum Type t)
         case EXPR_SYMBOL:
             if (!is_declared_var(symtab_g, expr->string_value, &sym))
             {
-                fprintf(stderr, "Error:\n\tUndeclared variable\n");
+                show_error_source(expr->token);
+                fprintf(stderr, 
+                    "undeclared variable '%s'\n",
+                    expr->string_value);
                 cc_exit();
             }
 
@@ -334,6 +353,14 @@ type_evaluate(Expression_t *expr, enum Type t)
 
         case EXPR_UNARY_MINUS:
             type.t = type_evaluate(expr->left, t).t;
+            if (type.t == STRING || type.t == _CHAR)
+            {
+                show_error_source(expr->token);
+                fprintf(stderr,
+                    "can't negate '%s' type\n",
+                    type_name(type.t));
+                cc_exit();
+            }
             break;
 
         case EXPR_STRUCTA:

@@ -21,7 +21,7 @@ expr_create(Token_t **token, enum Type t)
 
     expr_init(expr);
 
-    if (token_checks(tok, 5, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
+    if (token_checks(tok, 7, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS, TOK_STRING, TOK_CHAR))
     {
         free(expr);
         expr = expr_(&tok, t);
@@ -31,23 +31,6 @@ expr_create(Token_t **token, enum Type t)
     {
         free(expr);
         return NULL;
-    }
-
-    else if (tok->type == TOK_STRING) // string litteral
-    {
-        expr->expr_type = EXPR_STRING_LITTERAL;
-        expr->string_value = tok->value.p;
-        expr->type.t = STRING;
-        tok = tok->next;
-    }
-
-    else if (tok->type == TOK_CHAR)
-    {
-        expr->expr_type = EXPR_CHAR;
-        expr->string_value = tok->value.p;
-        expr->type.t = _CHAR;
-
-        tok = tok->next;
     }
 
     else
@@ -62,6 +45,7 @@ expr_create(Token_t **token, enum Type t)
 
     expr = expr_fold(expr);
 
+    type_evaluate(expr, t);
     type_set(expr, type_of_first_symbol(expr));
     type_check(expr);
 
@@ -76,7 +60,7 @@ expr_factor(Token_t **token, enum Type t)
     Expression_t *expr = xmalloc(sizeof(Expression_t));
     expr_init(expr);
 
-    if (!token_checks(tok, 5, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS))
+    if (!token_checks(tok, 7, TOK_INTEGER, TOK_FLOAT, TOK_STRING, TOK_CHAR, LPAR, SYMBOL, MINUS))
     {
         show_error_source(tok);
         fprintf(stderr,
@@ -84,6 +68,8 @@ expr_factor(Token_t **token, enum Type t)
         free_expression(expr);
         cc_exit();
     }
+
+    expr->token = tok;
 
     if (tok->type == TOK_INTEGER)
     {
@@ -93,6 +79,24 @@ expr_factor(Token_t **token, enum Type t)
 
         if (t == _VOID)
             expr->type.t = INTEGER;
+
+        tok = tok->next;
+    }
+
+    else if (tok->type == TOK_STRING)
+    {
+        expr->expr_type = EXPR_STRING_LITTERAL;
+        expr->string_value = tok->value.p;
+        expr->type.t = STRING;
+        
+        tok = tok->next;
+    }
+
+    else if (tok->type == TOK_CHAR)
+    {
+        expr->expr_type = EXPR_CHAR;
+        expr->string_value = tok->value.p;
+        expr->type.t = _CHAR;
 
         tok = tok->next;
     }
@@ -289,6 +293,8 @@ expr_term(Token_t **token, enum Type t)
             expr->expr_type = EXPR_MOD;
 
 
+        expr->token = tok;
+
         tok = tok->next;
 
         Expression_t *factor = expr_factor(&tok, t);
@@ -333,6 +339,8 @@ expr_(Token_t **token, enum Type t)
         else
             expr->expr_type = EXPR_MINUS;
 
+        expr->token = tok;
+
         tok = tok->next;
         Expression_t *term = expr_term(&tok, t);
     
@@ -370,7 +378,7 @@ expr_create_funccall(Token_t **token, char *name)
 
     Symbol_t *sym;
 
-    assert (tok->type == LPAR);
+    expr->token = tok;
 
     if (token_check(next_token, RPAR))
     {
@@ -432,6 +440,8 @@ expr_create_cond(Token_t **token, enum Type t)
 
     expr->expr_type = EXPR_COND;
     expr->left = expr_create(&tok, t);
+
+    expr->token = tok;
 
     Type_s type = type_of_first_symbol(expr->left);
 
@@ -577,6 +587,7 @@ expr_init(Expression_t *expr)
     expr->access = NULL;
     expr->string_value = NULL;
     expr->sym_value = NULL;
+    expr->token = NULL;
     expr->sym = NULL;
     expr->reg = UINT_MAX;
     expr->int_value = 0;
