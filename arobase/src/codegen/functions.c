@@ -252,7 +252,7 @@ emit_move_args_to_stack(Args_t *args)
 
     while (args && (pos < 3))
     {
-        if (args->sym->_type.t == _FLOAT && !args->sym->_type.t)
+        if (args->sym->_type.t == _FLOAT && !args->sym->_type.is_array)
             emit("movq [%s], %s\n",
                 symbol_s(args->sym),
                 xmm_args_regs[xmm_pos++]);
