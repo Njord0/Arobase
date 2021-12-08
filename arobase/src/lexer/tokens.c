@@ -6,7 +6,7 @@
 
 #include <statements.h>
 #include <tokens.h>
-#include <error_handler.h>
+#include <errors/error.h>
 
 const char *tokens[29] = {
     "number",

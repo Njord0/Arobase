@@ -5,7 +5,7 @@
 #include <args.h>
 #include <expressions.h>
 #include <tokens.h>
-#include <error_handler.h>
+#include <errors/error.h>
 #include <symbol_table.h>
 
 Args_t*

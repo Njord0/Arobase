@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <error_handler.h>
+#include <errors/error.h>
 #include <expressions.h>
 #include <tokens.h>
 #include <type.h>

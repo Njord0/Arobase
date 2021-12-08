@@ -8,7 +8,7 @@
 #include <tokens.h>
 #include <statements.h>
 #include <struct.h>
-#include <error_handler.h>
+#include <errors/error.h>
 #include <symbol_table.h>
 
 #include <function.h>

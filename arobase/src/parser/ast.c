@@ -6,7 +6,7 @@
 #include <lexer.h>
 #include <struct.h>
 #include <statements.h>
-#include <error_handler.h>
+#include <errors/error.h>
 
 AST_t*
 create_ast()

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include <struct.h>
-#include <error_handler.h>
+#include <errors/error.h>
 #include <symbol_table.h>
 
 int fcount = 0;

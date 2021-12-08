@@ -3,7 +3,7 @@
 
 #include <utils/vectors.h>
 #include <exceptions.h>
-#include <error_handler.h>
+#include <errors/error.h>
 #include <symbol_table.h>
 #include <struct.h>
 #include <lexer.h>
@@ -120,7 +120,7 @@ xrealloc(void *ptr, size_t size)
     {
         free(ptr);
         fprintf(stderr, 
-            "Error: unable to allocate memory (%lu bytes) ! \n",
+            "ERROR: unable to allocate memory (%lu bytes) ! \n",
             size);
 
         cc_exit();

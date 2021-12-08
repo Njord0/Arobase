@@ -1,5 +1,5 @@
-#ifndef _ERROR_HANDLER
-#define _ERROR_HANDLER
+#ifndef _ERROR_H
+#define _ERROR_H
 
 #include <statements.h>
 #include <tokens.h>

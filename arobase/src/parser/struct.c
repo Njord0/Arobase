@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include <error_handler.h>
+#include <errors/error.h>
 #include <statements.h>
 #include <struct.h>
 

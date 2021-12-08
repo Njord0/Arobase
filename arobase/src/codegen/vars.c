@@ -7,7 +7,7 @@
 #include <codegen/regs.h>
 
 #include <struct.h>
-#include <error_handler.h>
+#include <errors/error.h>
 
 void
 emit_expression(Expression_t *expr, enum Type t)

@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#include <error_handler.h>
+#include <errors/error.h>
 #include <utils/vectors.h>
 #include <exceptions.h>
 

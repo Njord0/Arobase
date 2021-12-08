@@ -6,7 +6,7 @@
 #include <codegen/vars.h>
 #include <codegen/regs.h>
 
-#include <error_handler.h>
+#include <errors/error.h>
 
 void
 emit_if_else(Statement_t *statement)

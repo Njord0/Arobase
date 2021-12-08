@@ -8,7 +8,7 @@
 
 #include <args.h>
 #include <expressions.h>
-#include <error_handler.h>
+#include <errors/error.h>
 #include <struct.h>
 #include <symbol_table.h>
 

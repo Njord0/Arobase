@@ -4,7 +4,7 @@
 #include <scope.h>
 #include <statements.h>
 #include <tokens.h>
-#include <error_handler.h>
+#include <errors/error.h>
 
 Statement_t*
 get_scope(Token_t **token, Declaration_t *decl)

@@ -5,7 +5,7 @@
 
 #include <lexer.h>
 #include <statements.h>
-#include <error_handler.h>
+#include <errors/error.h>
 
 bool prev_char = false;
 

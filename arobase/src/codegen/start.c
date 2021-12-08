@@ -13,7 +13,6 @@
 
 #include <statements.h>
 #include <struct.h>
-#include <error_handler.h>
 
 bool in_function_call = false;
 LOOP *current_loop = NULL;

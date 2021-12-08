@@ -4,7 +4,7 @@
 #include <codegen/regs.h>
 
 #include <expressions.h>
-#include <error_handler.h>
+#include <errors/error.h>
 
 static unsigned int reg_alloc(unsigned int r);
 static void reg_free(Expression_t *expr);
