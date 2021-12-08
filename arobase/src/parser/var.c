@@ -109,14 +109,16 @@ stmt_parse_var_declaration(Token_t **token)
 
         while (args)
         {
+            type_set(args_decl->expr, args->type);
+            args_decl->type = args_decl->expr->type;
             if (args->type.t != args_decl->type.t)
             {
                 show_error_source(next_token);
                 fprintf(stderr,
-                    "Invalid type for member '%s', '%s' was expected not '%s'\n",
-                    args_decl->name,
-                    type_name(args_decl->type.t),
-                    type_name(args->type.t));
+                    "Invalid type for member '%s', '%s' was expected, not '%s'\n",
+                    args->name,
+                    type_name(args->type.t),
+                    type_name(args_decl->type.t));
                 cc_exit();
             }
             
@@ -220,6 +222,15 @@ stmt_parse_var_assign(Token_t **token)
         cc_exit();
     }
 
+    else if (sym->_type.t == STRUCTURE && type.t == STRUCTURE)
+    {
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Can't assign structure to another structure\n");
+        free_statement(stmt);
+        cc_exit();
+    }
+
     if (!token_check(next_token, EOS))
     {
         show_error_source(next_token);
@@ -282,8 +293,6 @@ stmt_parse_struct_assign(Token_t **token, Statement_t *stmt, const char *name)
     stmt->expr->type = member->type;
     //stmt->expr->string_value = member->name;
     stmt->expr->args = member;
-
-    type_set(stmt->expr, member->type);
 
     Type_s type = type_evaluate(stmt->expr, sym->_type.t);
 

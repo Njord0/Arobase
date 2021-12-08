@@ -444,8 +444,10 @@ type_set(Expression_t *expr, Type_s type)
     if (expr->right)
         type_set(expr->right, type);
 
-    if (expr)
+    if (expr && !((expr->type.t == INTEGER && type.t == _FLOAT) || (expr->type.t == _FLOAT && type.t == INTEGER) || (expr->type.t == _BYTE && type.t == _FLOAT) || (expr->type.t == _FLOAT && type.t == _BYTE)))
         expr->type = type;
+
+    
 }
 
 Array_s*

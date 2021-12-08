@@ -294,6 +294,7 @@ expr_term(Token_t **token, enum Type t)
 
 
         expr->token = tok;
+        expr->type.t = t;
 
         tok = tok->next;
 
@@ -340,6 +341,7 @@ expr_(Token_t **token, enum Type t)
             expr->expr_type = EXPR_MINUS;
 
         expr->token = tok;
+        expr->type.t = t;
 
         tok = tok->next;
         Expression_t *term = expr_term(&tok, t);
