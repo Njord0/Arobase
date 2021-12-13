@@ -117,6 +117,8 @@ int main(int argc, char **argv)
     struct_free();
     vec_free(exception_vector);
 
+    free(option_g);
+
    
 
     return 0;

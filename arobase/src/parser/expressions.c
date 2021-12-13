@@ -610,6 +610,12 @@ free_expression(Expression_t *expr)
     if (!expr)
         return;
 
+    if (expr->args && expr->expr_type == EXPR_FUNCCALL)
+    {
+        free_args(expr->args);
+        expr->args = NULL;
+    }
+
     if (expr->right)
         free_expression(expr->right);
 
@@ -619,8 +625,6 @@ free_expression(Expression_t *expr)
     if (expr->access)
         free_expression(expr->access);
 
-//    if (expr->args != NULL)
-//        free_args(expr->args);
 
     if (expr->expr_type == EXPR_STRING_LITTERAL)
         free(expr->string_value);
