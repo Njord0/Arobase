@@ -61,23 +61,19 @@ fn main() : void
 }
 ```
 
-first step :
+Compilation :
 ```
-$ arobase -s source.aro -o out.s
-```
-Assembling and linking : 
-```
-$ as out.s -o out.o -mnaked-reg -msyntax=intel
-$ ld -o out out.o -larobase 
+$ arobase -s source.aro -o out
 ```
 
 For more details see the `--help` option: 
 ```
 $ arobase --help
 Usage: ./arobase -s source_file [options]
-        options:
-        -o              Output file name, default is 'out.s'
-        --no-start      Tell the compiler to not add a '_start' function
+Options:
+  -o            Output file name, default is 'out'
+  --no-start    Tell the compiler to not add a '_start' function
+  --assembly    Output assembly instead of executable
 ```
 
 ## Documentation / Tutorial
