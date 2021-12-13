@@ -6,6 +6,7 @@
 #include <lexer.h>
 #include <tokens.h>
 #include <codegen/start.h>
+#include <options/options.h>
 #include <struct.h>
 #include <statements.h>
 #include <symbol_table.h>
@@ -14,75 +15,32 @@
 Lexer_t *lexer_g = NULL;
 AST_t *ast_g = NULL;
 Symtable_t *symtab_g = NULL;
-
-bool NO_START = false;
-
-void print_usage(const char *arg) 
-{
-    printf("Usage: ./%s -s source_file [options]\n"
-        "\toptions:\n"
-        "\t-o\t\tOutput file name, default is 'out.s'\n"
-        "\t--no-start\tTell the compiler to not add a '_start' function\n",
-        arg);
-}
-
-void parse_args(int argc, char **argv, char **out, char **src)
-{
-    *src = NULL;
-    *out = NULL;
-    for (int i = 1; i < argc; i++)
-    {
-        if (strcmp(argv[i], "-o") == 0)
-        {
-            if (i+1 < argc) 
-                *out = argv[i+1];
-        }
-
-        else if (strcmp(argv[i], "-s") == 0)
-        {
-            if (i+1 < argc) 
-                *src = argv[i+1];
-        }
-
-        else if (strcmp(argv[i], "--help") == 0)
-        {
-            print_usage(argv[0]);
-            exit(1);
-        }
-
-        else if (strcmp(argv[i], "--no-start") == 0)
-            NO_START = true;
-    }
-}
+Option_t *option_g = NULL;
 
 int main(int argc, char **argv)
 {
-    
-    char *src;
-    char *out;
+    option_g = options_parse(argv, argc); 
 
-    parse_args(argc, argv, &out, &src);
-
-    if (!src)
+    if (!option_g->source_file)
     {
         fprintf(stderr,
             "Error: \n\tNo source file specified!\n");
         return 1;
     }
 
-    if (!out)
+    if (!option_g->output_file)
     {
         fprintf(stderr,
-            "Warning: \n\tNo output file specified, default is 'out.s'.\n");
-        out = "out.s";
+            "Warning: \n\tNo output file specified, default is 'out'.\n");
+        option_g->output_file = "out";
     }
 
-    lexer_g = lexer_create(src);
+    lexer_g = lexer_create(option_g->source_file);
     if (!lexer_g)
     {
         fprintf(stderr, 
             "Error: \n\tNo file named '%s'\n",
-            src);
+            option_g->source_file);
         return 1;
     }
 
@@ -108,13 +66,58 @@ int main(int argc, char **argv)
 
     ast_parse(ast_g, lexer_g);
 
-    begin_codegen(ast_g, out);
+
+    if (option_g->assembly)
+    {
+        begin_codegen(ast_g, option_g->output_file);    
+    }
+    else
+    {
+        char asm_name[] = "asmXXXXXX";
+        char obj_name[] = "objXXXXXX";
+
+        mkstemp(asm_name);
+        mkstemp(obj_name);
+
+        begin_codegen(ast_g, asm_name);
+
+        char *args_as[5] = {"-o", obj_name, asm_name, "-mnaked-reg", "-msyntax=intel"};
+        char *args_ld[5] = {"-o", option_g->output_file, obj_name, "-larobase", "-lc"};
+
+        char *cmd = make_command(args_as, 5);
+        if (system(cmd) != 0)
+        {
+            free(cmd);
+            fprintf(stderr,
+                "An error occured while assembling.\n");
+        }
+        else
+        {
+            free(cmd);
+            cmd = make_command(args_ld, 5);
+            cmd[0] = 'l'; cmd[1] = 'd';
+        
+            if (system(cmd) != 0)
+            {
+                fprintf(stderr,
+                    "An error occured while linking.\n");
+            }
+            free(cmd);
+        }
+
+        
+        remove(asm_name);
+        remove(obj_name);
+    }
+
 
     symtab_free(symtab_g);
     free_ast(ast_g);
     lexer_free(lexer_g);
     struct_free();
     vec_free(exception_vector);
+
+   
 
     return 0;
 }

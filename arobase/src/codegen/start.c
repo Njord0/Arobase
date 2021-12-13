@@ -11,6 +11,8 @@
 #include <codegen/exceptions.h>
 #include <codegen/regs.h>
 
+#include <options/options.h>
+
 #include <statements.h>
 #include <struct.h>
 
@@ -71,7 +73,7 @@ begin_codegen(AST_t *ast, const char *out)
 {
     file = fopen(out, "w");
 
-    if (!NO_START)
+    if (option_g->has_entry)
         _start_def();
 
     Statement_t *stmt = ast->first_stmt;

@@ -17,7 +17,7 @@ HEADERS_DIR := /usr/local/include/arobase
 HEADERS := $(shell find core/ -name *.aroh)
 DEST_HEADERS := $(addprefix $(HEADERS_DIR)/,$(HEADERS))
 
-C_FLAGS := -Iincludes -O3 -Wall -g
+C_FLAGS := -Iincludes -O3 -Wall
 
 LD_FLAGS := -lm # math.h
 
@@ -42,7 +42,7 @@ $(BUILD_DIR)/core/%.c.o: core/%.c
 
 $(BUILD_DIR)/core/%.aro.o: core/%.aro
 	@mkdir -p $(dir $@)
-	build/arobase -s $< -o $@.s --no-start
+	build/arobase -s $< -o $@.s --no-start --assembly
 	as $@.s -o $@ -msyntax=intel -mnaked-reg
 
 .PHONY: clean install uninstall
