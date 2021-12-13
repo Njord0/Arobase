@@ -84,11 +84,11 @@ get_next_statement(Token_t **token)
     else if (IS_KEYWORD(tok, KW_STRUCT))
         stmt = stmt_parse_struct(&tok);
 
-    else if (IS_KEYWORD(tok, KW_TRY))
+    /* else if (IS_KEYWORD(tok, KW_TRY))
         stmt = stmt_parse_try_block(&tok);
     
     else if (IS_KEYWORD(tok, KW_RAISE))
-        stmt = stmt_parse_raise(&tok);
+        stmt = stmt_parse_raise(&tok); */
 
     else if (tok->type == SYMBOL)
     {
@@ -99,7 +99,12 @@ get_next_statement(Token_t **token)
             stmt = stmt_parse_func_call(&tok);
 
         else
-            invalid_syntax_error(tok);
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "invalid expression\n");
+            cc_exit();
+        }
     }
 
     else if (IS_KEYWORD(tok, KW_ELSE))
