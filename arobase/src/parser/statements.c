@@ -339,8 +339,11 @@ stmt_parse_struct(Token_t **token)
 
     tok = tok->next;
 
-    if (!token_expect(tok, LBRACE))
+    if (!token_check(tok, LBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '{' after structure name\n");
         free(stmt);
         cc_exit();
     }
@@ -358,8 +361,11 @@ stmt_parse_struct(Token_t **token)
         cc_exit();
     }
 
-    if (!token_expect(tok, RBRACE))
+    if (!token_check(tok, RBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing '}'\n");
         free_args(stmt->args);
         free(stmt);
         cc_exit();

@@ -12,19 +12,6 @@
 Statement_t *current_function = NULL;
 
 void
-invalid_syntax_error(Token_t *token)
-{
-    long unsigned int line = 0;
-    if (token)
-        line = token->lineno;
-
-    fprintf(stderr, 
-        "Error on line : %lu\n\tInvalid syntax\n", 
-        line);
-    cc_exit();
-}
-
-void
 cc_exit()
 {
     if (current_function)
@@ -52,7 +39,7 @@ show_error_source(Token_t *token)
     unsigned int line = token ? token->lineno : 0;
 
     fprintf(stderr,
-        "Error : File '%s', line %u\n%s\n",
+        "Error : File '%s', line %u\n%s\n\n\t",
         lexer_g->filename,
         line,
         ptr);

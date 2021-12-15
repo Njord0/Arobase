@@ -33,7 +33,6 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
     tok = tok->next;
 
-
     decl->is_initialised = true; 
 
     if (type.is_array)
@@ -118,6 +117,15 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
 
     }
 
+    if (!token_check(tok, EOS))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
+        free(decl);
+        cc_exit();
+    }
+
     *token = tok;
     return decl;
 
@@ -133,15 +141,25 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     decl->name = name;
 
     tok = tok->next;
-    if (!token_expect(tok, LPAR))
+    if (!token_check(tok, LPAR))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '(' after function name\n");
         cc_exit();
+    }
 
     tok = tok->next;
-    if (!token_check(tok, RPAR))
+    if (!token_check(tok, RPAR) && token_check(tok, SYMBOL))
         decl->args = get_args_decl(&tok);
 
-    if (!token_expect(tok, RPAR))
+    if (!token_check(tok, RPAR))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing ')'\n");
         cc_exit();
+    }
 
     tok = tok->next;
 
@@ -161,18 +179,26 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
 
     tok = tok->next;
 
-    if (!token_expect(tok, LBRACE))
+    if (!token_check(tok, LBRACE))
     {
-        free(decl);
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '{' after function header\n");
         cc_exit();
     }
+    
     tok = tok->next;
 
     decl->code = get_scope(&tok, decl);
     scope_check_return_value_type(decl->code, decl, tok);
     
     if (!token_expect(tok, RBRACE))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing '}'\n");
         cc_exit();
+    }
 
     symbol_pos();
     scope_exit();

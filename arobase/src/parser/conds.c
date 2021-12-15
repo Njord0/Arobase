@@ -55,26 +55,23 @@ stmt_parse_if_else(Token_t **token)
     if (has_left_par)
         tok = tok->next;
 
-    if (!token_expect(tok, LBRACE))
+    if (!token_check(tok, LBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '{' after condition\n");
         free_statement(stmt);
-        invalid_syntax_error(tok);
+        cc_exit();
     }
 
     tok = tok->next;
 
     stmt->if_block = get_scope(&tok, NULL);
 
-    if (!tok)
+    if (!tok || !token_check(tok, RBRACE))
     {
         fprintf(stderr, 
             "Missing '}'\n");
-        free_statement(stmt);
-        cc_exit();
-    }
-
-    if (!token_expect(tok, RBRACE))
-    {
         free_statement(stmt);
         cc_exit();
     }
@@ -86,8 +83,11 @@ stmt_parse_if_else(Token_t **token)
     {
         tok = tok->next;
 
-        if (!token_expect(tok, LBRACE))
+        if (!token_check(tok, LBRACE))
         {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Expected '{' after 'else' keyword\n");
             free_statement(stmt);
             cc_exit();
         }
@@ -96,8 +96,11 @@ stmt_parse_if_else(Token_t **token)
 
         stmt->else_block = get_scope(&tok, NULL);
 
-        if (!token_expect(tok, RBRACE))
+        if (!token_check(tok, RBRACE))
         {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Missing '}'\n");
             free_statement(stmt);
             cc_exit();
         }
@@ -141,7 +144,7 @@ stmt_parse_while_loop(Token_t **token)
     {
         show_error_source(tok);
         fprintf(stderr,
-            "Unmatched right-parenthesis\n");
+            "Missing ')'\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -149,8 +152,11 @@ stmt_parse_while_loop(Token_t **token)
     if (has_left_par)
         tok = tok->next;
 
-    if (!token_expect(tok, LBRACE))
+    if (!token_check(tok, LBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '{' after condition\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -166,8 +172,11 @@ stmt_parse_while_loop(Token_t **token)
     symbol_pos();
     scope_exit();
 
-    if (!token_expect(tok, RBRACE))
+    if (!token_check(tok, RBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing '}'\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -190,7 +199,6 @@ stmt_parse_for_loop(Token_t **token)
         show_error_source(tok);
         fprintf(stderr,
             "Missing left parenthesis before 'for' expression\n");
-
         free(stmt);
         cc_exit();
     }
@@ -257,8 +265,11 @@ stmt_parse_for_loop(Token_t **token)
 
     tok = tok->next;
 
-    if (!token_expect(tok, LBRACE))
+    if (!token_check(tok, LBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '{' after for loop initialisation\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -274,8 +285,11 @@ stmt_parse_for_loop(Token_t **token)
     symbol_pos();
     scope_exit();
 
-    if (!token_expect(tok, RBRACE))
+    if (!token_check(tok, RBRACE))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Missing '}'\n");
         free_statement(stmt);
         cc_exit();
     }

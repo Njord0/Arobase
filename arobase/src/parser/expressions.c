@@ -494,8 +494,11 @@ expr_create_cond(Token_t **token, enum Type t)
 
     else
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid expression\n");
         free_expression(expr);
-        invalid_syntax_error(tok);
+        cc_exit();
     }
 
     *token = tok;

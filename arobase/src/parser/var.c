@@ -21,8 +21,11 @@ stmt_parse_var_declaration(Token_t **token)
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
     stmt_init(stmt);
 
-    if (!token_expect(next_token, SYMBOL))
+    if (!token_check(next_token, SYMBOL))
     {
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Expected variable name\n");
         free(stmt);
         cc_exit();
     }
@@ -56,8 +59,11 @@ stmt_parse_var_declaration(Token_t **token)
 
     if (!token_checks(next_token, 2, ASSIGN, EOS))
     {
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Invalid syntax\n");
         free(stmt);
-        invalid_syntax_error(next_token);
+        cc_exit();
     }    
 
     stmt->stmt_type = STMT_DECLARATION;
