@@ -158,7 +158,13 @@ emit_expression(Expression_t *expr, enum Type t)
                     reg_name(expr->left->reg));
 
             else if (expr->left->type.t == _FLOAT)
-                break; // TO-DO
+                emit(
+                    "push rcx\n"
+                    "mov rcx, 0x8000000000000000\n"
+                    "vmovq xmm15, rcx\n"
+                    "pxor %s, xmm15\n"
+                    "pop rcx\n",
+                    xmm_reg_name(expr->left->reg)); // TO-DO
             else
                 emit("neg %s\n",
                     reg_name_l(expr->left->reg));

@@ -128,7 +128,7 @@ emit_func_call(Expression_t *expr)
     in_function_call = true;
 
     char tmp[7];
-    char tmp_xmm[8];
+    char tmp_xmm[7];
     memcpy(tmp, scratch_in_use, sizeof(scratch_in_use));
     memcpy(tmp_xmm, xmm_in_use, sizeof(xmm_in_use));
 
@@ -143,7 +143,7 @@ emit_func_call(Expression_t *expr)
         }
     }
 
-    for (unsigned int i = 0; i < 8; i++)
+    for (unsigned int i = 0; i < 7; i++)
     {
         if (xmm_in_use[i] == 1)
         {
@@ -187,7 +187,7 @@ emit_func_call(Expression_t *expr)
 
     emit("call %s\n", expr->sym_value->rname);
 
-    for (int i = 7; i >= 0; i--)
+    for (int i = 6; i >= 0; i--)
     {
         if (tmp_xmm[i] == 1)
         {

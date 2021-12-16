@@ -61,11 +61,10 @@ const char *xmm_regs[] = {
     "xmm12",
     "xmm13",
     "xmm14",
-    "xmm15"
 };
 
 char scratch_in_use[7] = {0, };
-char xmm_in_use[8] = {0, };
+char xmm_in_use[7] = {0, };
 char symbol_stack_pos[100] = {0};
 
 void

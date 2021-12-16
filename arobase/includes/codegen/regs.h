@@ -21,7 +21,7 @@ extern char scratch_in_use[7];
 
 extern const char *xmm_args_regs[];
 extern const char *xmm_regs[];
-extern char xmm_in_use[8];
+extern char xmm_in_use[7];
 
 
 #endif

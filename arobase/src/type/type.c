@@ -353,7 +353,7 @@ type_evaluate(Expression_t *expr, enum Type t)
 
         case EXPR_UNARY_MINUS:
             type.t = type_evaluate(expr->left, t).t;
-            if (type.t == STRING || type.t == _CHAR || type.t == _FLOAT || type.t == STRUCTURE)
+            if (type.t == STRING || type.t == _CHAR || type.t == STRUCTURE)
             {
                 show_error_source(expr->token);
                 fprintf(stderr,
@@ -423,7 +423,9 @@ type_of_first_symbol(Expression_t *expr)
     else if (r)
         return type_of_first_symbol(r);
 
-    
+    if (expr->expr_type == EXPR_UNARY_MINUS)
+        printf("here\n");
+
     Type_s type;
     type.t = expr->type.t;
     type.is_array = false;
@@ -443,6 +445,9 @@ type_set(Expression_t *expr, Type_s type)
 
     if (expr->right)
         type_set(expr->right, type);
+
+    if (expr->expr_type == EXPR_UNARY_MINUS)
+        expr->type = type;
 
     if (expr && !((expr->type.t == INTEGER && type.t == _FLOAT) || (expr->type.t == _FLOAT && type.t == INTEGER) || (expr->type.t == _BYTE && type.t == _FLOAT) || (expr->type.t == _FLOAT && type.t == _BYTE)))
         expr->type = type;
