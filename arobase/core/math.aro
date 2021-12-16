@@ -33,5 +33,4 @@ fn factorial(a: integer) : integer
     }
 
     return out;
-
 }
