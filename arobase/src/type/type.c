@@ -353,7 +353,7 @@ type_evaluate(Expression_t *expr, enum Type t)
 
         case EXPR_UNARY_MINUS:
             type.t = type_evaluate(expr->left, t).t;
-            if (type.t == STRING || type.t == _CHAR)
+            if (type.t == STRING || type.t == _CHAR || type.t == _FLOAT || type.t == STRUCTURE)
             {
                 show_error_source(expr->token);
                 fprintf(stderr,

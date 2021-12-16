@@ -88,7 +88,9 @@ stmt_parse_var_declaration(Token_t **token)
             {
                 show_error_source(next_token);
                 fprintf(stderr, 
-                    "Invalid type in array initialization\n");
+                    "Invalid type in array initialization: expected '%s', found '%s'\n",
+                    type_name(type.t),
+                    type_name(args->type.t));
                 cc_exit();
             }
             args = args->next;
