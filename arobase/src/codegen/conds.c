@@ -49,48 +49,43 @@ emit_if_else(Statement_t *statement)
     }
     else
     {
-        if (expr->cond_type == EXPR_CMP)
-            emit("je .LC%.5d\n", lbl_true);
-
-        else if (expr->cond_type == EXPR_DIFF)
-            emit("jne .LC%.5d\n", lbl_true);
-
-        else if (expr->cond_type == EXPR_LOWER)
+        switch (expr->cond_type)
         {
-            if (expr->left->type.t == INTEGER) // signed
-                emit("jl .LC%.5d\n", lbl_true);
-            else if (expr->left->type.t == _BYTE)
-                emit("jb .LC%.5d\n", lbl_true); // unsigned
-        }
+            case EXPR_CMP:
+                emit("je .LC%.5d\n", lbl_true);
+                break;
+            case EXPR_DIFF:
+                emit("jne .LC%.5d\n", lbl_true);
+                break;
+            case EXPR_LOWER:
+                if (expr->left->type.t == INTEGER) // signed
+                    emit("jl .LC%.5d\n", lbl_true);
+                else if (expr->left->type.t == _BYTE)
+                    emit("jb .LC%.5d\n", lbl_true); // unsigned
+                break;
+            case EXPR_GREATER:
+                if (expr->left->type.t == INTEGER)
+                    emit("jg .LC%.5d\n", lbl_true); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("ja .LC%.5d\n", lbl_true); // unsigned
+                break;
+            case EXPR_LOWER_EQ:
+                if (expr->left->type.t == INTEGER)
+                    emit("jle .LC%.5d\n", lbl_true);
+                else if (expr->left->type.t == _BYTE)
+                    emit("jbe .LC%.5d\n", lbl_true);
+                break;
+            case EXPR_GREATER_EQ:
+                if (expr->left->type.t == INTEGER)
+                    emit("jge .LC%.5d\n", lbl_true);
+                else if (expr->left->type.t == _BYTE)
+                    emit("jae .LC%.5d\n", lbl_true);
+                break;
+            default:
+                break; // never here
 
-        else if (expr->cond_type == EXPR_GREATER)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jg .LC%.5d\n", lbl_true); // signed
-
-            else if (expr->left->type.t == _BYTE)
-                emit("ja .LC%.5d\n", lbl_true); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_LOWER_EQ)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jle .LC%.5d\n", lbl_true);
-
-            else if (expr->left->type.t == _BYTE)
-                emit("jbe .LC%.5d\n", lbl_true);
-        }
-
-        else if (expr->cond_type == EXPR_GREATER_EQ)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jge .LC%.5d\n", lbl_true);
-
-            else if (expr->left->type.t == _BYTE)
-                emit("jae .LC%.5d\n", lbl_true);
         }
     }
-
     
     // else block...;
     Statement_t *stmt = statement->else_block;
@@ -164,47 +159,42 @@ emit_while(Statement_t *statement)
     }
     else
     {
-        if (expr->cond_type == EXPR_CMP)
-            emit("jne .LC%.5d\n", lbl_out);
-
-        else if (expr->cond_type == EXPR_DIFF)
-            emit("je .LC%.5d\n", lbl_out);
-
-        else if (expr->cond_type == EXPR_LOWER)
+        switch(expr->cond_type)
         {
-            if (expr->left->type.t == INTEGER)
-                emit("jge .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("jae .LC%.5d\n", lbl_out); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_GREATER)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jle .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("jbe .LC%.5d\n", lbl_out); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_LOWER_EQ)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jg .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("ja .LC%.5d\n", lbl_out); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_GREATER_EQ)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jl .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("jb .LC%.5d\n", lbl_out); // unsigned
+            case EXPR_CMP:
+                emit("jne .LC%.5d\n", lbl_out);
+                break;
+            case EXPR_DIFF:
+                emit("je .LC%.5d\n", lbl_out);
+                break;
+            case EXPR_LOWER:
+                if (expr->left->type.t == INTEGER)
+                    emit("jge .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("jae .LC%.5d\n", lbl_out); // unsigned
+                break;
+            case EXPR_GREATER:
+                if (expr->left->type.t == INTEGER)
+                    emit("jle .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("jbe .LC%.5d\n", lbl_out); // unsigned
+                break;
+            case EXPR_LOWER_EQ:
+                if (expr->left->type.t == INTEGER)
+                    emit("jg .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("ja .LC%.5d\n", lbl_out); // unsigned
+                break;
+            case EXPR_GREATER_EQ:
+                if (expr->left->type.t == INTEGER)
+                    emit("jl .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("jb .LC%.5d\n", lbl_out); // unsigned
+            default:
+                break; // never here
         }
     }
     
-
-
     Statement_t *stmt = statement->if_block;
     emit_statements(&stmt);
 
@@ -283,42 +273,39 @@ emit_for(Statement_t *statement)
     }
     else
     {
-        if (expr->cond_type == EXPR_CMP)
-            emit("jne .LC%.5d\n", lbl_out);
-
-        else if (expr->cond_type == EXPR_DIFF)
-            emit("je .LC%.5d\n", lbl_out);
-
-        else if (expr->cond_type == EXPR_LOWER)
+        switch(expr->cond_type)
         {
-            if (expr->left->type.t == INTEGER)
-                emit("jge .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("jae .LC%.5d\n", lbl_out); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_GREATER)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jle .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("jbe .LC%.5d\n", lbl_out); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_LOWER_EQ)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jg .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("ja .LC%.5d\n", lbl_out); // unsigned
-        }
-
-        else if (expr->cond_type == EXPR_GREATER_EQ)
-        {
-            if (expr->left->type.t == INTEGER)
-                emit("jl .LC%.5d\n", lbl_out); // signed
-            else if (expr->left->type.t == _BYTE)
-                emit("jb .LC%.5d\n", lbl_out); // unsigned
+            case EXPR_CMP:
+                emit("jne .LC%.5d\n", lbl_out);
+                break;
+            case EXPR_DIFF:
+                emit("je .LC%.5d\n", lbl_out);
+                break;
+            case EXPR_LOWER:
+                if (expr->left->type.t == INTEGER)
+                    emit("jge .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("jae .LC%.5d\n", lbl_out); // unsigned
+                break;
+            case EXPR_GREATER:
+                if (expr->left->type.t == INTEGER)
+                    emit("jle .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("jbe .LC%.5d\n", lbl_out); // unsigned
+                break;
+            case EXPR_LOWER_EQ:
+                if (expr->left->type.t == INTEGER)
+                    emit("jg .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("ja .LC%.5d\n", lbl_out); // unsigned
+                break;
+            case EXPR_GREATER_EQ:
+                if (expr->left->type.t == INTEGER)
+                    emit("jl .LC%.5d\n", lbl_out); // signed
+                else if (expr->left->type.t == _BYTE)
+                    emit("jb .LC%.5d\n", lbl_out); // unsigned
+            default:
+                break; // never here
         }
     }
 
@@ -361,7 +348,7 @@ emit_compare(Expression_t *expr)
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
 
-    else if (expr->type.t == _CHAR)
+    else if (expr->left->type.t == _CHAR)
         emit("cmp %s, %s\n",
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
