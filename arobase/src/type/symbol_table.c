@@ -185,6 +185,9 @@ add_symbol(Symtable_t *symtab, Declaration_t *decl)
                     st->rname = realloc(st->rname, strlen(st->rname)+6);
                     strcat(st->rname, "Zbyte");
                     break;
+                case _BOOL:
+                    st->rname = realloc(st->rname, strlen(st->rname)+6);
+                    strcat(st->rname, "Zbool");
                 case STRUCTURE:
                     st->rname = realloc(st->rname, strlen(st->rname)+strlen(args->type.ptr)+5);
                     strcat(st->rname, "Zstr");
@@ -522,6 +525,9 @@ import_from(const char *str)
 
         else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
             decl->type.t = _CHAR;
+
+        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BOOL]) == 0)
+            decl->type.t = _BOOL;
         
         else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
         {

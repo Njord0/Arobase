@@ -42,7 +42,6 @@ expr_create(Token_t **token, enum Type t)
     }
 
     *token = tok;
-
     expr = expr_fold(expr);
 
     type_evaluate(expr, t);
@@ -326,8 +325,26 @@ expr_(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
+    static bool is_cond = false;
+
     Expression_t *node = expr_term(&tok, t);
     Expression_t *tmp;
+
+    if (token_checks(tok, 6, CMP, DIFF, OP_LOWER, OP_LOWER_EQ, OP_GREATER, OP_GREATER_EQ))
+    {
+        if (is_cond)
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Invalid syntax here\n");
+            cc_exit();
+        }
+        is_cond = true;
+        tmp = expr_create_cond_left(&tok, node, t);
+        is_cond = false;
+        *token = tok;
+        return tmp;
+    }
 
     while (token_checks(tok, 2, PLUS, MINUS))
     {
@@ -339,6 +356,7 @@ expr_(Token_t **token, enum Type t)
             expr->expr_type = EXPR_PLUS;
         else
             expr->expr_type = EXPR_MINUS;
+        
 
         expr->token = tok;
         expr->type.t = t;
@@ -436,67 +454,12 @@ expr_create_cond(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
-    Expression_t *expr = xmalloc(sizeof(Expression_t));
-
-    expr_init(expr);
-
-    expr->expr_type = EXPR_COND;
-    expr->left = expr_create(&tok, t);
-
-    expr->token = tok;
-
-    Type_s type = type_of_first_symbol(expr->left);
-
-    if (token_checks(tok, 6, CMP, OP_LOWER, OP_GREATER, DIFF, OP_GREATER_EQ, OP_LOWER_EQ))
-    {
-
-        if (tok->type == CMP) 
-            expr->cond_type = EXPR_CMP;
-        else if (tok->type == OP_GREATER) 
-            expr->cond_type = EXPR_GREATER;
-        else if (tok->type == OP_LOWER) 
-            expr->cond_type = EXPR_LOWER;
-        else if (tok->type == DIFF) 
-            expr->cond_type = EXPR_DIFF;
-        else if (tok->type == OP_GREATER_EQ) 
-            expr->cond_type = EXPR_GREATER_EQ;
-        else if (tok->type == OP_LOWER_EQ)
-            expr->cond_type = EXPR_LOWER_EQ;
-
-        tok = tok->next;
-        expr->right = expr_create(&tok, type.t);
-
-        type_set(expr, type);
-
-        if ((type_evaluate(expr->left, type.t).t != type_evaluate(expr->right, type.t).t))
-        {
-            show_error_source(tok);
-            fprintf(stderr, 
-                "Invalid comparison between '%s' and '%s'\n",
-                type_name(type_evaluate(expr->left, type.t).t),
-                type_name(type_evaluate(expr->right, type.t).t));
-            free_expression(expr);
-            cc_exit();
-        }
-
-        if (type_evaluate(expr->left, type.t).is_array && ((expr->left->expr_type != EXPR_ARRAYA) || (expr->left->expr_type != EXPR_ARRAYA)))
-        {
-            show_error_source(tok);
-            fprintf(stderr, 
-                "Invalid comparison between '%s' and '%s'\n",
-                type_name(type_evaluate(expr->left, type.t).t),
-                type_name(type_evaluate(expr->right, type.t).t));
-            free_expression(expr);
-            cc_exit();
-        }
-
-    }
-
-    else
+    Expression_t *expr = expr_create(&tok, t);
+    if (type_evaluate(expr, t).t != _BOOL)
     {
         show_error_source(tok);
         fprintf(stderr,
-            "Invalid expression\n");
+            "A boolean was expected in condition\n");
         free_expression(expr);
         cc_exit();
     }
@@ -506,8 +469,71 @@ expr_create_cond(Token_t **token, enum Type t)
 }
 
 Expression_t*
+expr_create_cond_left(Token_t **token, Expression_t *left, enum Type t)
+{
+    Token_t *tok = *token;
+
+    Expression_t *expr = xmalloc(sizeof(Expression_t));
+
+    expr_init(expr);
+
+    expr->expr_type = EXPR_COND;
+
+    expr->left = left;
+
+    Type_s type = type_of_first_symbol(expr->left);
+
+    if (tok->type == CMP) 
+        expr->cond_type = EXPR_CMP;
+    else if (tok->type == OP_GREATER) 
+        expr->cond_type = EXPR_GREATER;
+    else if (tok->type == OP_LOWER) 
+        expr->cond_type = EXPR_LOWER;
+    else if (tok->type == DIFF) 
+        expr->cond_type = EXPR_DIFF;
+    else if (tok->type == OP_GREATER_EQ) 
+        expr->cond_type = EXPR_GREATER_EQ;
+    else if (tok->type == OP_LOWER_EQ)
+        expr->cond_type = EXPR_LOWER_EQ;
+
+    tok = tok->next;
+    expr->right = expr_create(&tok, type.t);
+
+    type_set(expr, type);
+
+    if ((type_evaluate(expr->left, type.t).t != type_evaluate(expr->right, type.t).t))
+    {
+        show_error_source(tok);
+        fprintf(stderr, 
+            "Invalid comparison between '%s' and '%s'\n",
+            type_name(type_evaluate(expr->left, type.t).t),
+            type_name(type_evaluate(expr->right, type.t).t));
+        free_expression(expr);
+        cc_exit();
+    }
+
+    if (type_evaluate(expr->left, type.t).is_array && ((expr->left->expr_type != EXPR_ARRAYA) || (expr->left->expr_type != EXPR_ARRAYA)))
+    {
+        show_error_source(tok);
+        fprintf(stderr, 
+            "Invalid comparison between '%s' and '%s'\n",
+            type_name(type_evaluate(expr->left, type.t).t),
+            type_name(type_evaluate(expr->right, type.t).t));
+        free_expression(expr);
+        cc_exit();
+    }
+
+
+    *token = tok;
+    return expr;
+}
+
+Expression_t*
 expr_fold(Expression_t *expr)
 {
+    if (expr->expr_type == EXPR_COND)
+        return expr;
+
     if (expr->left)
         expr->left = expr_fold(expr->left);
 
@@ -603,7 +629,7 @@ expr_init(Expression_t *expr)
 bool
 is_type_allowed(Type_s type)
 {
-    return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE) && (type.t != _FLOAT);
+    return (type.t != INTEGER) && (type.t != _BYTE) && (type.t != _CHAR) && (type.t != STRING) && (type.t != STRUCTURE) && (type.t != _FLOAT) && (type.t != _BOOL);
 }
 
 void

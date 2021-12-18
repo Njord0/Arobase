@@ -7,7 +7,6 @@
 #include <type.h>
 
 enum expression {
-
     EXPR_PLUS,
     EXPR_MINUS,
     EXPR_DIV,
@@ -63,6 +62,8 @@ Expression_t *expr_term(Token_t **token, enum Type t);
 Expression_t *expr_(Token_t **token, enum Type t);
 
 Expression_t *expr_create_cond(Token_t **token, enum Type t);
+Expression_t *expr_create_cond_left(Token_t **token, Expression_t *left, enum Type t);
+
 
 Expression_t *expr_fold(Expression_t *expr);
 void expr_init(Expression_t *expr);

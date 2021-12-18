@@ -239,6 +239,9 @@ check_function_return_value(Token_t *token, Declaration_t *decl)
     else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
         decl->type.t = _CHAR;
     
+    else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_BOOL]) == 0)
+        decl->type.t = _BOOL;
+    
     else if (strcmp(token->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
     {
         show_error_source(token);

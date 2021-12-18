@@ -72,6 +72,11 @@ get_type(Token_t **token)
     {
         type.t = _FLOAT;
     }
+
+    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BOOL]) == 0)
+    {
+        type.t = _BOOL;
+    }
     
     else
     {
@@ -187,6 +192,11 @@ get_type_decl(Token_t **token)
     else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FLOAT]) == 0)
     {
         type.t = _FLOAT;
+    }
+
+    else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BOOL]) == 0)
+    {
+        type.t = _BOOL;
     }
     
     else
@@ -366,6 +376,9 @@ type_evaluate(Expression_t *expr, enum Type t)
         case EXPR_STRUCTA:
             type.t = expr->type.t;
             break;
+        case EXPR_COND:
+            type.t = _BOOL;
+            break;            
 
         default:
             fprintf(stderr, "Type checking error...\n");
@@ -445,6 +458,9 @@ type_set(Expression_t *expr, Type_s type)
 
     if (expr->right)
         type_set(expr->right, type);
+
+    if (expr->expr_type == EXPR_COND)
+        return;
 
     if (expr->expr_type == EXPR_UNARY_MINUS)
         expr->type = type;
