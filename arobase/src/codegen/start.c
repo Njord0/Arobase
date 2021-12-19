@@ -190,7 +190,7 @@ load_to_reg(Expression_t *expr)
         if (expr->sym_value->type == ARG) // If structure is an argument, load it. 
             emit("mov rcx, [rcx]\n");
         
-        if (expr->type.t == INTEGER)
+        if (expr->type.t == INTEGER || expr->type.t == _BOOL)
             emit("movq %s, [rcx-%u*8]\n", 
                 reg_name(expr->reg), 
                 pos);
@@ -228,7 +228,7 @@ load_to_reg(Expression_t *expr)
 
         else
         {
-            if (expr->sym_value->_type.t == INTEGER)
+            if (expr->sym_value->_type.t == INTEGER || expr->sym_value->_type.t == _BOOL)
                 emit("movq %s, [%s]\n", 
                     reg_name(expr->reg), 
                     symbol_s(expr->sym_value));
@@ -247,7 +247,6 @@ load_to_reg(Expression_t *expr)
                 emit("mov %s, [%s]\n",
                     reg_name_l(expr->reg),
                     symbol_s(expr->sym_value));
-
             else if (expr->sym_value->_type.t == STRING)
                 emit("mov %s, [%s]\n",
                     reg_name(expr->reg),
@@ -286,6 +285,7 @@ load_to_reg(Expression_t *expr)
 
         switch (expr->sym_value->_type.t)
         {
+            case _BOOL:
             case INTEGER:
                 emit("movq %s, rax\n",
                     reg_name(expr->reg));
@@ -332,7 +332,7 @@ load_to_reg(Expression_t *expr)
 void
 store_to_stack(Expression_t *expr, Symbol_t *sym)
 {
-    if (sym->_type.t == INTEGER)
+    if (sym->_type.t == INTEGER || sym->_type.t == _BOOL)
         emit("movq [%s], %s\n",
             symbol_s(sym),
             reg_name(expr->reg));

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <codegen/conds.h>
 #include <codegen/start.h>
 #include <codegen/vars.h>
 #include <codegen/functions.h>
@@ -171,6 +172,55 @@ emit_expression(Expression_t *expr, enum Type t)
 
             expr->reg = expr->left->reg;
             break;
+        
+        case EXPR_COND: // boolean
+            if (!expr->right)
+            {
+                alloc_reg(expr);
+                load_to_reg(expr);
+                emit("and %s, 1\n",
+                    reg_name(expr->left->reg));
+            }
+            else
+            {
+                int lbl_in = new_label();
+                int lbl_out = new_label();
+
+                emit_compare(expr);
+                
+                switch (expr->cond_type)
+                {
+                    case EXPR_CMP:
+                        emit("je .LC%.5d\n", lbl_in);
+                        break;
+                    case EXPR_DIFF:
+                        emit("jne .LC%.5d\n", lbl_in);
+                        break;
+                    case EXPR_LOWER:
+                        emit("jb .LC%.5d\n", lbl_in); // unsigned
+                        break;
+                    case EXPR_GREATER:
+                        emit("ja .LC%.5d\n", lbl_in); // unsigned
+                        break;
+                    case EXPR_LOWER_EQ:
+                        emit("jbe .LC%.5d\n", lbl_in);
+                        break;
+                    case EXPR_GREATER_EQ:
+                        emit("jae .LC%.5d\n", lbl_in);
+                        break;
+                    default:
+                        break; // never here
+                }
+
+                alloc_reg(expr);
+                emit("mov %s, 0\n", reg_name(expr->reg));
+                emit("jmp .LC%.5d\n", lbl_out);
+                emit(".LC%.5d:\n", lbl_in);
+                emit("mov %s, 1\n", reg_name(expr->reg));
+                emit(".LC%.5d:\n", lbl_out);
+
+            }
+            break;
 
         default:
             printf("Un-handled error !!\n");
@@ -244,7 +294,7 @@ emit_var_declaration(Statement_t *statement)
 
         else if (statement->decl->expr->expr_type == EXPR_SYMBOL)
         {
-            if (statement->decl->sym->_type.t == INTEGER)
+            if (statement->decl->sym->_type.t == INTEGER || statement->decl->sym->_type.t == _BOOL)
             {
                 alloc_reg(statement->decl->expr);
                 emit("movq %s, [%s]\n", 

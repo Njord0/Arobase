@@ -188,6 +188,7 @@ add_symbol(Symtable_t *symtab, Declaration_t *decl)
                 case _BOOL:
                     st->rname = realloc(st->rname, strlen(st->rname)+6);
                     strcat(st->rname, "Zbool");
+                    break;
                 case STRUCTURE:
                     st->rname = realloc(st->rname, strlen(st->rname)+strlen(args->type.ptr)+5);
                     strcat(st->rname, "Zstr");

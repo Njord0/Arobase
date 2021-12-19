@@ -452,6 +452,12 @@ type_set(Expression_t *expr, Type_s type)
 {
     if (!expr)
         return;
+        
+    if (type.t == _BOOL)
+    {
+        expr->type = type;
+        return;
+    }
 
     if (expr->left)
         type_set(expr->left, type);
@@ -459,8 +465,6 @@ type_set(Expression_t *expr, Type_s type)
     if (expr->right)
         type_set(expr->right, type);
 
-    if (expr->expr_type == EXPR_COND)
-        return;
 
     if (expr->expr_type == EXPR_UNARY_MINUS)
         expr->type = type;

@@ -17,19 +17,15 @@ expr_create(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
-    Expression_t *expr = xmalloc(sizeof(Expression_t));
-
-    expr_init(expr);
+    Expression_t *expr;
 
     if (token_checks(tok, 7, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS, TOK_STRING, TOK_CHAR))
     {
-        free(expr);
         expr = expr_(&tok, t);
     }
 
     else if (tok->type == EOS)
     {
-        free(expr);
         return NULL;
     }
 
@@ -40,7 +36,7 @@ expr_create(Token_t **token, enum Type t)
             "Invalid expression\n");
         cc_exit();
     }
-
+    
     *token = tok;
     expr = expr_fold(expr);
 
@@ -76,7 +72,7 @@ expr_factor(Token_t **token, enum Type t)
         expr->int_value = tok->value.i;
         expr->type.t = t;
 
-        if (t == _VOID)
+        if (t == _VOID || t == _BOOL)
             expr->type.t = INTEGER;
 
         tok = tok->next;
@@ -444,7 +440,6 @@ expr_create_funccall(Token_t **token, char *name)
 
     expr->sym_value = sym;
     expr->type = sym->_type;
-
     *token = next_token;
     return expr;
 }

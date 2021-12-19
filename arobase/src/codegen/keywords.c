@@ -24,7 +24,13 @@ emit_print(Statement_t *stmt)
             emit("movq rdi, %s\n",
                 reg_name(args->expr->reg));
             emit("call print_integer\n");
+        }
 
+        else if (args->expr->type.t == _BOOL)
+        {
+            emit("movq rdi, %s\n",
+                reg_name(args->expr->reg));
+            emit("call print_bool\n");
         }
 
         else if (args->expr->type.t == _FLOAT)
@@ -102,14 +108,14 @@ emit_assert(Statement_t *stmt)
 
     emit_compare(expr);
 
-
-    free_reg(expr->left);
-    free_reg(expr->right);
-
     int lbl_false = new_label();
     int lbl_done = new_label();
 
-    if (expr->left->type.t == _FLOAT)
+    if (expr->type.t == _BOOL)
+    {
+        emit("jne .LC%.5d\n", lbl_false);
+    }
+    else if (expr->left->type.t == _FLOAT)
     {
         switch(expr->cond_type)
         {

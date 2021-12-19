@@ -163,8 +163,13 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
 
     tok = tok->next;
 
-    if (!token_expect(tok, COLON))
+    if (!token_check(tok, COLON))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected function return value\n");
         cc_exit();
+    }
         
     tok = tok->next;
 

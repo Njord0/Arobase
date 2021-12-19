@@ -15,13 +15,14 @@ emit_if_else(Statement_t *statement)
 
     emit_compare(expr); // compare the results of left and right expression
 
-    free_reg(expr->left);
-    free_reg(expr->right);
-
     int lbl_true = new_label();
     int lbl_done = new_label();
-
-    if (expr->left->type.t == _FLOAT) // emit comparison for float
+    
+    if (expr->type.t == _BOOL)
+    {
+        emit("je .LC%.5d\n", lbl_true);
+    }
+    else if (expr->left->type.t == _FLOAT) // emit comparison for float
     {
         switch(expr->cond_type)
         {
@@ -119,8 +120,6 @@ emit_while(Statement_t *statement)
     Expression_t *expr = statement->expr;
     emit_compare(expr);
 
-    free_reg(expr->left);
-    free_reg(expr->right);
     /* Here we generate the reverse condition
        because while loop layout is as:
         expr
@@ -131,7 +130,11 @@ emit_while(Statement_t *statement)
         .LC000y: #outside loop block
         ...
     */
-    if (expr->left->type.t == _FLOAT)
+    if (expr->type.t == _BOOL)
+    {
+        emit("jne .LC%.5d\n", lbl_out);
+    }
+    else if (expr->left->type.t == _FLOAT)
     {
         switch(expr->cond_type)
         {
@@ -232,8 +235,6 @@ emit_for(Statement_t *statement)
     
     emit_compare(expr);
 
-    free_reg(expr->left);
-    free_reg(expr->right);
     /* Here we generate the reverse condition
        because while loop layout is as:
         expr
@@ -244,8 +245,11 @@ emit_for(Statement_t *statement)
         .LC000y: #outside loop block
         ...
     */
-
-    if (expr->left->type.t == _FLOAT)
+    if (expr->type.t == _BOOL)
+    {
+        emit("jne .LC%.5d\n", lbl_out);
+    }
+    else if (expr->left->type.t == _FLOAT)
     {
         switch(expr->cond_type)
         {
@@ -328,6 +332,16 @@ emit_for(Statement_t *statement)
 void
 emit_compare(Expression_t *expr)
 {
+    if (expr->type.t == _BOOL && !expr->right)
+    {
+        alloc_reg(expr);
+        load_to_reg(expr);
+        emit("cmp %s, 1\n",
+            reg_name(expr->reg));
+        free_reg(expr);
+        return;
+    }
+
     emit_expression(expr->left, expr->left->type.t);
 
     if (expr->right != NULL)
@@ -352,6 +366,9 @@ emit_compare(Expression_t *expr)
         emit("cmp %s, %s\n",
             reg_name_l(expr->left->reg),
             reg_name_l(expr->right->reg));
+
+    free_reg(expr->left);
+    free_reg(expr->right);
 }
 
 void
