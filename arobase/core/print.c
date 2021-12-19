@@ -12,6 +12,15 @@ print_integer(int64_t integer)
 }
 
 void
+print_bool(int64_t integer)
+{
+    if (integer == 0)
+        printf("false");
+    else
+        printf("true");
+}
+
+void
 print_char(char c)
 {
     printf("%c", c);
