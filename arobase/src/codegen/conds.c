@@ -334,8 +334,7 @@ emit_compare(Expression_t *expr)
 {
     if (expr->type.t == _BOOL && !expr->right)
     {
-        alloc_reg(expr);
-        load_to_reg(expr);
+        emit_expression(expr, expr->type.t);
         emit("cmp %s, 1\n",
             reg_name(expr->reg));
         free_reg(expr);

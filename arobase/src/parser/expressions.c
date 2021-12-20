@@ -408,6 +408,8 @@ expr_create_funccall(Token_t **token, char *name)
             cc_exit();
         }
         expr->sym_value = sym;
+        expr->type = sym->_type;
+        
         next_token = next_token->next;
         *token = next_token;
         return expr;
@@ -440,6 +442,7 @@ expr_create_funccall(Token_t **token, char *name)
 
     expr->sym_value = sym;
     expr->type = sym->_type;
+
     *token = next_token;
     return expr;
 }
