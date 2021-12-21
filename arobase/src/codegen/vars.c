@@ -426,7 +426,7 @@ emit_array_initialization(Args_t *args, Symbol_t *sym)
     {
         emit_expression(args->expr, args->type.t);
 
-        if (args->type.t == INTEGER)
+        if (args->type.t == INTEGER || args->type.t == _BOOL)
             emit("movq [%s+8*%u], %s\n",
                 symbol_s(sym),
                 count+1,
@@ -470,32 +470,38 @@ emit_structure_initialization(Args_t *args, Symbol_t *sym)
         emit("lea rcx, [%s]\n",
             symbol_s(sym));
 
-        if (args->expr->type.t == INTEGER)
-            emit("movq [rcx-%u*8], %s\n",
-                pos,
-                reg_name(args->expr->reg));
-
-        else if (args->expr->type.t == _FLOAT)
-            emit("movq [rcx-%u*8], %s\n",
-                pos,
-                xmm_reg_name(args->expr->reg));
-
-        else if (args->expr->type.t == _BYTE)
-            emit("mov [rcx-%u*8], %s\n",
-                pos,
-                reg_name_l(args->expr->reg));
-
-        else if (args->expr->type.t == _CHAR)
-            emit("mov [rcx-%u*8], %s\n",
-                pos,
-                reg_name_l(args->expr->reg));
-
-        else if (args->expr->type.t == STRING)
-            emit("mov [rcx-%u*8], %s\n",
-            pos,
-            reg_name(args->expr->reg));
-        
-
+        switch(args->expr->type.t)
+        {
+            case INTEGER:
+            case _BOOL:
+                emit("movq [rcx-%u*8], %s\n",
+                    pos,
+                    reg_name(args->expr->reg));
+                break;
+            
+            case _FLOAT:
+                emit("movq [rcx-%u*8], %s\n",
+                    pos,
+                    xmm_reg_name(args->expr->reg));
+                break;
+            
+            case _BYTE:
+            case _CHAR:
+                emit("mov [rcx-%u*8], %s\n",
+                    pos,
+                    reg_name_l(args->expr->reg));
+                break;
+            
+            case STRING:
+                emit("mov [rcx-%u*8], %s\n",
+                    pos,
+                    reg_name(args->expr->reg));
+                break;
+            default:
+                break; // never here
+        }
+            
+    
         free_reg(args->expr);
         args = args->next;
         args_decl = args_decl->next;

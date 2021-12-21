@@ -360,7 +360,6 @@ store_to_stack(Expression_t *expr, Symbol_t *sym)
     else if (sym->_type.t == STRUCTURE)
     {
         Statement_t *str = get_struct_by_name(sym->_type.ptr);
-
         unsigned int pos;
         if (expr->args)
             pos = struct_member_pos(str, expr->args->name);
@@ -373,7 +372,7 @@ store_to_stack(Expression_t *expr, Symbol_t *sym)
         if (sym->type == ARG) // If structure is an argument, load it. 
             emit("mov rcx, [rcx]\n");    
 
-        if (expr->type.t == INTEGER)
+        if (expr->type.t == INTEGER || expr->type.t == _BOOL)
             emit("movq [rcx-%u*8], %s\n", 
                 pos,
                 reg_name(expr->reg));
