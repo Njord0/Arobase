@@ -63,7 +63,7 @@ make_command(char *args[], int argc)
     for (int i = 0; i < argc; i++)
         size += strlen(args[i]);
 
-    char *ptr  = xmalloc(10000);
+    char *ptr  = xmalloc(4+size+argc);
     
     ptr[0] = '\x00';
     strcat(ptr, "as ");
