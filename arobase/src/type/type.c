@@ -420,7 +420,9 @@ type_check(Expression_t *expr)
             if ((expr->int_value < 0) || (expr->int_value > 255))
             {
                 fprintf(stderr, 
-                    "Warning : \n\tByte value must be in range 0-255.\n\tConverting '%ld 'to '%ld'\n",
+                    "%sWarning%s: \n\tByte value must be in range 0-255.\n\tConverting '%ld 'to '%ld'\n",
+                    C_YEL,
+                    C_NRM,
                     expr->int_value,
                     expr->int_value & 255);
 

@@ -40,7 +40,9 @@ stmt_parse_func_declaration(Token_t **token)
 
     if (stmt->decl && !stmt->decl->code)
         fprintf(stderr, 
-            "WARNING: empty function body for function '%s'\n", 
+            "%sWarning%s: empty function body for function '%s'\n",
+            C_YEL,
+            C_NRM, 
             name);
 
     *token = next_token;

@@ -147,7 +147,9 @@ expr_factor(Token_t **token, enum Type t)
             if (sym->decl && !sym->decl->is_initialised)
             {
                 fprintf(stderr,
-                    "Warning : \n\tUse of uninitialised variable '%s'\n",
+                    "%sWarning%s: \n\tUse of uninitialised variable '%s'\n",
+                    C_YEL,
+                    C_NRM,
                     sym->name);
             }
             expr->string_value = tok->value.p;

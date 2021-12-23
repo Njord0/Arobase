@@ -18,4 +18,8 @@ void cc_exit();
 
 extern Statement_t *current_function;
 
+#define C_NRM   "\x1B[0m"
+#define C_RED   "\x1B[31m"
+#define C_YEL   "\x1B[33m"
+
 #endif

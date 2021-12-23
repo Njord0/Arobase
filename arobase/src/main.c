@@ -7,6 +7,7 @@
 #include <tokens.h>
 #include <codegen/start.h>
 #include <options/options.h>
+#include <errors/error.h>
 #include <struct.h>
 #include <statements.h>
 #include <symbol_table.h>
@@ -31,7 +32,9 @@ int main(int argc, char **argv)
     if (!option_g->output_file)
     {
         fprintf(stderr,
-            "Warning: \n\tNo output file specified, default is 'out'.\n");
+            "%sWarning%s: \n\tNo output file specified, default is 'out'.\n",
+            C_YEL,
+            C_NRM);
         option_g->output_file = "out";
     }
 

@@ -39,7 +39,9 @@ show_error_source(Token_t *token)
     unsigned int line = token ? token->lineno : 0;
 
     fprintf(stderr,
-        "Error : File '%s', line %u\n%s\n\n\t",
+        "%sError%s: File '%s', line %u\n%s\n\n\t",
+        C_RED,
+        C_NRM,
         lexer_g->filename,
         line,
         ptr);
