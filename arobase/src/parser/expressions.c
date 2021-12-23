@@ -24,6 +24,35 @@ expr_create(Token_t **token, enum Type t)
         expr = expr_(&tok, t);
     }
 
+    else if (token_check(tok, KEYWORD))
+    {
+        if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_TRUE]) == 0)
+        {
+            expr = xmalloc(sizeof(Expression_t));
+            expr_init(expr);
+            expr->expr_type = EXPR_BOOL;
+            expr->int_value = 1; // true
+            expr->type.t = _BOOL;
+        }
+        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FALSE]) == 0)
+        {
+            expr = xmalloc(sizeof(Expression_t));
+            expr_init(expr);
+            expr->expr_type = EXPR_BOOL;
+            expr->int_value = 0; // false
+            expr->type.t = _BOOL;
+        }
+        else
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Invalid expression\n");
+            cc_exit();
+        }
+
+        tok = tok->next;
+    }
+
     else if (tok->type == EOS)
     {
         return NULL;

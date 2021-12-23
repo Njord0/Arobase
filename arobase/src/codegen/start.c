@@ -173,6 +173,13 @@ load_to_reg(Expression_t *expr)
              xmm_reg_name(expr->reg), lbl);
     }
 
+    else if (expr && expr->expr_type == EXPR_BOOL)
+    {
+        emit("movq %s, %ld\n",
+            reg_name(expr->reg),
+            expr->int_value);
+    }
+
     else if (expr->expr_type == EXPR_STRUCTA)
     {
         Statement_t *str = get_struct_by_name(expr->sym_value->_type.ptr);

@@ -84,10 +84,12 @@ void free_try_except(Statement_t *stmt);
 #define KW_EXCEPT   20
 #define KW_RAISE    21
 #define KW_FLOAT    22
+#define KW_TRUE     23
+#define KW_FALSE    24
 
-#define KW_NO       23
+#define KW_NO       25
 
-extern const char *Arobase_ReservedKeywords[23];
+extern const char *Arobase_ReservedKeywords[25];
 
 unsigned int find_keyword(const char *ptr);
 bool is_reserved(const char *str);

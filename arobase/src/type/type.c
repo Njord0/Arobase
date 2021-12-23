@@ -391,6 +391,8 @@ type_evaluate(Expression_t *expr, enum Type t)
         case EXPR_STRUCTA:
             type.t = expr->type.t;
             break;
+            
+        case EXPR_BOOL:
         case EXPR_COND:
             type.t = _BOOL;
             break;            

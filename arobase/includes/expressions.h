@@ -14,6 +14,7 @@ enum expression {
 
     EXPR_INTEGER,
     EXPR_FLOAT,
+    EXPR_BOOL,
     EXPR_STRING_LITTERAL,
     EXPR_CHAR,
     EXPR_FUNCCALL,

@@ -38,7 +38,9 @@ const char *Arobase_ReservedKeywords[] = {
     "try",
     "except",
     "raise",
-    "float"
+    "float",
+    "true",
+    "false"
 };
 
 

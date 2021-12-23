@@ -18,6 +18,7 @@ emit_expression(Expression_t *expr, enum Type t)
 
     switch (expr->expr_type)
     {
+        case EXPR_BOOL:
         case EXPR_FLOAT:
         case EXPR_CHAR:
         case EXPR_INTEGER:
