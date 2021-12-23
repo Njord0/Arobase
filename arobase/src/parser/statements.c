@@ -203,7 +203,7 @@ stmt_parse_input(Token_t **token)
         cc_exit();
     }
 
-    if ((sym->_type.is_array) || (sym->_type.t == STRING) || sym->_type.is_structure)
+    if ((sym->_type.is_array) || (sym->_type.t == STRING) || sym->_type.is_structure || sym->_type.t == _BOOL)
     {
         show_error_source(tok);
         fprintf(stderr,

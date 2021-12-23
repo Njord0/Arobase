@@ -392,7 +392,11 @@ emit_var_assign(Statement_t *statement)
             emit("call array_set_element_f\n");  
         }
         else
+        {
+            emit("movq rdx, %s\n",
+                reg_name(statement->expr->reg));
             emit("call array_set_element\n");
+        }
 
         free_reg(statement->expr);
         free_reg(statement->access);
