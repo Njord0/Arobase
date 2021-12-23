@@ -96,3 +96,9 @@ _internal_get_sizeZfloatArr(double arr[])
 {
     return *(int64_t*)arr;
 }
+
+int64_t
+_internal_get_sizeZboolArr(int64_t arr[])
+{
+    return arr[0];
+}

@@ -21,6 +21,11 @@ fn size(a: float[]) : integer
     return _internal_get_size(a);
 }
 
+fn size(a: bool[]) : integer
+{
+    return _internal_get_size(a);
+}
+
 fn sort(a: integer[]) : void
 {
     let i: integer = 0;
