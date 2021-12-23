@@ -206,7 +206,8 @@ stmt_parse_for_loop(Token_t **token)
     tok = tok->next;
 
     stmt->stmt_type = STMT_FOR;
-
+    
+    scope_enter();
     Statement_t *stmtt = get_next_statement(&tok);
 
     if ((stmtt->stmt_type != STMT_DECLARATION) && (stmtt->stmt_type != STMT_ASSIGN))
@@ -216,16 +217,6 @@ stmt_parse_for_loop(Token_t **token)
         show_error_source(tok);
         fprintf(stderr, 
             "Variable declaration or assignement was expected here\n");
-        cc_exit();
-    }
-
-    if ((stmtt->stmt_type == STMT_DECLARATION) && (stmtt->decl->type.t != INTEGER))
-    {
-        free_statement(stmtt);
-        free(stmt);
-        show_error_source(tok);
-        fprintf(stderr,
-            "Only integer can be declared inside for loop initialization\n");
         cc_exit();
     }
 
@@ -280,7 +271,6 @@ stmt_parse_for_loop(Token_t **token)
     tok = tok->next;
 
     loop_count++;
-    scope_enter();
 
     stmt->if_block = get_scope(&tok, NULL);
 
