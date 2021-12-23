@@ -188,8 +188,14 @@ stmt_parse_input(Token_t **token)
 
     tok = tok->next;
 
-    if (!(token_expect(tok, SYMBOL)))
+    if (!(token_check(tok, SYMBOL)))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "A symbol was expected here\n");
+        free(stmt);
         cc_exit();
+    }
 
     Symbol_t *sym = NULL;
 
@@ -220,8 +226,14 @@ stmt_parse_input(Token_t **token)
 
     tok = tok->next;
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
+        free_statement(stmt);
         cc_exit();        
+    }
 
     *token = tok;
     return stmt;
@@ -238,8 +250,14 @@ stmt_parse_import(Token_t **token)
 
     tok = tok->next;
 
-    if (!token_expect(tok, SYMBOL))
+    if (!token_check(tok, SYMBOL))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid import name\n");
+        free(stmt);
         cc_exit();
+    }
 
     stmt->import_name = xmalloc(strlen(tok->value.p)+1);
     strcpy(stmt->import_name, tok->value.p);
@@ -249,8 +267,14 @@ stmt_parse_import(Token_t **token)
     while (token_check(tok, DOT))
     {
         tok = tok->next;
-        if (!token_expect(tok, SYMBOL))
+        if (!token_check(tok, SYMBOL))
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Invalid import name\n");
+            free(stmt);
             cc_exit();
+        }
 
         stmt->import_name = xrealloc(stmt->import_name, strlen(stmt->import_name)+1+strlen(tok->value.p)+1);
 
@@ -264,8 +288,14 @@ stmt_parse_import(Token_t **token)
 
     strcat(stmt->import_name, ".aroh"); // arobase header file
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
+    {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
+        free_statement(stmt);
         cc_exit();
+    }
 
     import_from(stmt->import_name);
 

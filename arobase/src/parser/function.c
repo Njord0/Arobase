@@ -22,8 +22,11 @@ stmt_parse_func_declaration(Token_t **token)
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
     stmt_init(stmt);
 
-    if (!token_expect(next_token, SYMBOL))
+    if (!token_check(next_token, SYMBOL))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid function name\n");
         free(stmt);
         cc_exit();
     }

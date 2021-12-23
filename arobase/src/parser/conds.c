@@ -233,8 +233,11 @@ stmt_parse_for_loop(Token_t **token)
     tok = tok->next;
     stmt->expr = expr_create_cond(&tok, _VOID);
 
-    if (!token_expect(tok, EOS))
+    if (!token_check(tok, EOS))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_statement(stmt);
         cc_exit();
     }

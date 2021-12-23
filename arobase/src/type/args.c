@@ -47,8 +47,11 @@ get_args_decl(Token_t **token)
     
     static int c = 0;
 
-    if (!token_expect(tok, SYMBOL))
+    if (!token_check(tok, SYMBOL))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid parameter name\n");
         free_args(args);
         cc_exit();
     }

@@ -111,8 +111,11 @@ expr_factor(Token_t **token, enum Type t)
         tok = tok->next;
         expr = expr_(&tok, t);
 
-        if (!token_expect(tok, RPAR))
+        if (!token_check(tok, RPAR))
         {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Missing ')'\n");
             free_expression(expr);
             cc_exit();
         }
@@ -418,8 +421,11 @@ expr_create_funccall(Token_t **token, char *name)
     else
     {
         expr->args = get_args(&next_token, _VOID);
-        if (!token_expect(next_token, RPAR))
+        if (!token_check(next_token, RPAR))
         {
+            show_error_source(next_token);
+            fprintf(stderr,
+                "Missing ')'\n");
             free_args(expr->args);
             free(expr);
             cc_exit();

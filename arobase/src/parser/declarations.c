@@ -197,7 +197,7 @@ declaration_create_func(Token_t **token, char *name, Declaration_t *decl)
     decl->code = get_scope(&tok, decl);
     scope_check_return_value_type(decl->code, decl, tok);
     
-    if (!token_expect(tok, RBRACE))
+    if (!token_check(tok, RBRACE))
     {
         show_error_source(tok);
         fprintf(stderr,

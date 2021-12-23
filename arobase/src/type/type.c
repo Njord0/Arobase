@@ -21,7 +21,7 @@ get_type(Token_t **token)
 {
     Token_t *tok = *token;
 
-    if (!token_expect(tok, COLON))
+    if (!token_check(tok, COLON))
     {
         MISSING_TYPE(tok);
     }
@@ -112,8 +112,13 @@ get_type(Token_t **token)
 
         tok = tok->next;
 
-        if (!token_expect(tok, TOK_INTEGER))
+        if (!token_check(tok, TOK_INTEGER))
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "An integer was expected\n");
             cc_exit();
+        }
 
 
         type.is_array = true;
@@ -121,8 +126,13 @@ get_type(Token_t **token)
 
         tok = tok->next;
 
-        if (!token_expect(tok, RBRACKET))
+        if (!token_check(tok, RBRACKET))
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Missing ']'\n");
             cc_exit();
+        }
 
         tok = tok->next;
 
@@ -139,7 +149,7 @@ get_type_decl(Token_t **token)
 {
     Token_t *tok = *token;
 
-    if (!token_expect(tok, COLON))
+    if (!token_check(tok, COLON))
     {
         MISSING_TYPE(tok);
     }
@@ -236,8 +246,13 @@ get_type_decl(Token_t **token)
 
         tok = tok->next;
 
-        if (!token_expect(tok, RBRACKET))
+        if (!token_check(tok, RBRACKET))
+        {
+            show_error_source(tok);
+            fprintf(stderr,
+                "Missing ']'\n");
             cc_exit();
+        }
 
         tok = tok->next;
 

@@ -488,7 +488,7 @@ import_from(const char *str)
 
         tok = tok->next;
 
-        if (!token_expect(tok, COLON))
+        if (!token_check(tok, COLON))
         {
             fprintf(stderr,
                 "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
@@ -501,7 +501,7 @@ import_from(const char *str)
 
         tok = tok->next;
 
-        if (!token_expect(tok, KEYWORD))
+        if (!token_check(tok, KEYWORD))
         {
             fprintf(stderr,
                 "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",

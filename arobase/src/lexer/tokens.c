@@ -94,36 +94,6 @@ token_symbol_is_reserved(const char *str)
 }
 
 bool
-token_expect(Token_t *tok, enum TokensTypes t)
-{
-    const char *name;
-
-    if (tok)
-        name = tokens[tok->type];
-    else
-        name = "none";
-
-    long unsigned int line = 0;
-
-    if (tok)
-        line = tok->lineno;
-    
-
-    if (!tok || (tok->type != t))
-    {
-        fprintf(stderr, 
-            "Syntax error on line: %lu\n\tExpected '%s', found '%s'\n",
-            line,
-            tokens[t],
-            name);
-
-        return false;
-    }
-
-    return true;
-}
-
-bool
 token_check(Token_t *tok, enum TokensTypes t)
 {
     if ((tok == NULL) || (tok->type != t))

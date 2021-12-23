@@ -123,8 +123,11 @@ struct_get_args(Token_t **token)
     args->expr = NULL;
     args->sym = NULL;
     
-    if (!token_expect(tok, SYMBOL))
+    if (!token_check(tok, SYMBOL))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Invalid member name for structure\n");
         free_args(args);
         cc_exit();
     }

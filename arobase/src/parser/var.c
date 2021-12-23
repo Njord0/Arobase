@@ -135,8 +135,11 @@ stmt_parse_var_declaration(Token_t **token)
         }
     }
 
-    if (!token_expect(next_token, EOS))
+    if (!token_check(next_token, EOS))
     {
+        show_error_source(next_token);
+        fprintf(stderr,
+            "Invalid end of statement\n");
         free_statement(stmt);
         cc_exit();
     }
@@ -278,8 +281,11 @@ stmt_parse_struct_assign(Token_t **token, Statement_t *stmt, const char *name)
 
     tok = tok->next;
 
-    if (!token_expect(tok, ASSIGN))
+    if (!token_check(tok, ASSIGN))
     {
+        show_error_source(tok);
+        fprintf(stderr,
+            "Expected '='\n");
         free(stmt);
         cc_exit();
     }

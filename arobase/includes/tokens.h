@@ -62,7 +62,6 @@ Token_t *create_token_s(char *ptr);
 
 bool token_symbol_is_reserved(const char *str);
 
-bool token_expect(Token_t *tok, enum TokensTypes t);
 bool token_check(Token_t *tok, enum TokensTypes t);
 bool token_checks(Token_t *tok, unsigned int count, ...);
 
