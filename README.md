@@ -78,4 +78,4 @@ Options:
 
 ## Documentation / Tutorial
 
-You can find documentation and tutorial [here](docs/README.md)
+You can find documentation and tutorial [here](https://arobase.njord.re)
