@@ -422,7 +422,7 @@ symbol_s(Symbol_t *sym)
     {
 
         if (sym->_type.t == _BYTE || sym->_type.t == _CHAR)
-            snprintf(symbol_stack_pos, sizeof(symbol_stack_pos), "rbp-%u", 8 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)));
+            snprintf(symbol_stack_pos, sizeof(symbol_stack_pos), "rbp-%u", 8 * (sym->pos+1) + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8)));
         else
             snprintf(symbol_stack_pos, sizeof(symbol_stack_pos), "rbp-%u", 8 * (sym->pos+1+((Array_s*)(sym->_type.ptr))->size));
     }

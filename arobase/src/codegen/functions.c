@@ -56,7 +56,7 @@ get_stack_size(Statement_t *stmt)
             {
 
                 if (sym->_type.t == _BYTE || sym->_type.t == _CHAR)
-                    size += 16 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8));
+                    size += 8 + ((((Array_s*)(sym->_type.ptr))->size + 7) & (-8));
                 else
                     size += 8 * ((Array_s*)(sym->_type.ptr))->size + 8;
             }
