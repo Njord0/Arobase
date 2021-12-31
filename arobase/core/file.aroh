@@ -1,12 +1,21 @@
-fn file_open(str: string) : integer;
+fn fopen(str: string) : integer;
 
-fn file_read(fd: integer, arr: byte[]) : integer;
-fn file_read(fd: integer, arr: char[]) : integer;
+fn fread(fd: integer, arr: byte[]) : integer;
+fn fread(fd: integer, arr: char[]) : integer;
+fn fread(fd: integer, arr: float[]) : integer;
+fn fread(fd: integer, arr: integer[]) : integer;
 
-fn file_write(fd: integer, arr: byte[]) : void;
-fn file_write(fd: integer, arr: char[]) : void;
-fn file_write(fd: integer, str: string) : void;
+fn fwrite(fd: integer, arr: byte[]) : void;
+fn fwrite(fd: integer, arr: char[]) : void;
+fn fwrite(fd: integer, arr: integer[]) : void;
+fn fwrite(fd: integer, arr: float[]) : void;
 
-fn file_setpos(fd: integer, pos: integer) : void;
+fn fwrite(fd: integer, int: integer) : void;
+fn fwrite(fd: integer, b: byte) : void;
+fn fwrite(fd: integer, c: char) : void;
+fn fwrite(fd: integer, f: float) : void;
+fn fwrite(fd: integer, str: string) : void;
 
-fn file_close(fd: integer) : void;
+fn ftouch(str: string) : void;
+
+fn fclose(fd: integer) : void;

@@ -1,125 +1,206 @@
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
+#include <fcntl.h>
 #include "file.h"
 
+FILE* opened[65535] = {NULL, };
+
 int64_t
-file_openZstring(const char *name)
+fopenZstring(const char *name)
 {
     int64_t out = -1;
 
+    FILE *f = fopen(name, "r+");
+    if (f == NULL)
+        return -1;
 
-    asm("mov $2, %%rax\n\t"
-        "mov %1, %%rdi\n\t"
-        "mov $2, %%rsi\n\t"
-        "syscall\n\t"
-        "mov %%rax, %0\n\t"
-        : "=r"(out)
-        : "c"(name)
-        :);
+    out = fileno(f);
+    opened[out] = f;
+
+    fseek(f, 0 , SEEK_SET);
 
     return out;
 }
 
 int64_t
-file_readZintegerZbyteArr(int64_t fd, int64_t arr[])
+freadZintegerZbyteArr(int64_t fd, int64_t arr[])
 {
+    if (opened[fd] == NULL)
+        return -1;
+
     int64_t size = arr[0];
     uint8_t *ptr = (uint8_t*)arr+8;
 
-    int64_t out = -1;
-
-    asm("mov $0, %%rax\n\t"
-        "syscall\n\t"
-        "mov %%rax, %0"
-        : "=r"(out)
-        : "D"(fd), "S"(ptr), "d"(size)
-        : "memory"
-        );
-
-    return out;
+    for (int i = 0; i < size; i++)
+        ptr[i] = (uint8_t)getc(opened[fd]);
+    
+    return 0;
 }
 
 int64_t
-file_readZintegerZcharArr(int64_t fd, int64_t arr[])
+freadZintegerZcharArr(int64_t fd, int64_t arr[])
 {
+    if (opened[fd] == NULL)
+        return -1;
+
     int64_t size = arr[0];
     uint8_t *ptr = (uint8_t*)arr+8;
 
-    int64_t out = -1;
+    for (int i = 0; i < size; i++)
+        ptr[i] = (uint8_t)getc(opened[fd]);
+    
+    return 0;
+}
 
-    asm("mov $0, %%rax\n\t"
-        "syscall\n\t"
-        "mov %%rax, %0"
-        : "=r"(out)
-        : "D"(fd), "S"(ptr), "d"(size)
-        : "memory"
-        );
+int64_t
+freadZintegerZintegerArr(int64_t fd, int64_t arr[])
+{
+    if (opened[fd] == NULL)
+        return -1;
+    
+    int64_t size = arr[0];
+    int64_t *ptr = (int64_t*)arr+8;
 
-    return out;
+    for (int i = 0; i < size; i++)
+        fscanf(opened[i], "%ld", &ptr[i]);
+    
+    return 0;
+}
 
+int64_t
+freadZintegerZfloatArr(int64_t fd, int64_t arr[])
+{
+    if (opened[fd] == NULL)
+        return -1;
+    
+    int64_t size = arr[0];
+    double *ptr = (double*)arr+8;
+
+    for (int i = 0; i < size; i++)
+        fscanf(opened[i], "%lf", &ptr[i]);
+
+    return 0;
 }
 
 void
-file_writeZintegerZbyteArr(int64_t fd, int64_t arr[])
+fwriteZintegerZbyteArr(int64_t fd, int64_t arr[])
 {
+    if (opened[fd] == NULL)
+        return;
+
     int64_t size = arr[0];
+
     uint8_t *ptr = (uint8_t*)arr+8;
 
-    asm("mov $1, %%rax\n\t"
-        "syscall\n\n"
-        :
-        : "D"(fd), "S"(ptr), "d"(size)
-        :
-        );
+    for (int i = 0; i < size; i++)
+        fprintf(opened[fd], "%d", ptr[i]);
+    
 }
 
 void
-file_writeZintegerZcharArr(int64_t fd, int64_t arr[])
+fwriteZintegerZcharArr(int64_t fd, int64_t arr[])
 {
+    if (opened[fd] == NULL)
+        return;
+
     int64_t size = arr[0];
+
     uint8_t *ptr = (uint8_t*)arr+8;
 
-    asm("mov $1, %%rax\n\t"
-        "syscall\n\n"
-        :
-        : "D"(fd), "S"(ptr), "d"(size)
-        :
-        );
+    for (int i = 0; i < size; i++)
+        fprintf(opened[fd], "%c", ptr[i]);
+    
 }
 
 void
-file_writeZintegerZstring(int64_t fd, const char *ptr)
+fwriteZintegerZintegerArr(int64_t fd, int64_t arr[])
 {
-    int64_t size = (int64_t)strlen(ptr);
+    if (opened[fd] == NULL)
+        return;
 
-    asm("mov $1, %%rax\n\t"
-        "syscall\n\t"
-        :
-        : "D"(fd), "S"(ptr), "d"(size)
-        :
-        );
+    int64_t size = arr[0];
+
+    uint64_t *ptr = (uint64_t*)arr+8;
+
+    for (int i = 0; i < size; i++)
+        fprintf(opened[fd], "%ld", ptr[i]);
 }
 
 void
-file_setposZintegerZinteger(int64_t fd, int64_t pos)
+fwriteZintegerZfloatArr(int64_t fd, int64_t arr[])
 {
-    asm("mov $8, %%rax\n\t"
-        "mov $0, %%rdx\n\t"
-        "syscall\n\t"
-        :
-        : "D"(fd), "S"(pos)
-        :
-        );
+    if (opened[fd] == NULL)
+        return;
+
+    int64_t size = arr[0];
+
+    double *ptr = (double*)arr+8;
+
+    for (int i = 0; i < size; i++)
+        fprintf(opened[fd], "%lf", ptr[i]);
 }
 
 void
-file_closeZinteger(int64_t fd)
+fwriteZintegerZinteger(int64_t fd, int64_t i)
 {
-    asm("mov $3, %%rax\n\t"
-        "mov %0, %%rdi\n\t"
-        "syscall\n\t"
-        :
-        : "r"(fd)
-        :);
+    if (opened[fd] == NULL)
+        return;
+    
+    fprintf(opened[fd], "%ld", i);
+}
+
+void fwriteZintegerZbyte(int64_t fd, char c)
+{
+    if (opened[fd] == NULL)
+        return;
+
+    fprintf(opened[fd], "%d", c);
+}
+
+void
+fwriteZintegerZchar(int64_t fd, char c)
+{
+    if (opened[fd] == NULL)
+        return;
+    
+    fprintf(opened[fd], "%c", c);
+}
+
+void
+fwriteZintegerZfloat(int64_t fd, double f)
+{
+    if (opened[fd] == NULL)
+        return;
+    
+    fprintf(opened[fd], "%lf", f);
+}
+
+
+void
+fwriteZintegerZstring(int64_t fd, const char *ptr)
+{
+    if (opened[fd] == NULL)
+        return;
+
+    fprintf(opened[fd], "%s", ptr);
+}
+
+void
+ftouchZstring(const char *name)
+{
+    FILE *f = fopen(name, "w");
+    if (f)
+        fclose(f);   
+}
+
+
+void
+fcloseZinteger(int64_t fd)
+{
+    if (opened[fd] == NULL)
+        return;
+    fclose(opened[fd]);
+    opened[fd] = NULL;
 }
