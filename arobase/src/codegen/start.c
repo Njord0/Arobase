@@ -93,7 +93,10 @@ emit_statements(Statement_t **statement)
             emit_var_declaration(stmt);
 
         else if ((stmt->stmt_type == STMT_EXPR))
+        {
             emit_expression(stmt->expr, stmt->expr->type.t);
+            free_reg(stmt->expr);
+        }
 
         else if (stmt->stmt_type == STMT_ASSIGN)
             emit_var_assign(stmt);
@@ -329,7 +332,6 @@ load_to_reg(Expression_t *expr)
             lbl, expr->string_value);
 
         emit(".text\n");
-        alloc_reg(expr);
         emit("lea %s, [rip+s%d]\n",
             reg_name(expr->reg),
             lbl);

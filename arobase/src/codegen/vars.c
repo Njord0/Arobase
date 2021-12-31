@@ -147,7 +147,6 @@ emit_expression(Expression_t *expr, enum Type t)
 
         case EXPR_FUNCCALL:
             emit_func_call(expr);
-
             alloc_reg(expr);
             load_to_reg(expr);
             break;
@@ -349,6 +348,7 @@ emit_var_declaration(Statement_t *statement)
         {
             emit_expression(statement->decl->expr, statement->decl->sym->_type.t);
             store_to_stack(statement->decl->expr, statement->decl->sym); 
+            free_reg(statement->decl->expr);
         }
     }
 
@@ -356,9 +356,9 @@ emit_var_declaration(Statement_t *statement)
     {
         emit_expression(statement->decl->expr, statement->decl->sym->_type.t);
         store_to_stack(statement->decl->expr, statement->decl->sym); 
+        free_reg(statement->decl->expr);
     }
     
-    free_reg(statement->decl->expr);
 }
 
 void
