@@ -64,7 +64,10 @@ freadZintegerZintegerArr(int64_t fd, int64_t arr[])
     int64_t *ptr = (int64_t*)arr+8;
 
     for (int i = 0; i < size; i++)
-        fscanf(opened[i], "%ld", &ptr[i]);
+    {
+        if (fscanf(opened[fd], "%ld", &ptr[i]) == EOF)
+            return -1;
+    }
     
     return 0;
 }
@@ -79,7 +82,10 @@ freadZintegerZfloatArr(int64_t fd, int64_t arr[])
     double *ptr = (double*)arr+8;
 
     for (int i = 0; i < size; i++)
-        fscanf(opened[i], "%lf", &ptr[i]);
+    {
+        if (fscanf(opened[fd], "%lf", &ptr[i]) == EOF)
+            return -1;
+    }
 
     return 0;
 }
