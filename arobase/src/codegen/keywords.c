@@ -19,52 +19,51 @@ emit_print(Statement_t *stmt)
     {
         emit_expression(args->expr, args->expr->type.t);
 
-        if (args->expr->type.t == INTEGER)
+        switch (args->expr->type.t)
         {
-            emit("movq rdi, %s\n",
-                reg_name(args->expr->reg));
-            emit("call print_integer\n");
-        }
+            case INTEGER:
+                emit("movq rdi, %s\n",
+                    reg_name(args->expr->reg));
+                emit("call print_integer\n");
+                break;
+            
+            case _BOOL:
+                emit("movq rdi, %s\n",
+                    reg_name(args->expr->reg));
+                emit("call print_bool\n");
+                break;
+            
+            case _FLOAT:
+                emit("movsd xmm0, %s\n", 
+                    xmm_reg_name(args->expr->reg));
+                emit("call print_float\n");
+                break;
 
-        else if (args->expr->type.t == _BOOL)
-        {
-            emit("movq rdi, %s\n",
-                reg_name(args->expr->reg));
-            emit("call print_bool\n");
-        }
-
-        else if (args->expr->type.t == _FLOAT)
-        {
-            emit("movsd xmm0, %s\n", 
-                xmm_reg_name(args->expr->reg));
-            emit("call print_float\n");
-        }
-
-        else if (args->expr->type.t == _BYTE)
-        {
-            emit("xor rdi, rdi\n");
-            emit("mov dil, %s\n",
-                reg_name_l(args->expr->reg));
-            emit("call print_integer\n");
-        }
-
-        else if (args->expr->type.t == _CHAR)
-        {
-            emit("xor rdi, rdi\n");
-            emit("mov dil, %s\n",
-                reg_name_l(args->expr->reg));
-            emit("call print_char\n");
-        }
-
-        else if (args->expr->type.t == STRING)
-        {
-            emit("movq rdi, %s\n",
-                reg_name(args->expr->reg));
-            emit("call print_string\n");
+            case _BYTE:
+                emit("xor rdi, rdi\n");
+                emit("mov dil, %s\n",
+                    reg_name_l(args->expr->reg));
+                emit("call print_integer\n");
+                break;
+            
+            case _CHAR:
+                emit("xor rdi, rdi\n");
+                emit("mov dil, %s\n",
+                    reg_name_l(args->expr->reg));
+                emit("call print_char\n");
+                break;
+            
+            case STRING:
+                emit("movq rdi, %s\n",
+                    reg_name(args->expr->reg));
+                emit("call print_string\n");
+                break;
+            
+            default:
+                break; // never here
         }
         
         free_reg(args->expr);
-
         args = args->next;
     }
 }
@@ -72,32 +71,34 @@ emit_print(Statement_t *stmt)
 void
 emit_input(Statement_t *stmt)
 {
-    if (stmt->decl->sym->_type.t == INTEGER)
+    switch (stmt->decl->sym->_type.t)
     {
-        emit("call input_integer\n");
-        emit("movq [%s], rax\n",
-            symbol_s(stmt->decl->sym));
-    }
+        case INTEGER:
+            emit("call input_integer\n");
+            emit("movq [%s], rax\n",
+                symbol_s(stmt->decl->sym));
+            break;
+        
+        case _FLOAT:
+            emit("call input_float\n");
+            emit("movsd [%s], xmm0\n",
+                symbol_s(stmt->decl->sym));
+            break;
 
-    else if (stmt->decl->sym->_type.t == _FLOAT)
-    {
-        emit("call input_float\n");
-        emit("movsd [%s], xmm0\n",
-            symbol_s(stmt->decl->sym));
-    }
-
-    else if (stmt->decl->sym->_type.t == _BYTE)
-    {
-        emit ("call input_integer\n");
-        emit("mov byte ptr [%s], al\n",
-            symbol_s(stmt->decl->sym));
-    }
-
-    else if (stmt->decl->sym->_type.t == _CHAR)
-    {
-        emit("call input_char\n");
-        emit("mov byte ptr [%s], al\n",
-            symbol_s(stmt->decl->sym));
+        case _BYTE:
+            emit ("call input_integer\n");
+            emit("mov byte ptr [%s], al\n",
+                symbol_s(stmt->decl->sym));
+            break;
+        
+        case _CHAR:
+            emit("call input_char\n");
+            emit("mov byte ptr [%s], al\n",
+                symbol_s(stmt->decl->sym));
+            break;
+        
+        default:
+            break; // never here
     }
 }
 
