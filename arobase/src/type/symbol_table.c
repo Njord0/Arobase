@@ -422,10 +422,9 @@ import_from(const char *str)
     { 
         if ((tok->type != KEYWORD) || (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FN]) != 0))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error on line : %lu in file '%s'\n\tInvalid function prototype in header\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
+                "Invalid function prototype in header\n");
             lexer_free(lexer);
             cc_exit();
         }
@@ -437,12 +436,9 @@ import_from(const char *str)
 
         if (!token_check(tok, SYMBOL))
         {
-
+            show_error_source(tok);
             fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tInvalid function name\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
-
+                "Invalid function name\n");
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -458,10 +454,9 @@ import_from(const char *str)
 
         if (!token_check(tok, LPAR))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
+                "Invalid function prototype\n");
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -477,10 +472,9 @@ import_from(const char *str)
 
         if (!token_check(tok, RPAR))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
+                "Invalid function prototype\n");
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -490,10 +484,9 @@ import_from(const char *str)
 
         if (!token_check(tok, COLON))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
+                "Invalid function prototype\n");
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
@@ -501,66 +494,22 @@ import_from(const char *str)
 
         tok = tok->next;
 
-        if (!token_check(tok, KEYWORD))
-        {
-            fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
-            free_declaration(decl);
-            lexer_free(lexer);
-            cc_exit();
-        }
-
-        if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_INT]) == 0)
-            decl->type.t = INTEGER;
-
-        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_FLOAT]) == 0)
-            decl->type.t = _FLOAT;
-
-        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BYTE]) == 0)
-            decl->type.t = _BYTE;
-
-        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_VOID]) == 0)
-            decl->type.t = _VOID;
-
-        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_CHAR]) == 0)
-            decl->type.t = _CHAR;
-
-        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_BOOL]) == 0)
-            decl->type.t = _BOOL;
-        
-        else if (strcmp(tok->value.p, Arobase_ReservedKeywords[KW_STR]) == 0)
-        {
-            fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tFunction can't return string\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
-            free_declaration(decl);
-            lexer_free(lexer);
-            cc_exit();
-        }
-
+        check_function_return_value(tok, decl);
         add_symbol(symtab_g, decl);
 
         tok = tok->next;
 
         if (!token_check(tok, EOS))
         {
+            show_error_source(tok);
             fprintf(stderr,
-                "Error in line : %lu in file '%s'\n\tInvalid function prototype\n",
-                tok->lineno ? tok != NULL : (long unsigned int)0,
-                str);
+                "Invalid function prototype\n");
             free_declaration(decl);
             lexer_free(lexer);
             cc_exit();
         }
 
         tok = tok->next;
-
-        if (!tok)
-            break;
-
     }
 
     lexer_free(lexer);
