@@ -95,9 +95,9 @@ declaration_create_var(Token_t **token, char *name, Type_s type)
         decl->expr = expr_create(&tok, decl->type.t);
         if (!decl->expr)
         {
+            show_error_source(tok);
             fprintf(stderr, 
-                "Error on line : %lu\n\t Invalid expression",
-                tok->lineno);
+                "Invalid expression");
             free_declaration(decl);
             cc_exit();
         }

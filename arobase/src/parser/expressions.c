@@ -17,7 +17,7 @@ expr_create(Token_t **token, enum Type t)
 {
     Token_t *tok = *token;
 
-    Expression_t *expr;
+    Expression_t *expr = NULL;
 
     if (token_checks(tok, 7, TOK_INTEGER, TOK_FLOAT, LPAR, SYMBOL, MINUS, TOK_STRING, TOK_CHAR))
     {
@@ -473,7 +473,7 @@ expr_create_funccall(Token_t **token, char *name)
         show_error_source(next_token);
         fprintf(stderr, 
             "Can't find a function with matching prototype\n");
-        free(expr);
+        free_expression(expr);
         cc_exit();
     }
 
@@ -495,7 +495,7 @@ expr_create_cond(Token_t **token, enum Type t)
         show_error_source(tok);
         fprintf(stderr,
             "A boolean was expected in condition\n");
-        free_expression(expr);
+        free(expr);
         cc_exit();
     }
 

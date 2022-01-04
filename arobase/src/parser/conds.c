@@ -24,6 +24,8 @@ stmt_parse_if_else(Token_t **token)
     stmt_init(stmt);
     stmt->stmt_type = STMT_IF_ELSE;
 
+    char *t_error = NULL;
+
     tok = tok->next;
 
     bool has_left_par = false;
@@ -37,19 +39,13 @@ stmt_parse_if_else(Token_t **token)
 
     if (!token_check(tok, RPAR) && has_left_par)
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing right parenthesis after condition\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Missing right parenthesis after condition";
+        goto error;
     }
     else if (token_check(tok, RPAR) && !has_left_par)
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Unmatched right-parenthesis\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Unmatched right-parenthesis";
+        goto error;
     }
 
     if (has_left_par)
@@ -57,11 +53,8 @@ stmt_parse_if_else(Token_t **token)
 
     if (!token_check(tok, LBRACE))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Expected '{' after condition\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Expected '{' after condition";
+        goto error;
     }
 
     tok = tok->next;
@@ -70,10 +63,8 @@ stmt_parse_if_else(Token_t **token)
 
     if (!tok || !token_check(tok, RBRACE))
     {
-        fprintf(stderr, 
-            "Missing '}'\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Missing '}'";
+        goto error;
     }
 
     Token_t *tmp = tok;
@@ -85,11 +76,8 @@ stmt_parse_if_else(Token_t **token)
 
         if (!token_check(tok, LBRACE))
         {
-            show_error_source(tok);
-            fprintf(stderr,
-                "Expected '{' after 'else' keyword\n");
-            free_statement(stmt);
-            cc_exit();
+            t_error = "Expected '{' after 'else' keyword";
+            goto error;
         }
 
         tok = tok->next;
@@ -98,11 +86,8 @@ stmt_parse_if_else(Token_t **token)
 
         if (!token_check(tok, RBRACE))
         {
-            show_error_source(tok);
-            fprintf(stderr,
-                "Missing '}'\n");
-            free_statement(stmt);
-            cc_exit();
+            t_error = "Missing '{'";
+            goto error;
         }
     }
     else
@@ -110,6 +95,14 @@ stmt_parse_if_else(Token_t **token)
 
     *token = tok;
     return stmt;
+
+    error:
+        show_error_source(tok);
+        fprintf(stderr,
+            "%s\n", t_error);
+        free_statement(stmt);
+        cc_exit();
+        return NULL;
 }
 
 Statement_t*
@@ -119,6 +112,9 @@ stmt_parse_while_loop(Token_t **token)
 
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
     stmt_init(stmt);
+
+    char *t_error = NULL;
+
     tok = tok->next;
 
     bool has_left_par = false;
@@ -131,14 +127,10 @@ stmt_parse_while_loop(Token_t **token)
     stmt->stmt_type = STMT_WHILE;
     stmt->expr = expr_create_cond(&tok, _VOID);
 
-
     if (!token_check(tok, RPAR) && has_left_par)
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing right parenthesis after condition\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Missing right parenthesis after condition";
+        goto error;
     }
     else if (token_check(tok, RPAR) && !has_left_par)
     {
@@ -154,11 +146,8 @@ stmt_parse_while_loop(Token_t **token)
 
     if (!token_check(tok, LBRACE))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Expected '{' after condition\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Expected '{' after condition";
+        goto error;
     }
 
     tok = tok->next;
@@ -174,15 +163,20 @@ stmt_parse_while_loop(Token_t **token)
 
     if (!token_check(tok, RBRACE))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing '}'\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Missing '}'";
+        goto error;
     }
 
     *token = tok;
     return stmt;
+
+    error:
+        show_error_source(tok);
+        fprintf(stderr,
+            "%s\n", t_error);
+        free_statement(stmt);
+        cc_exit();
+        return NULL;
 }
 
 Statement_t*
@@ -192,15 +186,14 @@ stmt_parse_for_loop(Token_t **token)
     Statement_t *stmt = xmalloc(sizeof(Statement_t));
     stmt_init(stmt);
 
+    char *t_error = NULL;
+
     tok = tok->next;
 
     if (!token_check(tok, LPAR))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing left parenthesis before 'for' expression\n");
-        free(stmt);
-        cc_exit();
+        t_error = "Missing left parenthesis before 'for' expression";
+        goto error;
     }
 
     tok = tok->next;
@@ -212,12 +205,8 @@ stmt_parse_for_loop(Token_t **token)
 
     if ((stmtt->stmt_type != STMT_DECLARATION) && (stmtt->stmt_type != STMT_ASSIGN))
     {
-        free_statement(stmtt);
-        free(stmt);
-        show_error_source(tok);
-        fprintf(stderr, 
-            "Variable declaration or assignement was expected here\n");
-        cc_exit();
+        t_error = "Variable declaration or assignement was expected here";
+        goto error;
     }
 
     stmt->for_loop = stmtt;
@@ -226,11 +215,8 @@ stmt_parse_for_loop(Token_t **token)
 
     if (!token_check(tok, EOS))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Invalid end of statement\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Invalid end of statement";
+        goto error;
     }
 
     tok = tok->next;
@@ -239,33 +225,24 @@ stmt_parse_for_loop(Token_t **token)
 
     if (stmt->else_block->stmt_type != STMT_ASSIGN)
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Variable assignement was expected here\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Variable assignement was expected here";
+        goto error;
     }
 
     tok = tok->next;
 
     if (!token_check(tok, RPAR))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing right parenthesis after 'for' expression\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Missing right parenthesis after 'for' expression";
+        goto error;
     }
 
     tok = tok->next;
 
     if (!token_check(tok, LBRACE))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Expected '{' after for loop initialisation\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Expected '{' after for loop initialisation";
+        goto error;
     }
 
     tok = tok->next;
@@ -280,15 +257,20 @@ stmt_parse_for_loop(Token_t **token)
 
     if (!token_check(tok, RBRACE))
     {
-        show_error_source(tok);
-        fprintf(stderr,
-            "Missing '}'\n");
-        free_statement(stmt);
-        cc_exit();
+        t_error = "Missing '}'";
+        goto error;
     }
 
     *token = tok;
     return stmt;
+
+    error:
+        show_error_source(tok);
+        fprintf(stderr,
+            "%s\n", t_error);
+        free(stmt);
+        cc_exit();
+        return NULL;
 }
 
 Statement_t*

@@ -116,9 +116,11 @@ stmt_parse_raise(Token_t **token)
 
     if (!token_check(tok, SYMBOL) || !is_valid_exception(tok->value.p))
     {
-            show_error_source(tok);
-            printf("unknow exception %s\n", tok->value.p);
-            cc_exit();
+        show_error_source(tok);
+        printf("unknow exception %s\n",
+            tok->value.p);
+        free_statement(stmt);
+        cc_exit();
     }
 
     stmt->exception = vec_find_exception(exception_vector, tok->value.p);

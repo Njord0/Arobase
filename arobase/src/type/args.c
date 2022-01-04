@@ -72,6 +72,7 @@ get_args_decl(Token_t **token)
             show_error_source(tok);
             fprintf(stderr, 
                 "Function parameters are limited to 3 !\n");
+            free_args(args);
             cc_exit();
         }
 
