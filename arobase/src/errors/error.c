@@ -4,6 +4,7 @@
 #include <utils/vectors.h>
 #include <exceptions.h>
 #include <errors/error.h>
+#include <options/options.h>
 #include <symbol_table.h>
 #include <struct.h>
 #include <lexer.h>
@@ -20,6 +21,7 @@ cc_exit()
     symtab_free(symtab_g);
     free_ast(ast_g);
     lexer_free(lexer_g);
+    free(option_g);
     struct_free();
     vec_free(exception_vector);
 
@@ -68,18 +70,17 @@ dump_line(Token_t *token)
     }
 
     ungetc(c, lexer_g->file);
-    l = 1;
-    char *ptr = xmalloc(sizeof(char));
+    l = 2;
+    char *ptr = xmalloc(sizeof(char)*2);
 
     while ((c=(char)getc(lexer_g->file)) && c != '\n' && c != EOF)
     {
-        ptr = xrealloc(ptr, l);
-
+        ptr = xrealloc(ptr, l+1);
         ptr[l-1] = c;
         l++;
     }
 
-    ptr[l] = '\x00';
+    ptr[l-1] = '\x00';
 
     return ptr;
 

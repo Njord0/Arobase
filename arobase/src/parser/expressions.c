@@ -690,8 +690,8 @@ free_expression(Expression_t *expr)
         free_expression(expr->access);
 
 
-    if (expr->expr_type == EXPR_STRING_LITTERAL)
-        free(expr->string_value);
+/*     if (expr->expr_type == EXPR_STRING_LITTERAL)
+        free(expr->string_value); */
     
     free(expr);
 }

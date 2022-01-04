@@ -130,7 +130,7 @@ free_token(Token_t *token)
     if (!token)
         return;
 
-    if ((token->type == SYMBOL))
+    if (token->type == SYMBOL || token->type == TOK_STRING)
         free(token->value.p);
         
     free(token);

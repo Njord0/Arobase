@@ -463,10 +463,7 @@ free_statement(Statement_t *stmt)
     if (stmt->access)
         free_expression(stmt->access);
 
-    if (stmt->stmt_type == STMT_ASSERT)
-        free(stmt->import_name);
-
-    else if (stmt->stmt_type == STMT_FOR)
+    if (stmt->stmt_type == STMT_FOR)
         free_for_loop(stmt);
 
     else if (stmt->stmt_type == STMT_TRY_EXCEPT)
