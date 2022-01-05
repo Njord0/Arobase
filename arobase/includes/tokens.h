@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <datatype99.h>
 
 enum TokensTypes {
     TOK_INTEGER,
@@ -38,22 +39,47 @@ enum TokensTypes {
     TOK_CHAR,
 };
 
+datatype(
+    TokenKind,
+    (Tok_Int, int64_t),
+    (Tok_Float, double),
+    (Tok_Char, char),
+    (Tok_String, char*),
+    (Tok_Plus),
+    (Tok_Minus),
+    (Tok_Mul),
+    (Tok_Div),
+    (Tok_Lpar),
+    (Tok_Rpar),
+    (Tok_Lbrace),
+    (Tok_Rbrace),
+    (Tok_Dquote),
+    (Tok_Colon),
+    (Tok_Assign),
+    (Tok_Symbol),
+    (Tok_Comma),
+    (Tok_Cmp),
+    (Tok_OpLower),
+    (Tok_OpGreater),
+    (Tok_Eos),
+    (Tok_Keyword),
+    (Tok_Arobase),
+    (Tok_Lbracket),
+    (Tok_Rbracket),
+    (Tok_Diff),
+    (Tok_Quote),
+    (Tok_Dot),
+    (Tok_OpLowerEq),
+    (Tok_OpGreaterEq),
+    (Tok_Modulo)
+);
 
 typedef struct Token {
-    enum TokensTypes type; // The kind of the token
-    union
-    {
-        int64_t i;
-        double d;
-        char c;
-        char *p;
-    } value; // An union to store the value associated with the token, depends on the token type
-
+    TokenKind kind;
     unsigned long int lineno; // The line on which the token was lexed
     struct Token *next; // Pointer to the next token
 
 } Token_t;
-
 
 Token_t *create_token_integer(int64_t value);
 Token_t *create_token_float(double value);

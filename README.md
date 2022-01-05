@@ -79,3 +79,7 @@ Options:
 ## Documentation / Tutorial
 
 You can find documentation and tutorial [here](https://arobase.njord.re)
+
+## Credits
+
+Thanks to Hirrolot for [Datatype99](https://github.com/Hirrolot/datatype99)
