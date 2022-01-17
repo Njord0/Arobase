@@ -17,7 +17,7 @@ HEADERS_DIR := /usr/local/include/arobase
 HEADERS := $(shell find core/ -name *.aroh)
 DEST_HEADERS := $(addprefix $(HEADERS_DIR)/,$(HEADERS))
 
-C_FLAGS := -Iincludes -O3 -Wall
+C_FLAGS := -Iincludes -Iincludes/metalang99/include -Iincludes/datatype99/ -O3 -Wall -ftrack-macro-expansion=0
 
 LD_FLAGS := -lm # math.h
 

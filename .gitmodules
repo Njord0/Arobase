@@ -1,0 +1,6 @@
+[submodule "arobase/includes/metalang99"]
+	path = arobase/includes/metalang99
+	url = https://github.com/Hirrolot/metalang99
+[submodule "arobase/includes/datatype99"]
+	path = arobase/includes/datatype99
+	url = https://github.com/Hirrolot/datatype99
